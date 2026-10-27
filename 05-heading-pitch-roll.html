@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>헤딩 피치 롤</title>
+<style>
+  :root {
+    --bg: #fafaf8; --card: #ffffff; --text: #1f1f1d; --muted: #6b6a65; --line: #d8d6ce;
+    --water: #378ADD; --heading: #D85A30; --pitch: #7F77DD; --roll: #1D9E75;
+    --hull: #f1efe8; --hull-line: #5f5e5a; --sea: #378ADD;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1c1c1a; --card: #262624; --text: #ecebe6; --muted: #a8a69e; --line: #44443f; --hull: #33332f; --hull-line: #b4b2a9; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.7 "Pretendard", "Malgun Gothic", system-ui, sans-serif; }
+  main { max-width: 820px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 4px; }
+  h2 { font-size: 18px; font-weight: 600; margin: 32px 0 8px; }
+  .lead { color: var(--muted); margin: 0 0 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  .controls { display: grid; grid-template-columns: auto 1fr auto; gap: 10px 14px; align-items: center; margin-top: 12px; font-size: 15px; color: var(--muted); }
+  .controls output { min-width: 140px; color: var(--text); }
+  button { font: inherit; font-size: 14px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); cursor: pointer; }
+  button:hover { border-color: var(--muted); }
+  button.on { border-color: var(--text); font-weight: 600; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  svg text { font-family: inherit; }
+  .note { font-size: 14px; color: var(--muted); }
+  .warn { font-size: 14px; background: color-mix(in srgb, var(--heading) 10%, transparent); border: 1px solid color-mix(in srgb, var(--heading) 35%, transparent); border-radius: 8px; padding: 8px 12px; }
+  a { color: var(--water); }
+  .fig { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .fig-hint { display: none; }
+  @media (max-width: 600px) {
+    /* 휴대폰: 그림을 읽을 수 있는 크기로 두고 옆으로 밀어 본다, 슬라이더 이름은 슬라이더 위 한 줄로 */
+    .fig svg { min-width: 560px; }
+    .fig-hint { display: block; font-size: 13px; color: var(--muted); text-align: center; margin: 4px 0 0; }
+    .controls { grid-template-columns: 1fr auto; gap: 2px 12px; }
+    .controls label { grid-column: 1 / -1; margin-top: 8px; }
+    table { font-size: 14px; }
+    th, td { padding: 6px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="index.html">← 개념 그림 목록</a></p>
+  <h1>헤딩 · 피치 · 롤 — 배가 어디를 보고, 얼마나 기울었나</h1>
+  <p class="lead">무인선 관제 화면 맨 위 "운항 상태" 칸의 <b>선박 헤딩 · 상하(피치) · 좌우(롤)</b>. 같은 배를 위·옆·뒤 세 방향에서 본다.</p>
+
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 270" role="img" aria-labelledby="t1 d1">
+      <title id="t1">위에서·옆에서·뒤에서 본 배</title>
+      <desc id="d1">왼쪽은 위에서 본 배와 나침반으로 헤딩을, 가운데는 옆에서 본 배로 앞뒤 기울기(피치)를, 오른쪽은 뒤에서 본 배로 좌우 기울기(롤)를 보여 준다.</desc>
+      <!-- 위에서 — 헤딩 -->
+      <rect x="0" y="0" width="220" height="270" rx="8" fill="var(--sea)" opacity="0.07"/>
+      <text x="110" y="22" text-anchor="middle" font-size="14" font-weight="600" fill="var(--heading)">위에서 — 헤딩</text>
+      <circle cx="110" cy="140" r="82" fill="none" stroke="var(--line)"/>
+      <text x="110" y="50" text-anchor="middle" font-size="13" font-weight="600" fill="var(--text)">북 0°</text>
+      <text x="200" y="145" text-anchor="start" font-size="12" fill="var(--muted)">동</text>
+      <text x="200" y="160" text-anchor="start" font-size="11" fill="var(--muted)">90°</text>
+      <text x="110" y="238" text-anchor="middle" font-size="12" fill="var(--muted)">남 180°</text>
+      <text x="20" y="145" text-anchor="end" font-size="12" fill="var(--muted)">서</text>
+      <text x="20" y="160" text-anchor="end" font-size="11" fill="var(--muted)">270°</text>
+      <g id="topBoat" style="transform-origin: 110px 140px">
+        <line x1="110" y1="140" x2="110" y2="66" stroke="var(--heading)" stroke-width="2" stroke-dasharray="4 4"/>
+        <path d="M110 92 C122 102, 126 116, 126 130 L126 184 L94 184 L94 130 C94 116, 98 102, 110 92 Z" fill="var(--hull)" stroke="var(--hull-line)" stroke-width="1.2"/>
+      </g>
+      <text id="topLabel" x="110" y="262" text-anchor="middle" font-size="13" fill="var(--text)"></text>
+
+      <!-- 옆에서 — 피치 -->
+      <rect x="230" y="0" width="220" height="270" rx="8" fill="var(--sea)" opacity="0.07"/>
+      <text x="340" y="22" text-anchor="middle" font-size="14" font-weight="600" fill="var(--pitch)">옆에서 — 상하(피치)</text>
+      <rect x="230" y="150" width="220" height="100" fill="var(--water)" opacity="0.15"/>
+      <line x1="230" y1="150" x2="450" y2="150" stroke="var(--water)" stroke-width="1.5"/>
+      <g id="sideBoat" style="transform-origin: 340px 146px">
+        <path d="M262 128 L418 128 L392 164 L278 164 Q264 164 262 150 Z" fill="var(--hull)" stroke="var(--hull-line)" stroke-width="1.2"/>
+        <rect x="300" y="110" width="50" height="18" rx="3" fill="var(--hull)" stroke="var(--hull-line)" stroke-width="1"/>
+        <text x="410" y="122" text-anchor="end" font-size="11" fill="var(--muted)">뱃머리 →</text>
+      </g>
+      <line x1="250" y1="146" x2="430" y2="146" stroke="var(--line)" stroke-dasharray="3 4"/>
+      <text id="sideLabel" x="340" y="262" text-anchor="middle" font-size="13" fill="var(--text)"></text>
+
+      <!-- 뒤에서 — 롤 -->
+      <rect x="460" y="0" width="220" height="270" rx="8" fill="var(--sea)" opacity="0.07"/>
+      <text x="570" y="22" text-anchor="middle" font-size="14" font-weight="600" fill="var(--roll)">뒤에서 — 좌우(롤)</text>
+      <rect x="460" y="150" width="220" height="100" fill="var(--water)" opacity="0.15"/>
+      <line x1="460" y1="150" x2="680" y2="150" stroke="var(--water)" stroke-width="1.5"/>
+      <g id="backBoat" style="transform-origin: 570px 146px">
+        <path d="M520 128 L620 128 L606 160 Q570 176 534 160 Z" fill="var(--hull)" stroke="var(--hull-line)" stroke-width="1.2"/>
+        <rect x="550" y="104" width="40" height="24" rx="3" fill="var(--hull)" stroke="var(--hull-line)" stroke-width="1"/>
+        <line x1="570" y1="96" x2="570" y2="70" stroke="var(--hull-line)" stroke-width="2"/>
+      </g>
+      <text x="476" y="60" font-size="11" fill="var(--muted)">왼쪽</text>
+      <text x="664" y="60" text-anchor="end" font-size="11" fill="var(--muted)">오른쪽</text>
+      <line x1="570" y1="40" x2="570" y2="180" stroke="var(--line)" stroke-dasharray="3 4"/>
+      <text id="backLabel" x="570" y="262" text-anchor="middle" font-size="13" fill="var(--text)"></text>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="controls">
+      <label for="headR">선박 헤딩</label>
+      <input type="range" id="headR" min="0" max="359" step="1" value="45">
+      <output id="headV"></output>
+      <label for="pitchR">상하(피치)</label>
+      <input type="range" id="pitchR" min="-20" max="20" step="1" value="0">
+      <output id="pitchV"></output>
+      <label for="rollR">좌우(롤)</label>
+      <input type="range" id="rollR" min="-30" max="30" step="1" value="0">
+      <output id="rollV"></output>
+    </div>
+    <div class="row">
+      <button id="waves">🌊 파도 위에서 흔들어 보기</button>
+      <button id="flat">잔잔한 물 (0°, 0°)</button>
+    </div>
+  </div>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. 기울기는 잘 보이게 실제보다 크게 그렸다.</p>
+  <p class="warn">피치·롤의 <b>+/− 가 어느 쪽인지</b>(뱃머리가 들리면 +인지, 오른쪽으로 기울면 +인지)는 기기마다 다르다 — 그림은 흔히 쓰는 방식(뱃머리 들림 +, 오른쪽으로 기욺 +)으로 그렸다. 쓰는 장비의 설명서를 확인할 것.</p>
+
+  <h2>축 세 개로 보면 — x · y · z</h2>
+  <p>배에 막대기(축) 세 개를 꽂았다고 생각한다. <b>이름은 축에 붙어 있고, 움직임은 그 축을 잡고 돌린 결과</b>다. 아래 버튼으로 축 하나를 골라 돌려 본다.</p>
+  <div class="card">
+    <div class="fig">
+    <svg id="axSvg" width="100%" viewBox="0 0 680 320" role="img" aria-labelledby="t3 d3">
+      <title id="t3">x·y·z 축을 꽂은 배</title>
+      <desc id="d3">x축은 뱃머리에서 배 뒤로 길게, y축은 왼쪽에서 오른쪽으로 가로질러, z축은 위아래로 세워 꽂았다. x축을 잡고 돌리면 배가 좌우로 기울고(롤), y축을 잡고 돌리면 뱃머리가 위아래로 까딱이고(피치), z축을 잡고 돌리면 뱃머리 방향이 바뀐다(헤딩).</desc>
+      <defs>
+        <marker id="arrow3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <rect x="0" y="0" width="680" height="320" rx="8" fill="var(--sea)" opacity="0.05"/>
+      <g id="ax3d"></g>
+      <text id="axState" x="16" y="304" font-size="15" font-weight="600" fill="var(--text)"></text>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="row">
+      <button data-ax="x" style="color:var(--heading)">x축 잡고 돌리기 → 롤</button>
+      <button data-ax="y" style="color:var(--pitch)">y축 잡고 돌리기 → 피치</button>
+      <button data-ax="z" style="color:var(--roll)">z축 잡고 돌리기 → 헤딩</button>
+      <button data-ax="" style="margin-left:auto">멈춤</button>
+    </div>
+  </div>
+  <table style="margin-top:12px">
+    <tr><th>축</th><th>어떻게 꽂았나</th><th>그 축을 잡고 돌리면</th><th>이름</th><th>기억법</th><th>내 머리로</th></tr>
+    <tr><td><b style="color:var(--heading)">x</b></td><td><b>앞↔뒤</b> (뱃머리 ~ 배 뒤)</td><td>배가 <b>좌우로</b> 기운다</td><td><b>롤</b></td><td>꼬치 — 앞뒤로 꿴 꼬치를 돌리면 옆으로 굴러간다</td><td>갸우뚱</td></tr>
+    <tr><td><b style="color:var(--pitch)">y</b></td><td><b>왼쪽↔오른쪽</b> (가로질러)</td><td>뱃머리가 <b>위아래로</b> 까딱</td><td><b>피치</b></td><td>시소 — 가로 받침대를 중심으로 앞뒤가 오르내린다</td><td>끄덕끄덕</td></tr>
+    <tr><td><b style="color:var(--roll)">z</b></td><td><b>위↔아래</b> (세워서)</td><td>뱃머리 <b>방향</b>이 바뀐다</td><td><b>헤딩</b> (요)</td><td>팽이 — 세운 심을 중심으로 빙글 돈다</td><td>도리도리</td></tr>
+  </table>
+  <p>헷갈리는 이유가 여기 있다 — <b>롤은 좌우로 기우는데 축(x)은 앞뒤</b>, <b>피치는 앞뒤로 까딱이는데 축(y)은 좌우</b>다. "좌우 = 롤"로 외우면 축과 방향이 뒤집혀 꼬인다. <b>x = 롤, y = 피치, z = 헤딩</b> 짝으로 외운다.</p>
+  <p class="note">그림은 x 앞 · y 오른쪽 · z 위로 잡았다. 기기에 따라 y를 왼쪽, z를 아래로 잡기도 해서 +/− 는 달라질 수 있지만, "x축 돌림 = 롤, y축 돌림 = 피치, z축 돌림 = 헤딩" 짝은 어디서나 같다.</p>
+
+  <h2>1. 헤딩 — 뱃머리가 가리키는 방위</h2>
+  <p>나침반처럼 <b>북쪽이 0°</b>이고 시계 방향으로 커진다. 동쪽 90°, 남쪽 180°, 서쪽 270°. 359° 다음은 다시 0°.</p>
+  <p><b>헤딩은 "배가 가는 쪽"이 아니라 "뱃머리가 향한 쪽"</b>이다. 물살에 옆으로 떠밀리거나(<a href="04-stop-hover.html">04 그림</a>), 보우 스러스터로 제자리에서 돌면(<a href="02-bow-thruster.html">02 그림</a>) 배는 안 가는데 헤딩만 바뀐다.</p>
+
+  <h2>2. 피치 — 앞뒤로 얼마나 기울었나</h2>
+  <p>옆에서 봤을 때 <b>뱃머리가 들리거나 숙여진 각도</b>. 파도를 타고 넘을 때 뱃머리가 올라갔다 내려가는 것, 빨리 출발할 때 뱃머리가 들리는 것이 피치다. 화면 이름은 "상하(피치)".</p>
+
+  <h2>3. 롤 — 좌우로 얼마나 기울었나</h2>
+  <p>뒤에서 봤을 때 <b>배가 왼쪽·오른쪽으로 기운 각도</b>. 옆에서 오는 파도에 흔들리거나, 빠르게 방향을 틀 때 기운다. 화면 이름은 "좌우(롤)". 롤이 너무 크면 뒤집힐 위험이 있어 지켜보는 값이다.</p>
+
+  <h2>4. 자동차·비행기로 치면</h2>
+  <table>
+    <tr><th>화면 칸</th><th>무엇</th><th>비유</th></tr>
+    <tr><td>선박 헤딩</td><td>뱃머리가 향한 방위</td><td>차가 어느 쪽을 보고 서 있나 (내비의 차 화살표 방향)</td></tr>
+    <tr><td>상하(피치)</td><td>앞뒤 기울기</td><td>오르막·내리막에서 차 앞이 들리고 숙여지는 것</td></tr>
+    <tr><td>좌우(롤)</td><td>좌우 기울기</td><td>한쪽 바퀴만 턱에 올라가 차가 옆으로 기운 것</td></tr>
+  </table>
+  <p class="note">비행기도 똑같이 세 가지(요·피치·롤)로 자세를 말한다. 헤딩은 비행기의 "요" 방향에 해당한다.</p>
+
+  <h2>5. 운항 상태 칸의 나머지</h2>
+  <table>
+    <tr><th>화면 칸</th><th>뜻</th></tr>
+    <tr><td>실제 속도 (knot)</td><td>배가 실제로 가는 빠르기. 1 knot(노트) = 시속 약 1.85 km. 10 knot면 자전거보다 조금 빠른 시속 18.5 km.</td></tr>
+    <tr><td>현재 위도 · 경도</td><td>지도 위 배의 자리. 위도는 남북, 경도는 동서 위치</td></tr>
+    <tr><td>현재 운항 상태</td><td>배가 지금 무슨 모드인지 — 엔진 꺼짐 / 수동 동작 / 정지 / 호버링 / 자율 운항 등. <a href="04-stop-hover.html">04 그림</a> 참고</td></tr>
+    <tr><td>보우 스러스트 상태</td><td>보우 정지 / 왼쪽 / 오른쪽. <a href="02-bow-thruster.html">02 그림</a> 참고</td></tr>
+    <tr><td>자율운항 상태</td><td>배가 스스로 길을 갈 때의 형편 — 정상 동작 / GPS 좌표 모름 / 새 경로 찾음 / 경로 이탈 / 목적지 도착 등. 자율 운항 중이 아닐 때는 의미가 적다</td></tr>
+  </table>
+
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const DIRS = ['북', '북동', '동', '남동', '남', '남서', '서', '북서'];
+  let waving = false, t0 = null;
+  function render() {
+    const h = +$('headR').value, p = +$('pitchR').value, r = +$('rollR').value;
+    $('topBoat').style.transform = 'rotate(' + h + 'deg)';
+    // 뱃머리(오른쪽)가 들리면 + — 화면에서는 시계 반대 방향으로 돌린다
+    $('sideBoat').style.transform = 'rotate(' + (-p) + 'deg)';
+    // 오른쪽으로 기울면 + — 뒤에서 본 그림이라 오른쪽이 내려가게 시계 방향으로 돌린다
+    $('backBoat').style.transform = 'rotate(' + r + 'deg)';
+    const dir = DIRS[Math.round(h / 45) % 8];
+    $('headV').textContent = h + '° (' + dir + '쪽)';
+    $('pitchV').textContent = p === 0 ? '0° 수평' : (p > 0 ? '+' : '') + p + '° ' + (p > 0 ? '뱃머리 들림' : '뱃머리 숙임');
+    $('rollV').textContent = r === 0 ? '0° 똑바로' : (r > 0 ? '+' : '') + r + '° ' + (r > 0 ? '오른쪽으로 기욺' : '왼쪽으로 기욺');
+    $('topLabel').textContent = '헤딩 ' + h + '° — ' + dir + '쪽을 봄';
+    $('sideLabel').textContent = '피치 ' + $('pitchV').textContent;
+    $('backLabel').textContent = '롤 ' + $('rollV').textContent;
+  }
+  function tick(t) {
+    if (waving) {
+      if (t0 == null) t0 = t;
+      const s = (t - t0) / 1000;
+      $('pitchR').value = Math.round(8 * Math.sin(s * 1.6));
+      $('rollR').value = Math.round(12 * Math.sin(s * 1.1 + 1));
+      render();
+    }
+    requestAnimationFrame(tick);
+  }
+  ['headR', 'pitchR', 'rollR'].forEach((id) => $(id).addEventListener('input', () => { if (id !== 'headR') stopWaves(); render(); }));
+  function stopWaves() { waving = false; t0 = null; $('waves').classList.remove('on'); }
+  $('waves').addEventListener('click', () => { waving = !waving; t0 = null; $('waves').classList.toggle('on', waving); });
+  $('flat').addEventListener('click', () => { stopWaves(); $('pitchR').value = 0; $('rollR').value = 0; render(); });
+  render();
+  requestAnimationFrame(tick);
+
+  // ---- x·y·z 축 입체 그림 (점 x 앞 · y 오른쪽 · z 위 → 비스듬히 위에서 본 화면) ----
+  const NS = 'http://www.w3.org/2000/svg';
+  const VIEW_YAW = -40 * Math.PI / 180, VIEW_TILT = 28 * Math.PI / 180, S = 82, CX = 330, CY = 160;
+  const P = {
+    D0: [1.9, 0, 0.05], D1: [0.9, 0.6, 0.1], D2: [-1.4, 0.6, 0.1], D3: [-1.4, -0.6, 0.1], D4: [0.9, -0.6, 0.1],
+    B0: [1.5, 0, -0.25], B1: [0.7, 0.4, -0.45], B2: [-1.4, 0.4, -0.45], B3: [-1.4, -0.4, -0.45], B4: [0.7, -0.4, -0.45],
+    C0: [0.1, 0.35, 0.1], C1: [-0.9, 0.35, 0.1], C2: [-0.9, -0.35, 0.1], C3: [0.1, -0.35, 0.1],
+    C4: [0.1, 0.35, 0.5], C5: [-0.9, 0.35, 0.5], C6: [-0.9, -0.35, 0.5], C7: [0.1, -0.35, 0.5],
+  };
+  const FACES = [
+    ['B0', 'B1', 'B2', 'B3', 'B4'], ['D0', 'D1', 'B1', 'B0'], ['D1', 'D2', 'B2', 'B1'], ['D0', 'B0', 'B4', 'D4'],
+    ['D4', 'B4', 'B3', 'D3'], ['D2', 'D3', 'B3', 'B2'], ['D0', 'D1', 'D2', 'D3', 'D4'],
+    ['C0', 'C1', 'C5', 'C4'], ['C1', 'C2', 'C6', 'C5'], ['C2', 'C3', 'C7', 'C6'], ['C3', 'C0', 'C4', 'C7'], ['C4', 'C5', 'C6', 'C7'],
+  ];
+  const AXES = [
+    { id: 'x', tip: [2.7, 0, 0], tail: [-2.3, 0, 0], color: 'var(--heading)', label: 'x (앞 · 뱃머리)' },
+    { id: 'y', tip: [0, 1.7, 0], tail: [0, -1.7, 0], color: 'var(--pitch)', label: 'y (오른쪽)' },
+    { id: 'z', tip: [0, 0, 1.5], tail: [0, 0, -1.1], color: 'var(--roll)', label: 'z (위)' },
+  ];
+  const AX_TEXT = {
+    x: 'x축(앞뒤)을 꼬치처럼 잡고 돌림 → 배가 좌우로 기운다 = 롤',
+    y: 'y축(좌우)을 시소처럼 잡고 돌림 → 뱃머리가 위아래로 까딱 = 피치',
+    z: 'z축(위아래)을 팽이처럼 잡고 돌림 → 뱃머리 방향이 바뀐다 = 헤딩',
+    '': '축 하나를 골라 돌려 본다',
+  };
+  let axis = '', axAngle = 0, axT0 = null;
+  function rotate([x, y, z]) {
+    const a = axAngle, c = Math.cos(a), s = Math.sin(a);
+    if (axis === 'x') return [x, y * c - z * s, y * s + z * c];
+    if (axis === 'y') return [x * c - z * s, y, x * s + z * c];
+    if (axis === 'z') return [x * c - y * s, x * s + y * c, z];
+    return [x, y, z];
+  }
+  function project([x, y, z]) {
+    const x1 = x * Math.cos(VIEW_YAW) - y * Math.sin(VIEW_YAW), y1 = x * Math.sin(VIEW_YAW) + y * Math.cos(VIEW_YAW);
+    const up = z * Math.cos(VIEW_TILT) - x1 * Math.sin(VIEW_TILT), depth = x1 * Math.cos(VIEW_TILT) + z * Math.sin(VIEW_TILT);
+    return { sx: CX + S * y1, sy: CY - S * up, depth };
+  }
+  function el(tag, attrs) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+  function draw3d() {
+    const g = $('ax3d'); g.textContent = '';
+    const pts = {}; for (const k in P) pts[k] = project(rotate(P[k]));
+    const faces = FACES.map((f) => ({ f, depth: f.reduce((sum, k) => sum + pts[k].depth, 0) / f.length })).sort((a, b) => a.depth - b.depth);
+    for (const { f } of faces) {
+      g.appendChild(el('polygon', { points: f.map((k) => pts[k].sx.toFixed(1) + ',' + pts[k].sy.toFixed(1)).join(' '),
+        fill: 'var(--hull)', stroke: 'var(--hull-line)', 'stroke-width': 1, 'stroke-linejoin': 'round' }));
+    }
+    for (const a of AXES) {
+      const on = a.id === axis, tip = project(rotate(a.tip)), tail = project(rotate(a.tail)), o = project(rotate([0, 0, 0]));
+      g.appendChild(el('line', { x1: tail.sx, y1: tail.sy, x2: o.sx, y2: o.sy, stroke: a.color, 'stroke-width': on ? 3 : 1.5, 'stroke-dasharray': '4 4', opacity: on || !axis ? 1 : 0.35 }));
+      g.appendChild(el('line', { x1: o.sx, y1: o.sy, x2: tip.sx, y2: tip.sy, stroke: a.color, 'stroke-width': on ? 4 : 2, 'marker-end': 'url(#arrow3)', opacity: on || !axis ? 1 : 0.35 }));
+      const left = tip.sx < o.sx, t = el('text', { x: tip.sx + (left ? -8 : 8), y: tip.sy - 6, 'text-anchor': left ? 'end' : 'start', 'font-size': 14, 'font-weight': on ? 700 : 500, fill: a.color, opacity: on || !axis ? 1 : 0.5 });
+      t.textContent = a.label; g.appendChild(t);
+    }
+    $('axState').textContent = AX_TEXT[axis];
+    document.querySelectorAll('[data-ax]').forEach((b) => b.classList.toggle('on', b.dataset.ax === axis && axis !== ''));
+  }
+  function axTick(t) {
+    if (axis) {
+      if (axT0 == null) axT0 = t;
+      const s = (t - axT0) / 1000;
+      // 롤·피치는 좌우·위아래로 흔들고, 헤딩은 한 바퀴씩 돈다 (그림용)
+      axAngle = axis === 'z' ? s * 0.8 : 0.45 * Math.sin(s * 1.8);
+      draw3d();
+    }
+    requestAnimationFrame(axTick);
+  }
+  document.querySelectorAll('[data-ax]').forEach((b) => b.addEventListener('click', () => { axis = b.dataset.ax; axAngle = 0; axT0 = null; draw3d(); }));
+  draw3d();
+  requestAnimationFrame(axTick);
+</script>
+</body>
+</html>

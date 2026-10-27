@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>추진 버킷 개념</title>
+<style>
+  :root {
+    --bg: #fafaf8; --card: #ffffff; --text: #1f1f1d; --muted: #6b6a65; --line: #d8d6ce;
+    --water: #378ADD; --bucket: #BA7517; --fwd: #1D9E75; --back: #D85A30; --hull: #f1efe8; --hull-line: #5f5e5a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1c1c1a; --card: #262624; --text: #ecebe6; --muted: #a8a69e; --line: #44443f;
+      --hull: #33332f; --hull-line: #b4b2a9; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.7 "Pretendard", "Malgun Gothic", system-ui, sans-serif; }
+  main { max-width: 820px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 4px; }
+  h2 { font-size: 18px; font-weight: 600; margin: 32px 0 8px; }
+  p, li { color: var(--text); }
+  .lead { color: var(--muted); margin: 0 0 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .controls { display: grid; grid-template-columns: auto 1fr auto; gap: 10px 14px; align-items: center; margin-top: 8px; font-size: 15px; color: var(--muted); }
+  .controls output { min-width: 130px; color: var(--text); }
+  .buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  button { font: inherit; font-size: 14px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); cursor: pointer; }
+  button:hover { border-color: var(--muted); }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; }
+  th { color: var(--muted); font-weight: 500; }
+  svg text { font-family: inherit; }
+  .note { font-size: 14px; color: var(--muted); }
+  a { color: var(--water); }
+  .fig { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .fig-hint { display: none; }
+  @media (max-width: 600px) {
+    /* 휴대폰: 그림을 읽을 수 있는 크기로 두고 옆으로 밀어 본다, 슬라이더 이름은 슬라이더 위 한 줄로 */
+    .fig svg { min-width: 560px; }
+    .fig-hint { display: block; font-size: 13px; color: var(--muted); text-align: center; margin: 4px 0 0; }
+    .controls { grid-template-columns: 1fr auto; gap: 2px 12px; }
+    .controls label { grid-column: 1 / -1; margin-top: 8px; }
+    table { font-size: 14px; }
+    th, td { padding: 6px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="index.html">← 개념 그림 목록</a></p>
+  <h1>추진 버킷 — 물줄기로 앞·뒤를 바꾸는 덮개</h1>
+  <p class="lead">무인선 관제 화면의 03번 "추진 버킷 레버"가 움직이는 장치. 아래 슬라이더를 움직여 보세요.</p>
+
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 300" role="img" aria-labelledby="t1 d1">
+      <title id="t1">버킷 위치에 따른 물줄기와 배의 움직임</title>
+      <desc id="d1">배 뒤에서 물을 뿜는 노즐과 그 앞을 덮는 버킷. 버킷을 올리면 물이 뒤로 나가 배가 앞으로, 반쯤 내리면 제자리, 다 내리면 물이 앞으로 꺾여 배가 뒤로 간다.</desc>
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <rect x="0" y="178" width="680" height="122" fill="var(--water)" opacity="0.08"/>
+      <line x1="0" y1="178" x2="680" y2="178" stroke="var(--water)" stroke-width="0.6" opacity="0.6"/>
+      <path d="M90 150 L130 196 L430 196 L450 150 Z" fill="var(--hull)" stroke="var(--hull-line)" stroke-width="1"/>
+      <rect x="210" y="118" width="130" height="32" rx="4" fill="var(--hull)" stroke="var(--hull-line)" stroke-width="0.8"/>
+      <text x="275" y="139" text-anchor="middle" font-size="13" fill="var(--muted)">배</text>
+      <text x="100" y="138" text-anchor="middle" font-size="13" fill="var(--muted)">앞(뱃머리)</text>
+      <text x="455" y="138" text-anchor="middle" font-size="13" fill="var(--muted)">뒤</text>
+      <rect x="430" y="180" width="34" height="14" rx="3" fill="var(--hull-line)" opacity="0.7"/>
+      <text x="420" y="225" text-anchor="end" font-size="13" fill="var(--muted)">노즐 — 물을 뿜는 곳</text>
+      <line x1="424" y1="221" x2="444" y2="196" stroke="var(--muted)" stroke-width="0.6" stroke-dasharray="3 3"/>
+      <path id="jetBack" d="M466 187 L640 187" stroke="var(--water)" stroke-width="10" stroke-linecap="round" fill="none" marker-end="url(#arrow)"/>
+      <path id="jetFwd" d="M486 200 C470 222, 440 228, 320 228 L170 228" stroke="var(--water)" stroke-width="10" stroke-linecap="round" fill="none" marker-end="url(#arrow)"/>
+      <g id="bucket" style="transform-origin: 470px 172px; transition: transform .25s">
+        <path d="M470 172 C500 172, 506 200, 488 214" stroke="var(--bucket)" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <circle cx="470" cy="172" r="4" fill="var(--bucket)"/>
+      </g>
+      <text x="560" y="150" text-anchor="middle" font-size="13" fill="var(--muted)">버킷(바가지 덮개)</text>
+      <line x1="530" y1="154" x2="496" y2="172" stroke="var(--muted)" stroke-width="0.6" stroke-dasharray="3 3"/>
+      <path id="move" d="M275 96 L195 96" stroke="var(--fwd)" stroke-width="4" stroke-linecap="round" fill="none" marker-end="url(#arrow)"/>
+      <text id="moveLabel" x="275" y="80" text-anchor="middle" font-size="15" font-weight="600" fill="var(--text)">배가 앞으로</text>
+      <text id="splitLabel" x="340" y="268" text-anchor="middle" font-size="13" fill="var(--muted)">물: 뒤로 100% · 앞으로 0%</text>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="controls">
+      <label for="bucketR">추진 버킷 레버</label>
+      <input type="range" id="bucketR" min="-100" max="100" step="1" value="100">
+      <output id="bucketV">+100% 버킷 올림</output>
+      <label for="powerR">엔진 출력 레버</label>
+      <input type="range" id="powerR" min="0" max="100" step="1" value="60">
+      <output id="powerV">60%</output>
+    </div>
+    <div class="buttons">
+      <button data-b="100">버킷 올림 (+100)</button>
+      <button data-b="0">중립 (0)</button>
+      <button data-b="-100">버킷 내림 (-100)</button>
+    </div>
+  </div>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. 실제 버킷 모양이나 물이 꺾이는 각도는 배마다 다르다.</p>
+
+  <h2>1. 이 배는 물을 뒤로 쏴서 앞으로 간다</h2>
+  <p>풍선에 바람을 넣었다 놓으면 바람이 뒤로 빠지면서 풍선은 앞으로 날아간다. 이 배도 같다. 엔진이 물을 빨아들여 배 뒤의 <b>노즐</b>로 세게 쏘고(워터젯), 그 반대 힘으로 앞으로 밀린다.
+    <b>엔진 출력 레버</b>는 이 물을 <b>얼마나 세게</b> 쏠지 정한다.</p>
+
+  <h2>2. 뒤로 가려면 물줄기를 앞으로 꺾는다 — 그게 버킷</h2>
+  <p>이 배에는 자동차 같은 후진 기어가 없고, 물은 늘 뒤로만 나온다. 그래서 뒤로 가려면 나가는 물줄기 앞에 <b>바가지(버킷)처럼 오목한 덮개</b>를 내려서, 물이 덮개에 부딪혀 <b>앞쪽으로 되돌아 나가게</b> 한다. 물이 앞으로 나가면 배는 뒤로 밀린다.</p>
+
+  <h2>3. 가운데(중립)는 반쯤 내린 것</h2>
+  <p>버킷을 반쯤만 내리면 물의 반은 뒤로, 반은 앞으로 나간다. 두 힘이 비겨서 배가 <b>제자리</b>에 있다.</p>
+  <table>
+    <tr><th>추진 버킷 레버</th><th>바가지</th><th>물</th><th>배</th></tr>
+    <tr><td><b>+100%</b> 버킷 올림</td><td>완전히 올림</td><td>전부 뒤로</td><td>앞으로</td></tr>
+    <tr><td><b>0%</b> 중립</td><td>반쯤 내림</td><td>반은 뒤, 반은 앞</td><td>제자리</td></tr>
+    <tr><td><b>-100%</b> 버킷 내림</td><td>완전히 내림</td><td>전부 앞으로 꺾임</td><td>뒤로</td></tr>
+  </table>
+
+  <h2>4. 두 레버는 같이 쓴다</h2>
+  <ul>
+    <li><b>엔진 출력 레버(02번)</b> = 물을 <b>얼마나 세게</b> 쏠지 (0~100%) — 자동차의 가속 페달</li>
+    <li><b>추진 버킷 레버(03번)</b> = 그 물을 <b>어느 쪽으로</b> 보낼지 (뒤 / 반반 / 앞) — 자동차의 D·N·R 기어를 부드럽게 오가는 손잡이</li>
+  </ul>
+  <p>출력 50%에 버킷 -100%면 "꽤 세게 쏘되 전부 앞으로 꺾어서 뒤로 간다". 출력이 0%면 물이 안 나오니 버킷을 어디에 둬도 배는 안 움직인다.</p>
+
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  function draw() {
+    const b = +$('bucketR').value, p = +$('powerR').value;
+    const back = (b + 100) / 200, fwd = 1 - back, net = back - fwd;
+    $('bucketV').textContent = (b > 0 ? '+' : '') + b + '% ' + (b > 4 ? '버킷 올림' : b < -4 ? '버킷 내림' : '중립');
+    $('powerV').textContent = p + '%';
+    $('bucket').style.transform = 'rotate(' + (-75 * back) + 'deg)';
+    const width = (k) => Math.max(0.5, 14 * k * p / 100);
+    $('jetBack').setAttribute('stroke-width', width(back));
+    $('jetBack').setAttribute('opacity', p === 0 || back < 0.03 ? 0 : 0.35 + 0.65 * back);
+    $('jetFwd').setAttribute('stroke-width', width(fwd));
+    $('jetFwd').setAttribute('opacity', p === 0 || fwd < 0.03 ? 0 : 0.35 + 0.65 * fwd);
+    const len = 110 * Math.abs(net) * p / 100;
+    if (p === 0 || Math.abs(net) * p < 4) {
+      $('move').setAttribute('opacity', 0);
+      $('moveLabel').textContent = p === 0 ? '물이 안 나옴 — 배가 그대로' : '앞뒤 힘이 비김 — 배가 제자리';
+    } else {
+      $('move').setAttribute('opacity', 1);
+      if (net > 0) { $('move').setAttribute('d', 'M275 96 L' + (275 - len) + ' 96'); $('move').setAttribute('stroke', 'var(--fwd)'); $('moveLabel').textContent = '배가 앞으로'; }
+      else { $('move').setAttribute('d', 'M275 96 L' + (275 + len) + ' 96'); $('move').setAttribute('stroke', 'var(--back)'); $('moveLabel').textContent = '배가 뒤로'; }
+    }
+    $('splitLabel').textContent = '물: 뒤로 ' + Math.round(back * 100) + '% · 앞으로 ' + Math.round(fwd * 100) + '%';
+  }
+  $('bucketR').addEventListener('input', draw);
+  $('powerR').addEventListener('input', draw);
+  document.querySelectorAll('[data-b]').forEach((btn) => btn.addEventListener('click', () => { $('bucketR').value = btn.dataset.b; draw(); }));
+  draw();
+</script>
+</body>
+</html>

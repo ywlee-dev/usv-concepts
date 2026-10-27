@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>조향 휠 개념</title>
+<style>
+  :root {
+    --bg: #fafaf8; --card: #ffffff; --text: #1f1f1d; --muted: #6b6a65; --line: #d8d6ce;
+    --water: #378ADD; --nozzle: #D85A30; --turn: #1D9E75; --hull: #f1efe8; --hull-line: #5f5e5a; --sea: #378ADD;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1c1c1a; --card: #262624; --text: #ecebe6; --muted: #a8a69e; --line: #44443f; --hull: #33332f; --hull-line: #b4b2a9; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.7 "Pretendard", "Malgun Gothic", system-ui, sans-serif; }
+  main { max-width: 820px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 4px; }
+  h2 { font-size: 18px; font-weight: 600; margin: 32px 0 8px; }
+  .lead { color: var(--muted); margin: 0 0 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  .controls { display: grid; grid-template-columns: auto 1fr auto; gap: 10px 14px; align-items: center; margin-top: 12px; font-size: 15px; color: var(--muted); }
+  .controls output { min-width: 120px; color: var(--text); }
+  button { font: inherit; font-size: 14px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); cursor: pointer; }
+  button:hover { border-color: var(--muted); }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  svg text { font-family: inherit; }
+  .note { font-size: 14px; color: var(--muted); }
+  .warn { font-size: 14px; color: var(--text); background: color-mix(in srgb, var(--nozzle) 10%, transparent); border: 1px solid color-mix(in srgb, var(--nozzle) 35%, transparent); border-radius: 8px; padding: 8px 12px; }
+  a { color: var(--water); }
+  .fig { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .fig-hint { display: none; }
+  @media (max-width: 600px) {
+    /* 휴대폰: 그림을 읽을 수 있는 크기로 두고 옆으로 밀어 본다, 슬라이더 이름은 슬라이더 위 한 줄로 */
+    .fig svg { min-width: 560px; }
+    .fig-hint { display: block; font-size: 13px; color: var(--muted); text-align: center; margin: 4px 0 0; }
+    .controls { grid-template-columns: 1fr auto; gap: 2px 12px; }
+    .controls label { grid-column: 1 / -1; margin-top: 8px; }
+    table { font-size: 14px; }
+    th, td { padding: 6px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="index.html">← 개념 그림 목록</a> · <a href="02-bow-thruster.html">← 보우 스러스터와 비교</a></p>
+  <h1>조향 휠 — 뒤로 나가는 물줄기를 꺾어 배를 돌린다</h1>
+  <p class="lead">무인선 관제 화면의 01번 "조향 휠"이 움직이는 것. 위에서 내려다본 그림이다.</p>
+
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 380" role="img" aria-labelledby="t1 d1">
+      <title id="t1">위에서 본 배와 조향</title>
+      <desc id="d1">배 뒤 노즐에서 뒤로 나가는 물줄기 방향을 좌우로 꺾으면 배 뒤가 옆으로 밀려 뱃머리가 돈다. 엔진 출력이 0이면 물이 안 나가 꺾어도 돌지 않는다.</desc>
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <rect x="0" y="0" width="680" height="380" fill="var(--sea)" opacity="0.07"/>
+      <circle cx="340" cy="190" r="150" fill="none" stroke="var(--line)" stroke-dasharray="4 6"/>
+      <text x="340" y="28" text-anchor="middle" font-size="12" fill="var(--muted)">처음 뱃머리 방향</text>
+      <g id="boat" style="transform-origin: 340px 190px">
+        <path d="M340 60 C372 90, 390 130, 390 180 L390 290 L290 290 L290 180 C290 130, 308 90, 340 60 Z" fill="var(--hull)" stroke="var(--hull-line)" stroke-width="1.2"/>
+        <text x="340" y="190" text-anchor="middle" font-size="13" fill="var(--muted)">배</text>
+        <g id="nozzle" style="transform-origin: 340px 290px">
+          <rect x="332" y="288" width="16" height="22" rx="3" fill="var(--nozzle)"/>
+          <path id="jet" d="M340 314 L340 360" stroke="var(--water)" stroke-width="8" stroke-linecap="round" fill="none" marker-end="url(#arrow)"/>
+        </g>
+        <path id="sternPush" d="M340 270 L340 270" stroke="var(--turn)" stroke-width="4" stroke-linecap="round" fill="none" marker-end="url(#arrow)" opacity="0"/>
+      </g>
+      <text x="470" y="320" font-size="13" fill="var(--muted)">노즐 — 물을 뿜는 곳</text>
+      <text x="470" y="338" font-size="12" fill="var(--muted)">(조향 휠이 이 방향을 꺾음)</text>
+      <text id="state" x="40" y="350" font-size="15" font-weight="600" fill="var(--text)"></text>
+      <text id="heading" x="40" y="372" font-size="13" fill="var(--muted)">뱃머리 0°</text>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="controls">
+      <label for="wheelR">조향 휠</label>
+      <input type="range" id="wheelR" min="-100" max="100" step="1" value="40">
+      <output id="wheelV">40% 오른쪽</output>
+      <label for="powerR">엔진 출력 레버</label>
+      <input type="range" id="powerR" min="0" max="100" step="1" value="0">
+      <output id="powerV">0% (물 안 나옴)</output>
+    </div>
+    <div class="row">
+      <button data-w="-100">왼쪽 끝</button>
+      <button data-w="0">조타 중앙 복귀</button>
+      <button data-w="100">오른쪽 끝</button>
+      <button id="reset" style="margin-left:auto">처음 방향으로</button>
+    </div>
+  </div>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. 처음엔 출력 0%라 휠을 꺾어도 안 돈다 — 출력을 올려 보면 돌기 시작한다.</p>
+  <p class="warn">이 배는 버킷을 쓰는 <b>워터젯</b> 배라서, 보통 배의 "키(방향타) 판" 대신 <b>노즐의 방향을 좌우로 꺾어</b> 도는 방식일 가능성이 크다 — 그림도 그렇게 그렸다. 실제 구조는 배마다 다를 수 있다.
+    어느 방식이든 "뒤로 물이 흘러야 돈다"는 점은 같다.</p>
+
+  <h2>1. 무엇인가</h2>
+  <p>배 <b>뒤</b>에서 물을 뿜는 노즐의 방향을 옆으로 꺾으면, 물줄기가 비스듬히 나가면서 그 반대 힘으로 <b>배 뒤가 옆으로</b> 밀린다. 배 뒤가 왼쪽으로 밀리면 뱃머리는 오른쪽으로 돈다.</p>
+  <ul>
+    <li><b>조향 휠 오른쪽(+)</b> = 물줄기를 오른쪽 뒤로 → 배 뒤가 왼쪽으로 → 뱃머리가 <b>오른쪽</b>으로</li>
+    <li><b>조향 휠 왼쪽(−)</b> = 물줄기를 왼쪽 뒤로 → 배 뒤가 오른쪽으로 → 뱃머리가 <b>왼쪽</b>으로</li>
+    <li><b>가운데(0%)</b> = 물줄기가 똑바로 뒤로 → 직진</li>
+  </ul>
+
+  <p><b>조향 휠은 물을 만들지 않는다.</b> 물은 엔진 출력 레버가 만들고, 조향 휠은 그 물이 나가는 <b>방향만</b> 꺾는다. 세 레버가 노즐에서 나오는 <b>같은 물줄기 하나</b>를 나눠 맡는다.</p>
+  <table>
+    <tr><th>화면 조작기</th><th>그 물줄기에 하는 일</th></tr>
+    <tr><td>엔진 출력 레버</td><td><b>얼마나 세게</b> 쏠지 (0% = 물이 안 나옴)</td></tr>
+    <tr><td>추진 버킷 레버</td><td><b>앞쪽·뒤쪽</b> 중 어디로 보낼지 (<a href="01-bucket.html">버킷 그림</a>)</td></tr>
+    <tr><td>조향 휠</td><td><b>왼쪽·오른쪽</b>으로 얼마나 꺾을지 (이 그림)</td></tr>
+  </table>
+
+  <h2>2. 얼마나 꺾을지 정한다 (-100% ~ 100%)</h2>
+  <p>보우 스러스터처럼 켜고 끄는 게 아니라 <b>얼마나 꺾을지</b>를 정한다. 많이 꺾을수록 빨리 돈다. 그래서 화면도 버튼이 아니라 바늘이 있는 휠이다.</p>
+
+  <h2>3. 뒤로 물이 흘러야 돈다 — 서 있으면 안 돈다</h2>
+  <p>위 그림에서 <b>엔진 출력 0%</b>인 채로 휠을 꺾어 보면 노즐 방향만 바뀌고 배는 <b>안 돈다</b>. 뒤로 나가는 물이 없어서 밀 힘이 없기 때문이다. 출력을 올리면 그제야 돈다 — 자동차 핸들이 차가 굴러가야 도는 것과 같다.
+    그래서 <b>달릴 때는 조향 휠로</b>, <b>서 있거나 아주 느릴 때는 보우 스러스터로</b> 방향을 바꾼다.</p>
+
+  <h2>4. 보우 스러스터와 무엇이 다른가</h2>
+  <table>
+    <tr><th></th><th>조향 휠 (이 그림)</th><th><a href="02-bow-thruster.html">보우 스러스터</a></th></tr>
+    <tr><td>어디</td><td>배 <b>뒤</b> (물을 뿜는 노즐)</td><td>배 <b>앞</b> 옆구리</td></tr>
+    <tr><td>어떻게 돌리나</td><td>뒤로 나가는 물줄기 방향을 꺾어 배 뒤를 옆으로 밂</td><td>작은 프로펠러가 스스로 물을 옆으로 밀어 뱃머리를 밂</td></tr>
+    <tr><td>엔진 출력 0%(서 있음)일 때</td><td><b>안 돈다</b></td><td><b>돈다</b></td></tr>
+    <tr><td>빨리 달릴 때</td><td>잘 듣는다</td><td>잘 안 듣는다</td></tr>
+    <tr><td>조작</td><td>휠: -100% ~ 100% (얼마나 꺾을지)</td><td>버튼 셋: 왼쪽 / 정지 / 오른쪽 (세기 없음)</td></tr>
+    <tr><td>비유</td><td>자동차 핸들 (달려야 돈다)</td><td>멈춘 자동차 앞부분을 사람이 옆으로 밀어 주는 것</td></tr>
+  </table>
+
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  let heading = 0, last = null;
+  const MAX_DEFLECT = 30; // 휠 100% 일 때 노즐이 꺾이는 각도(그림용)
+  const MAX_RATE = 24;    // 휠 100%·출력 100% 일 때 1초에 도는 각도(그림용)
+  function rate() { return (+$('wheelR').value / 100) * (+$('powerR').value / 100) * MAX_RATE; }
+  function render() {
+    const w = +$('wheelR').value, p = +$('powerR').value;
+    $('boat').style.transform = 'rotate(' + heading.toFixed(1) + 'deg)';
+    // 오른쪽(+)이면 물줄기를 오른쪽 뒤로 — 그림에서 노즐 아래쪽 끝이 오른쪽으로 가게 돌린다(시계 반대 방향)
+    $('nozzle').style.transform = 'rotate(' + (-w / 100 * MAX_DEFLECT) + 'deg)';
+    $('jet').setAttribute('opacity', p === 0 ? 0 : 1);
+    $('jet').setAttribute('stroke-width', Math.max(1, 12 * p / 100));
+    const push = $('sternPush');
+    if (p === 0 || w === 0) push.setAttribute('opacity', 0);
+    else { push.setAttribute('opacity', 1); push.setAttribute('d', w > 0 ? 'M330 270 L' + (330 - 40 * Math.abs(w) / 100 * p / 100 - 8) + ' 270' : 'M350 270 L' + (350 + 40 * Math.abs(w) / 100 * p / 100 + 8) + ' 270'); }
+    $('wheelV').textContent = w === 0 ? '0% 직진' : Math.abs(w) + '% ' + (w > 0 ? '오른쪽' : '왼쪽');
+    $('powerV').textContent = p + '%' + (p === 0 ? ' (물 안 나옴)' : '');
+    $('state').textContent = p === 0 ? (w === 0 ? '물이 안 나옴 — 배가 그대로' : '노즐은 꺾였지만 물이 안 나옴 — 안 돈다')
+      : w === 0 ? '물줄기가 똑바로 뒤로 — 직진' : '물줄기를 ' + (w > 0 ? '오른쪽' : '왼쪽') + ' 뒤로 → 뱃머리가 ' + (w > 0 ? '오른쪽' : '왼쪽') + '으로';
+    const h = ((Math.round(heading) % 360) + 360) % 360;
+    $('heading').textContent = '뱃머리 ' + (h === 0 ? '0°' : h > 180 ? '왼쪽 ' + (360 - h) + '°' : '오른쪽 ' + h + '°');
+  }
+  function tick(t) {
+    if (last != null) {
+      const r = rate();
+      if (r !== 0) { heading += r * Math.min(0.1, (t - last) / 1000); render(); }
+    }
+    last = t;
+    requestAnimationFrame(tick);
+  }
+  $('wheelR').addEventListener('input', render);
+  $('powerR').addEventListener('input', render);
+  document.querySelectorAll('[data-w]').forEach((b) => b.addEventListener('click', () => { $('wheelR').value = b.dataset.w; render(); }));
+  $('reset').addEventListener('click', () => { heading = 0; render(); });
+  render();
+  requestAnimationFrame(tick);
+</script>
+</body>
+</html>

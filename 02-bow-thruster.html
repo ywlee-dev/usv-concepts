@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>보우 스러스터 개념</title>
+<style>
+  :root {
+    --bg: #fafaf8; --card: #ffffff; --text: #1f1f1d; --muted: #6b6a65; --line: #d8d6ce;
+    --water: #378ADD; --thruster: #7F77DD; --turn: #1D9E75; --hull: #f1efe8; --hull-line: #5f5e5a; --sea: #378ADD;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1c1c1a; --card: #262624; --text: #ecebe6; --muted: #a8a69e; --line: #44443f; --hull: #33332f; --hull-line: #b4b2a9; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.7 "Pretendard", "Malgun Gothic", system-ui, sans-serif; }
+  main { max-width: 820px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 4px; }
+  h2 { font-size: 18px; font-weight: 600; margin: 32px 0 8px; }
+  h3 { font-size: 16px; font-weight: 600; margin: 24px 0 6px; }
+  .lead { color: var(--muted); margin: 0 0 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  .controls { display: grid; grid-template-columns: auto 1fr auto; gap: 10px 14px; align-items: center; margin-top: 12px; font-size: 15px; color: var(--muted); }
+  .controls output { min-width: 90px; color: var(--text); }
+  button { font: inherit; font-size: 14px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); cursor: pointer; }
+  button:hover { border-color: var(--muted); }
+  button.on { border-color: var(--thruster); color: var(--thruster); font-weight: 600; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  svg text { font-family: inherit; }
+  .note { font-size: 14px; color: var(--muted); }
+  a { color: var(--water); }
+  .fig { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .fig-hint { display: none; }
+  @media (max-width: 600px) {
+    /* 휴대폰: 그림을 읽을 수 있는 크기로 두고 옆으로 밀어 본다, 슬라이더 이름은 슬라이더 위 한 줄로 */
+    .fig svg { min-width: 560px; }
+    .fig-hint { display: block; font-size: 13px; color: var(--muted); text-align: center; margin: 4px 0 0; }
+    .controls { grid-template-columns: 1fr auto; gap: 2px 12px; }
+    .controls label { grid-column: 1 / -1; margin-top: 8px; }
+    table { font-size: 14px; }
+    th, td { padding: 6px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="index.html">← 개념 그림 목록</a> · <a href="03-steering.html">조향 휠과 비교 →</a></p>
+  <h1>보우 스러스터 — 뱃머리를 옆으로 미는 작은 프로펠러</h1>
+  <p class="lead">무인선 관제 화면의 조향 휠 아래 버튼 셋 "보우 왼쪽 · 보우 정지 · 보우 오른쪽"이 움직이는 장치. 위에서 내려다본 그림이다.</p>
+
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 380" role="img" aria-labelledby="t1 d1">
+      <title id="t1">위에서 본 배와 보우 스러스터</title>
+      <desc id="d1">배 앞쪽 옆구리를 가로지르는 통로 안의 프로펠러가 물을 한쪽 옆으로 밀어내면, 그 반대 힘으로 뱃머리가 반대쪽으로 돈다. 엔진 출력과 상관없이 서 있어도 돈다.</desc>
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <rect x="0" y="0" width="680" height="380" fill="var(--sea)" opacity="0.07"/>
+      <circle cx="340" cy="200" r="150" fill="none" stroke="var(--line)" stroke-dasharray="4 6"/>
+      <text x="340" y="38" text-anchor="middle" font-size="12" fill="var(--muted)">처음 뱃머리 방향</text>
+      <g id="boat" style="transform-origin: 340px 200px">
+        <path d="M340 70 C372 100, 390 140, 390 190 L390 320 L290 320 L290 190 C290 140, 308 100, 340 70 Z" fill="var(--hull)" stroke="var(--hull-line)" stroke-width="1.2"/>
+        <line x1="290" y1="125" x2="390" y2="125" stroke="var(--thruster)" stroke-width="10" opacity="0.25"/>
+        <circle cx="340" cy="125" r="7" fill="var(--thruster)"/>
+        <path id="jetR" d="M394 125 L470 125" stroke="var(--water)" stroke-width="8" stroke-linecap="round" fill="none" marker-end="url(#arrow)" opacity="0"/>
+        <path id="jetL" d="M286 125 L210 125" stroke="var(--water)" stroke-width="8" stroke-linecap="round" fill="none" marker-end="url(#arrow)" opacity="0"/>
+        <path id="push" d="M340 98 L340 98" stroke="var(--turn)" stroke-width="4" stroke-linecap="round" fill="none" marker-end="url(#arrow)" opacity="0"/>
+        <rect x="330" y="318" width="20" height="10" rx="2" fill="var(--hull-line)" opacity="0.7"/>
+        <text x="340" y="250" text-anchor="middle" font-size="13" fill="var(--muted)">배</text>
+        <text x="340" y="296" text-anchor="middle" font-size="12" fill="var(--muted)">뒤(노즐)</text>
+      </g>
+      <text x="520" y="80" font-size="13" fill="var(--muted)">보우 스러스터</text>
+      <text x="520" y="98" font-size="12" fill="var(--muted)">(앞쪽 옆구리 통로 안 프로펠러)</text>
+      <text id="state" x="40" y="350" font-size="15" font-weight="600" fill="var(--text)">보우 정지 — 뱃머리 그대로</text>
+      <text id="heading" x="640" y="350" text-anchor="end" font-size="13" fill="var(--muted)">뱃머리 0°</text>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="row">
+      <button data-bow="PORT">◀ 보우 왼쪽</button>
+      <button data-bow="STOP" class="on">⏹ 보우 정지</button>
+      <button data-bow="STBD">보우 오른쪽 ▶</button>
+      <button id="reset" style="margin-left:auto">처음 방향으로</button>
+    </div>
+    <div class="controls">
+      <label for="powerR">엔진 출력 레버</label>
+      <input type="range" id="powerR" min="0" max="100" step="1" value="0">
+      <output id="powerV">0% (서 있음)</output>
+    </div>
+  </div>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. 실제로는 바람·물살에 따라 배가 옆으로 밀리기도 하고, 도는 빠르기도 배마다 다르다.</p>
+
+  <h2>1. 무엇인가</h2>
+  <p>배 <b>앞부분(뱃머리, 보우)</b> 옆구리를 가로로 뚫은 통로 안에 <b>작은 프로펠러</b>가 있다. 이 프로펠러가 물을 한쪽 옆으로 밀어내면, 그 반대 힘으로 뱃머리가 반대쪽으로 밀린다.</p>
+  <ul>
+    <li><b>보우 왼쪽</b> = 물을 오른쪽으로 밀어냄 → 뱃머리가 <b>왼쪽</b>으로</li>
+    <li><b>보우 오른쪽</b> = 물을 왼쪽으로 밀어냄 → 뱃머리가 <b>오른쪽</b>으로</li>
+    <li><b>보우 정지</b> = 프로펠러 멈춤</li>
+  </ul>
+
+  <h3>선풍기와 물총 — 배 뒤 워터젯과 무엇이 다른가</h3>
+  <p>보우 스러스터는 <b>통로 속 선풍기</b>다. 물을 어디서 끌어와 쏘는 게 아니라, 프로펠러가 돌면서 통로 안의 물을 한쪽으로 밀어낼 뿐이다.
+    배 뒤의 워터젯은 <b>물총</b>이다. 바닥에서 물을 빨아들여 펌프로 세게 눌러 노즐로 쏜다.</p>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 270" role="img" aria-labelledby="t2 d2">
+      <title id="t2">보우 스러스터와 워터젯 비교</title>
+      <desc id="d2">왼쪽: 위에서 본 뱃머리. 옆으로 뚫린 통로 안 프로펠러가 물을 오른쪽으로 밀어내고, 뱃머리는 반대인 왼쪽으로 밀린다. 오른쪽: 옆에서 본 배 뒤. 바닥에서 물을 빨아들여 펌프로 눌러 노즐로 뒤로 쏘고, 배는 앞으로 간다.</desc>
+      <defs>
+        <marker id="arrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <!-- 왼쪽: 보우 스러스터 (위에서 본 뱃머리) -->
+      <rect x="0" y="0" width="330" height="270" rx="8" fill="var(--sea)" opacity="0.07"/>
+      <text x="165" y="22" text-anchor="middle" font-size="14" font-weight="600" fill="var(--text)">보우 스러스터 = 통로 속 선풍기</text>
+      <path d="M165 44 C205 74, 230 124, 230 214 L100 214 C100 124, 125 74, 165 44 Z" fill="var(--hull)" stroke="var(--hull-line)" stroke-width="1.2"/>
+      <rect x="107" y="130" width="116" height="26" fill="var(--water)" opacity="0.18" stroke="var(--thruster)" stroke-width="1"/>
+      <g transform="translate(165 143)">
+        <ellipse cx="0" cy="-7" rx="4" ry="8" fill="var(--thruster)"/>
+        <ellipse cx="0" cy="7" rx="4" ry="8" fill="var(--thruster)"/>
+        <circle r="4" fill="var(--hull-line)"/>
+      </g>
+      <path d="M40 143 L100 143" stroke="var(--water)" stroke-width="6" stroke-linecap="round" fill="none" marker-end="url(#arrow2)"/>
+      <path d="M232 143 L300 143" stroke="var(--water)" stroke-width="6" stroke-linecap="round" fill="none" marker-end="url(#arrow2)"/>
+      <text x="40" y="128" font-size="12" fill="var(--muted)">물 들어옴</text>
+      <text x="244" y="128" font-size="12" fill="var(--muted)">밀려 나감</text>
+      <path d="M150 60 L100 60" stroke="var(--turn)" stroke-width="4" stroke-linecap="round" fill="none" marker-end="url(#arrow2)"/>
+      <text x="96" y="52" text-anchor="end" font-size="12" fill="var(--turn)">뱃머리는</text>
+      <text x="96" y="68" text-anchor="end" font-size="12" fill="var(--turn)">반대쪽으로</text>
+      <text x="165" y="238" text-anchor="middle" font-size="12" fill="var(--muted)">위에서 본 뱃머리 · 자기 모터로 돈다</text>
+      <text x="165" y="256" text-anchor="middle" font-size="12" fill="var(--muted)">→ 엔진 출력 0%여도 움직인다</text>
+
+      <!-- 오른쪽: 워터젯 (옆에서 본 배 뒤) -->
+      <rect x="350" y="0" width="330" height="270" rx="8" fill="var(--sea)" opacity="0.07"/>
+      <text x="515" y="22" text-anchor="middle" font-size="14" font-weight="600" fill="var(--text)">워터젯 = 물총</text>
+      <line x1="350" y1="96" x2="680" y2="96" stroke="var(--water)" stroke-width="1" stroke-dasharray="4 4" opacity="0.6"/>
+      <text x="356" y="90" font-size="11" fill="var(--muted)">물 위</text>
+      <text x="356" y="112" font-size="11" fill="var(--muted)">물속</text>
+      <path d="M400 70 L630 70 L630 132 L440 132 Q404 132 400 100 Z" fill="var(--hull)" stroke="var(--hull-line)" stroke-width="1.2"/>
+      <path d="M520 132 C520 116, 540 112, 570 112 L630 112" stroke="var(--water)" stroke-width="12" fill="none" opacity="0.3"/>
+      <circle cx="575" cy="112" r="11" fill="var(--hull)" stroke="var(--hull-line)" stroke-width="1.2"/>
+      <text x="575" y="116" text-anchor="middle" font-size="10" fill="var(--hull-line)">펌프</text>
+      <rect x="628" y="104" width="12" height="16" rx="2" fill="#D85A30"/>
+      <path d="M520 186 L520 140" stroke="var(--water)" stroke-width="5" stroke-linecap="round" fill="none" marker-end="url(#arrow2)"/>
+      <path d="M644 112 L676 112" stroke="var(--water)" stroke-width="7" stroke-linecap="round" fill="none" marker-end="url(#arrow2)"/>
+      <text x="520" y="202" text-anchor="middle" font-size="12" fill="var(--muted)">바닥에서 빨아들임</text>
+      <text x="672" y="144" text-anchor="end" font-size="12" fill="var(--muted)">노즐로 세게 쏨</text>
+      <path d="M470 54 L410 54" stroke="var(--turn)" stroke-width="4" stroke-linecap="round" fill="none" marker-end="url(#arrow2)"/>
+      <text x="476" y="58" font-size="12" fill="var(--turn)">배는 앞으로</text>
+      <text x="515" y="238" text-anchor="middle" font-size="12" fill="var(--muted)">옆에서 본 배 뒤 · 메인 엔진이 펌프를 돌린다</text>
+      <text x="515" y="256" text-anchor="middle" font-size="12" fill="var(--muted)">→ 출력·버킷·조향 휠이 이 물줄기를 다룬다</text>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+  </div>
+  <table style="margin-top:12px">
+    <tr><th></th><th>보우 스러스터</th><th>워터젯 (배 뒤)</th></tr>
+    <tr><td>비유</td><td><b>선풍기</b> — 있는 물을 옆으로 밂</td><td><b>물총</b> — 물을 빨아들여 쏨</td></tr>
+    <tr><td>힘의 출처</td><td>자기 모터</td><td>메인 엔진</td></tr>
+    <tr><td>물이 나가는 쪽</td><td>배 앞 옆구리 (왼쪽 또는 오른쪽)</td><td>배 뒤 노즐</td></tr>
+    <tr><td>다루는 화면 조작기</td><td>보우 버튼 셋 (왼쪽 / 정지 / 오른쪽)</td><td>출력 레버(세기) · 버킷 레버(앞뒤) · 조향 휠(좌우)</td></tr>
+  </table>
+  <p class="note">이 배의 보우 스러스터 모터가 전기식인지 유압식인지는 배마다 다르다. 화면에서 켜고 끄기 + 방향만 있는 것은 어느 쪽이든 같다.</p>
+
+  <h2>2. 켜고 끄기에 방향만 있다 (세기 없음)</h2>
+  <p>관제 화면에서는 정지 · 왼쪽 · 오른쪽 셋 중 하나만 고를 수 있고 세기는 고를 수 없다. 한 번 켜면 <b>"보우 정지"를 누를 때까지 같은 힘으로 계속</b> 돈다. 조금만 틀고 싶으면 켰다가 금방 끈다.
+    프로펠러 하나를 이쪽·저쪽으로 돌리는 것이라 왼쪽과 오른쪽이 동시에 켜질 수는 없다.</p>
+
+  <h2>3. 언제 쓰나 — 서 있을 때 잘 듣는다</h2>
+  <p>위 그림에서 <b>엔진 출력을 0%로 둔 채</b> "보우 왼쪽"을 눌러 보면, 배가 앞으로 안 가는데도 <b>제자리에서</b> 뱃머리가 돈다. 엔진과 상관없이 스스로 물을 밀기 때문이다.
+    그래서 <b>부두에 대거나 떠날 때, 좁은 곳에서 제자리로 방향을 틀 때</b> 쓴다. 반대로 배가 빨리 달릴 때는 물살이 세서 잘 안 듣는다 — 그때는 조향 휠로 돈다.</p>
+
+  <h2>4. 조향 휠과 무엇이 다른가</h2>
+  <table>
+    <tr><th></th><th>보우 스러스터 (이 그림)</th><th><a href="03-steering.html">조향 휠</a></th></tr>
+    <tr><td>어디</td><td>배 <b>앞</b> 옆구리</td><td>배 <b>뒤</b> (물을 뿜는 노즐)</td></tr>
+    <tr><td>어떻게 돌리나</td><td>작은 프로펠러가 스스로 물을 옆으로 밀어 뱃머리를 밂</td><td>뒤로 나가는 물줄기 방향을 꺾어 배 뒤를 옆으로 밂</td></tr>
+    <tr><td>엔진 출력 0%(서 있음)일 때</td><td><b>돈다</b></td><td><b>안 돈다</b> — 뒤로 나가는 물이 없어서</td></tr>
+    <tr><td>빨리 달릴 때</td><td>잘 안 듣는다</td><td>잘 듣는다</td></tr>
+    <tr><td>조작</td><td>버튼 셋: 왼쪽 / 정지 / 오른쪽 (세기 없음)</td><td>휠: -100% ~ 100% (얼마나 꺾을지)</td></tr>
+    <tr><td>비유</td><td>멈춘 자동차 앞부분을 사람이 옆으로 밀어 주는 것</td><td>자동차 핸들 (달려야 돈다)</td></tr>
+  </table>
+
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  let bow = 'STOP', heading = 0, last = null;
+  const RATE = 14; // 보우를 켜면 1초에 도는 각도(그림용)
+  function render() {
+    $('boat').style.transform = 'rotate(' + heading.toFixed(1) + 'deg)';
+    const h = ((Math.round(heading) % 360) + 360) % 360;
+    $('heading').textContent = '뱃머리 ' + (h > 180 ? '왼쪽 ' + (360 - h) : h === 0 ? '' : '오른쪽 ' + h) + (h === 0 ? '0°' : '°');
+    $('jetR').setAttribute('opacity', bow === 'PORT' ? 1 : 0);
+    $('jetL').setAttribute('opacity', bow === 'STBD' ? 1 : 0);
+    const push = $('push');
+    if (bow === 'STOP') { push.setAttribute('opacity', 0); }
+    else { push.setAttribute('opacity', 1); push.setAttribute('d', bow === 'PORT' ? 'M330 98 L280 98' : 'M350 98 L400 98'); }
+    $('state').textContent = bow === 'STOP' ? '보우 정지 — 뱃머리 그대로'
+      : (bow === 'PORT' ? '보우 왼쪽 — 물을 오른쪽으로 밀어 뱃머리가 왼쪽으로' : '보우 오른쪽 — 물을 왼쪽으로 밀어 뱃머리가 오른쪽으로');
+    const p = +$('powerR').value;
+    $('powerV').textContent = p + '%' + (p === 0 ? ' (서 있음)' : '');
+    document.querySelectorAll('[data-bow]').forEach((b) => b.classList.toggle('on', b.dataset.bow === bow));
+  }
+  function tick(t) {
+    if (last != null && bow !== 'STOP') {
+      const dt = Math.min(0.1, (t - last) / 1000);
+      heading += (bow === 'PORT' ? -1 : 1) * RATE * dt; // 엔진 출력과 상관없다
+      render();
+    }
+    last = t;
+    requestAnimationFrame(tick);
+  }
+  document.querySelectorAll('[data-bow]').forEach((b) => b.addEventListener('click', () => { bow = b.dataset.bow; render(); }));
+  $('reset').addEventListener('click', () => { heading = 0; render(); });
+  $('powerR').addEventListener('input', render);
+  render();
+  requestAnimationFrame(tick);
+</script>
+</body>
+</html>
