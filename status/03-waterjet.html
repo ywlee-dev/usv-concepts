@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>워터젯 개념</title>
+<style>
+  :root {
+    --bg: #fafaf8; --card: #ffffff; --text: #1f1f1d; --muted: #6b6a65; --line: #d8d6ce;
+    --link: #185FA5; --en: #185FA5; --accent: #D85A30; --accent2: #BA7517; --ok: #1D9E75; --bad: #C8402F;
+    --obj: #dfe8f3; --obj-hi: #f4f8fc; --obj-line: #5f5e5a; --floor: #f1efe8; --chip-on: #fbe9e2;
+    --skin: #f2c9a0; --sleeve: #7f9cc0; --gold: #d9a21b; --wood: #b98b5e; --steel: #8a8984;
+    --water: #3b8fd6; --sea: #e3eef8; --hull: #eceae4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1c1c1a; --card: #262624; --text: #ecebe6; --muted: #a8a69e; --line: #44443f;
+      --link: #85B7EB; --en: #9cc6f0; --obj: #34465a; --obj-hi: #4a5f76; --obj-line: #b4b2a9; --floor: #302f2b; --chip-on: #4a2c22;
+      --skin: #c99a72; --sleeve: #5a7090; --wood: #9a7350; --steel: #9d9c96; --bad: #E8705F; --water: #6cb0ec; --sea: #1f2b36; --hull: #2f2e2a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.7 "Pretendard", "Malgun Gothic", system-ui, sans-serif; }
+  main { max-width: 820px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 4px; }
+  h2 { font-size: 18px; font-weight: 600; margin: 32px 0 8px; }
+  .lead { color: var(--muted); margin: 0 0 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .controls { display: grid; grid-template-columns: auto 1fr auto; gap: 10px 14px; align-items: center; margin-top: 8px; font-size: 15px; color: var(--muted); }
+  .controls output { min-width: 110px; color: var(--text); }
+  .buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+  .buttons .cap { font-size: 15px; color: var(--muted); margin-right: 4px; }
+  button { font: inherit; font-size: 14px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); cursor: pointer; }
+  button:hover { border-color: var(--muted); }
+  button[aria-pressed="true"] { border-color: var(--accent); background: var(--chip-on); font-weight: 600; }
+  .say { margin: 14px 0 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--bg); border-radius: 0 8px 8px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  .vals { margin-top: 12px; font-size: 14px; }
+  .vals td { padding: 5px 10px; }
+  .vals td:first-child { color: var(--muted); white-space: nowrap; width: 1%; }
+  svg text { font-family: inherit; }
+  /* 흐르는 물·도는 날개 */
+  .run { animation: run linear infinite; }
+  .spin { transform-box: fill-box; transform-origin: center; animation: spin linear infinite; }
+  @keyframes run { to { stroke-dashoffset: -24; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .run, .spin { animation: none; } }
+  .note { font-size: 14px; color: var(--muted); }
+  .check { border: 1px dashed var(--accent2); border-radius: 8px; padding: 10px 12px; font-size: 15px; }
+  .check b:first-child { color: var(--accent2); }
+  main ul { padding-left: 20px; }
+  a { color: var(--link); }
+  code { font-size: 14px; }
+  .fig { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .fig-hint { display: none; }
+  @media (max-width: 600px) {
+    .fig svg { min-width: 560px; }
+    .fig-hint { display: block; font-size: 13px; color: var(--muted); text-align: center; margin: 4px 0 0; }
+    .controls { grid-template-columns: 1fr auto; gap: 2px 12px; }
+    .controls label { grid-column: 1 / -1; margin-top: 8px; }
+    table { font-size: 14px; }
+    th, td { padding: 6px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="index.html">← 개념 그림 목록</a> · <a href="00-big-picture.html">00 큰 그림</a> · 다음: <a href="04-engine.html">04 엔진</a></p>
+  <h1>워터젯 — 바닥에서 빨아들여 뒤로 뿜는 물대포</h1>
+  <p class="lead">이 배에는 바깥에 도는 프로펠러가 없다. 배 바닥으로 물을 빨아들여 안쪽 날개로 세게 밀어 뒤로 뿜는다. 엔진 회전을 올리고, 덮개를 내리고, 노즐을 꺾어 보자.</p>
+
+  <h2 style="margin-top:0">먼저 한 장으로 — 배 밑 바닷물을 빨아들여, 뒤로 뿜고, 반동으로 나간다</h2>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 290" role="img" aria-labelledby="t0 d0">
+      <title id="t0">바닷물이 워터젯을 지나 뒤로 뿜어지고 배가 앞으로 가는 흐름</title>
+      <desc id="d0">바다 위에 뜬 배의 옆모습. 배 바닥 가운데 흡입구로 바닷물이 빨려 들어와 관을 따라 뒤쪽(왼쪽)으로 가고, 관 속 날개가 그 물을 밀어 배 뒤로 뿜는다. 날개는 축으로 엔진에 이어져 있다. 물을 뒤로 뿜은 반동으로 배가 앞(오른쪽)으로 간다.</desc>
+      <g id="flow"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">하나씩</span>
+      <button data-w="all" aria-pressed="true">한눈에</button>
+      <button data-w="suck" aria-pressed="false">① 바닷물을 빨아들인다</button>
+      <button data-w="push" aria-pressed="false">② 날개가 밀어낸다</button>
+      <button data-w="shoot" aria-pressed="false">③ 뒤로 뿜는다 (물대포)</button>
+      <button data-w="go" aria-pressed="false">④ 반동으로 배가 앞으로</button>
+    </div>
+    <div class="say" id="say0"></div>
+  </div>
+  <p class="note">아래 그림은 워터젯 속을 더 자세히 본 것이다. 덮개(버킷)와 조향도 움직여 볼 수 있다.</p>
+
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 330" role="img" aria-labelledby="t1 d1">
+      <title id="t1">워터젯 옆 단면과 위에서 본 조향</title>
+      <desc id="d1">배 뒤쪽 옆 단면. 배 바닥의 흡입구로 들어온 물이 관을 따라 임펠러(날개)를 지나 노즐로 뒤쪽(왼쪽)에 뿜어진다. 노즐 끝의 버킷(덮개)을 내리면 물이 앞쪽 아래로 꺾인다. 오른쪽 아래 작은 그림은 위에서 본 배와 노즐 방향이다.</desc>
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M1 1L9 5L1 9z" fill="context-stroke"/>
+        </marker>
+      </defs>
+      <g id="scene"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="controls">
+      <label for="rpmR">엔진 회전</label>
+      <input type="range" id="rpmR" min="0" max="2000" step="50" value="1200">
+      <output id="rpmV">1200 RPM</output>
+      <label for="steerR">조향 (노즐 꺾기)</label>
+      <input type="range" id="steerR" min="-30" max="30" step="5" value="0">
+      <output id="steerV">0° 똑바로</output>
+    </div>
+    <div class="buttons"><span class="cap">후진 덮개(버킷)</span>
+      <button data-b="up" aria-pressed="true">올림 — 전진</button>
+      <button data-b="half" aria-pressed="false">반 — 제자리</button>
+      <button data-b="down" aria-pressed="false">내림 — 후진</button>
+    </div>
+    <div class="buttons"><span class="cap">고장 내 보기</span>
+      <button id="hydB" aria-pressed="false">유압 끊김 (덮개·노즐이 굳음)</button>
+    </div>
+    <div class="say" id="say"></div>
+    <table class="vals" id="vals"></table>
+  </div>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. RPM 범위, 각도 범위, 화살표 길이는 그림용이다.</p>
+
+  <h2>1. 무엇인가 — 부품 다섯 개</h2>
+  <table>
+    <tr><th>부품</th><th>하는 일</th><th>그림에서</th></tr>
+    <tr><td><b>흡입구</b></td><td>배 바닥에 난 구멍. 쇠창살(그릴)이 있어 큰 쓰레기를 막는다.</td><td>바닥 가운데 창살</td></tr>
+    <tr><td><b>임펠러</b> (날개)</td><td>엔진 축에 붙어 도는 날개. 관 속 물을 뒤로 세게 민다. 선풍기 날개가 공기 대신 물을 미는 것.</td><td>관 안 회색 날개</td></tr>
+    <tr><td><b>노즐</b></td><td>끝이 좁아지는 관. 좁아질수록 물이 빨라진다.</td><td>배 뒤로 튀어나온 관</td></tr>
+    <tr><td><b>조향 노즐</b></td><td>노즐 끝을 좌우로 꺾어 물 방향을 바꾼다 → 배가 돈다.</td><td>오른쪽 아래 위에서 본 그림</td></tr>
+    <tr><td><b>버킷</b> (후진 덮개)</td><td>노즐 끝을 덮어 물을 앞쪽 아래로 꺾는다 → 배가 뒤로 간다. 반만 덮으면 앞뒤 힘이 비겨 제자리.</td><td>노즐 끝 주황 덮개</td></tr>
+  </table>
+  <p>덮개와 조향 노즐은 사람 손 힘으로는 못 움직인다. <b>유압 장치</b>(<code>0700</code>)가 기름 압력으로 민다 → <a href="07-hydraulic.html">07 유압 장치</a>.</p>
+
+  <h2>2. 엔진은 세기, 유압은 방향</h2>
+  <p>엔진이 워터젯을 휘게 하는 게 아니다. 둘이 하는 일이 딱 나뉜다.</p>
+  <table>
+    <tr><th></th><th>정하는 것</th><th>하는 방법</th><th>호스로 치면</th></tr>
+    <tr><td><b>엔진</b> (<a href="04-engine.html">04</a>)</td><td>물을 <b>얼마나 세게</b></td><td>축을 돌려 임펠러를 돌린다. 늘 같은 방향으로만 돈다</td><td>수도꼭지를 얼마나 여나</td></tr>
+    <tr><td><b>유압 장치</b> (<code>0700</code>)</td><td>물을 <b>어느 쪽으로</b></td><td>기름 압력으로 노즐을 좌우로 꺾고, 버킷을 올리고 내린다</td><td>손으로 호스 끝을 어디로 겨누나</td></tr>
+  </table>
+  <p>그래서 위 그림에서 <b>엔진 회전</b> 슬라이더는 물줄기 굵기만 바꾸고, <b>버킷·조향</b>은 방향만 바꾼다. 유압이 끊기면 물은 나오는데(엔진은 멀쩡) 방향을 못 바꾸고(손이 굳음), 엔진이 서면 노즐을 아무리 꺾어도 물이 없어 배가 안 움직인다. 후진할 때도 엔진은 거꾸로 돌지 않는다 — 버킷이 물만 앞으로 꺾는다.</p>
+
+  <h2>3. 그림에서 일어나는 일</h2>
+  <ul>
+    <li><b>엔진 회전</b>을 올리면 날개가 빨리 돌아 물줄기가 굵어지고, 위의 "배가 가는 쪽" 화살표가 길어진다. 0이면 아무 일도 없다.</li>
+    <li><b>덮개를 내리면</b> 엔진은 그대로 앞으로 도는데 물만 앞쪽으로 꺾여 배가 뒤로 간다. 기어를 바꾸지 않는다.</li>
+    <li><b>노즐을 꺾으면</b> 위에서 본 그림에서 물이 비스듬히 나가고 뱃머리가 돈다. 물이 안 나가면(회전 0) 꺾어도 안 돈다.</li>
+    <li><b>유압 끊김</b>을 누르면 그 순간 위치에서 덮개·노즐이 굳는다. 물은 계속 나가지만 방향을 못 바꾼다 → <code>1000</code> 워터젯 가능 = 아니요.</li>
+  </ul>
+
+  <h2>4. 왜 프로펠러 대신 워터젯인가</h2>
+  <table>
+    <tr><th></th><th>프로펠러</th><th>워터젯</th></tr>
+    <tr><td>배 밖으로 나온 것</td><td>날개가 배 밑에 나와 돈다</td><td>없다 — 날개가 관 안에 있다</td></tr>
+    <tr><td>얕은 물</td><td>바닥에 부딪힐 수 있다</td><td>잘 다닌다</td></tr>
+    <tr><td>후진</td><td>날개를 거꾸로 돌린다(기어 R)</td><td>덮개로 물을 꺾는다 — 날개는 같은 방향</td></tr>
+    <tr><td>방향 바꾸기</td><td>따로 있는 키(러더)</td><td>노즐 자체를 꺾는다</td></tr>
+  </table>
+
+  <h2>5. 카드 <code>1000</code> 워터젯 제어 상태</h2>
+  <table>
+    <tr><th>칸</th><th>뜻</th><th>그림에서</th></tr>
+    <tr><td>백업 중</td><td>이 워터젯 제어 장치(JCU)가 비상용(백업)으로 돌고 있다. 예면 노랑.</td><td>— (<a href="02-control-authority.html">02 조종권</a>)</td></tr>
+    <tr><td>워터젯 가능</td><td>우리가 원격으로 쓸 수 있는 상태인가. 엔진·변속기·유압·조향·덮개가 <b>모두</b> 맞아야 예.</td><td>유압 끊김 → 아니요</td></tr>
+  </table>
+  <p>"워터젯 가능"은 <b>물이 나가는지</b>가 아니라 <b>우리가 쓸 수 있는지</b>다. 유압이 끊겨도 물은 나가지만 "아니요"다(<a href="01-power-chain.html">01 동력 사슬</a>).</p>
+
+  <h2>6. 몸으로 해 보기</h2>
+  <p>정원 호스 끝을 엄지로 반쯤 막으면 물이 가늘고 세게 뻗는다 — 그게 <b>노즐</b>. 호스 끝을 옆으로 틀면 손이 반대쪽으로 밀린다 — 그게 <b>조향</b>. 손바닥을 컵처럼 오므려 물줄기 앞에 대면 물이 내 쪽으로 튀어 돌아온다 — 그게 <b>버킷</b>.</p>
+
+  <div class="check"><b>확인할 것</b> — 문서에 없어서 그림에서 정한 것.
+    <ul>
+      <li>RPM 0~2000, 조향 ±30°, 후진 힘이 전진보다 약한 정도는 그림용이다. 실제 범위는 배 사양서에 있다.</li>
+      <li>유압이 끊기면 덮개·노즐이 "그 자리에서 굳는다"고 그렸다. 실제로 제자리에 멈추는지, 어느 위치로 돌아가는지는 문서에 없다.</li>
+      <li>후진할 때 조향이 어떻게 되는지는 그리지 않았다(운항제어 쪽 그림 참고).</li>
+    </ul>
+  </div>
+
+  <h2>7. 원래 자료와 연결하면</h2>
+  <ul>
+    <li><code>STATUS_VALUES.md</code> 1000 — 워터젯 가능 조건(엔진·기어박스·젯 모두).</li>
+    <li>운항제어 관제 쪽 그림: <a href="../01-bucket.html">추진 버킷</a>(덮개를 레버로 움직이기), <a href="../03-steering.html">조향 휠</a>(서 있으면 안 도는 이유).</li>
+    <li>화면: 카드 <code>waterjet-control</code> — <code>src/widgets/diagnostics/diagnostic-fields.js</code>.</li>
+  </ul>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  let bucket = 'up', hyd = true;
+  const applied = { bucket: 'up', steer: 0 };     // 유압이 끊기면 이 값에서 굳는다
+
+  const txt = (x, y, t, o) => '<text x="' + x + '" y="' + y + '" font-size="' + ((o && o.size) || 12) + '" fill="' + ((o && o.fill) || 'var(--text)') + '"' +
+    ' text-anchor="' + ((o && o.anchor) || 'middle') + '"' + ((o && o.bold) ? ' font-weight="600"' : '') + '>' + t + '</text>';
+
+  function draw() {
+    const rpm = +$('rpmR').value, steerIn = +$('steerR').value;
+    if (hyd) { applied.bucket = bucket; applied.steer = steerIn; }
+    const b = applied.bucket, steer = applied.steer;
+    const k = rpm / 2000;                              // 0~1 물 세기 (그림용)
+    $('rpmV').textContent = rpm + ' RPM';
+    $('steerV').textContent = steerIn === 0 ? '0° 똑바로' : Math.abs(steerIn) + '° ' + (steerIn > 0 ? '오른쪽' : '왼쪽');
+    document.querySelectorAll('[data-b]').forEach((x) => x.setAttribute('aria-pressed', x.dataset.b === bucket));
+    $('hydB').setAttribute('aria-pressed', !hyd);
+
+    let s = '';
+    // 바다, 배 몸통 (배 뒤 = 왼쪽, 그림용 좌표)
+    s += '<rect x="0" y="200" width="680" height="130" fill="var(--sea)"/>';
+    s += '<path d="M100 96 H680 V200 H100 Z" fill="var(--hull)" stroke="var(--obj-line)"/>';
+    s += txt(112, 90, '배 뒤', { size: 11, fill: 'var(--muted)', anchor: 'start' });
+    // 흡입 관 (바닥 → 펌프)
+    s += '<path d="M440 200 C390 172 310 146 250 146 L250 184 C285 184 315 190 340 200 Z" fill="var(--sea)" stroke="var(--obj-line)"/>';
+    for (let x = 350; x <= 430; x += 16) s += '<line x1="' + x + '" y1="196" x2="' + (x + 6) + '" y2="204" stroke="var(--obj-line)" stroke-width="2"/>';
+    s += txt(450, 218, '← 흡입구 (창살)', { size: 11, fill: 'var(--muted)', anchor: 'start' });
+    // 펌프 몸통 + 노즐 (배 안 → 배 밖)
+    s += '<rect x="180" y="146" width="70" height="38" fill="var(--sea)" stroke="var(--obj-line)"/>';
+    s += '<path d="M180 146 L104 156 L104 174 L180 184" fill="var(--sea)" stroke="var(--obj-line)"/>';
+    s += '<path d="M104 156 L66 159 L66 171 L104 174" fill="var(--obj)" stroke="var(--obj-line)"/>';
+    s += txt(140, 140, '노즐', { size: 11, fill: 'var(--muted)' });
+    // 축 (엔진에서)
+    s += '<line x1="215" y1="165" x2="680" y2="165" stroke="var(--steel)" stroke-width="5"/>';
+    s += txt(600, 156, '엔진에서 오는 축 →', { size: 11, fill: 'var(--muted)' });
+    // 임펠러: 회전이 빠를수록 날개를 많이 비튼 모양 (멈춘 그림, 그림용)
+    const tilt = 10 + k * 35;
+    for (const dy of [-12, 0, 12]) s += '<ellipse cx="215" cy="' + (165 + dy) + '" rx="13" ry="4" fill="var(--steel)" transform="rotate(' + (dy ? -tilt : tilt) + ' 215 ' + (165 + dy) + ')"/>';
+    s += '<circle cx="215" cy="165" r="5" fill="var(--obj-line)"/>';
+    s += txt(215, 138, '임펠러', { size: 11, fill: 'var(--muted)' });
+
+    // 물: 흡입 화살표, 관 속 흐름
+    if (rpm > 0) {
+      for (const x of [372, 410]) s += '<line x1="' + x + '" y1="250" x2="' + (x - 6) + '" y2="208" stroke="var(--water)" stroke-width="' + (1 + k * 3).toFixed(1) + '" marker-end="url(#arrow)"/>';
+      s += '<path d="M380 194 C330 172 290 165 240 165" fill="none" stroke="var(--water)" stroke-width="' + (1 + k * 5).toFixed(1) + '" stroke-dasharray="6 5" opacity=".7"/>';
+      s += '<line x1="190" y1="165" x2="110" y2="165" stroke="var(--water)" stroke-width="' + (1 + k * 6).toFixed(1) + '" stroke-dasharray="6 5" opacity=".7"/>';
+    }
+    // 뿜는 물: 덮개 위치에 따라 (올림 = 뒤로, 내림 = 앞쪽 아래로 꺾임, 반 = 둘 다)
+    const w = (f) => (2 + k * 10 * f).toFixed(1);
+    if (rpm > 0 && b !== 'down') s += '<line x1="62" y1="165" x2="' + (b === 'up' ? 6 : 26) + '" y2="165" stroke="var(--water)" stroke-width="' + w(b === 'up' ? 1 : .5) + '" marker-end="url(#arrow)"/>';
+    if (rpm > 0 && b !== 'up') s += '<path d="M40 182 Q30 222 96 232 L' + (b === 'down' ? 170 : 130) + ' 236" fill="none" stroke="var(--water)" stroke-width="' + w(b === 'down' ? .8 : .5) + '" marker-end="url(#arrow)"/>';
+    // 버킷: 고리(66,150)에 매달려 돈다 (올림 = 물 밖으로 젖힘)
+    const rot = { up: 100, half: 42, down: 0 }[b];
+    s += '<g transform="rotate(' + rot + ' 64 148)"><path d="M64 148 C30 150 24 188 48 202" fill="none" stroke="' + (hyd ? 'var(--accent)' : 'var(--muted)') + '" stroke-width="6" stroke-linecap="round"/></g>';
+    s += '<circle cx="64" cy="148" r="3.5" fill="var(--obj-line)"/>';
+    s += txt(84, 196, '버킷', { size: 11, fill: hyd ? 'var(--accent)' : 'var(--muted)', bold: true });
+    // 유압 관: 버킷·노즐을 미는 기름
+    s += '<path d="M150 104 V120 H80 V140" fill="none" stroke="' + (hyd ? 'var(--accent2)' : 'var(--muted)') + '" stroke-width="3"' + (hyd ? '' : ' stroke-dasharray="5 4"') + '/>';
+    s += '<rect x="140" y="100" width="70" height="20" rx="4" fill="' + (hyd ? 'var(--obj)' : 'var(--chip-on)') + '" stroke="var(--obj-line)"/>' + txt(175, 114, hyd ? '유압 0700' : '유압 끊김', { size: 10, fill: hyd ? 'var(--text)' : 'var(--bad)' });
+
+    // 배가 가는 쪽 (덮개 올림 = 앞 / 반 = 0 / 내림 = 뒤, 그림용 세기)
+    const thrust = rpm === 0 ? 0 : (b === 'up' ? k : b === 'half' ? 0 : -k * .6);
+    s += txt(470, 90, '배가 가는 쪽', { size: 12, fill: 'var(--muted)' });
+    if (Math.abs(thrust) > .02) s += '<line x1="470" y1="70" x2="' + (470 + thrust * 150).toFixed(0) + '" y2="70" stroke="var(--ok)" stroke-width="6" marker-end="url(#arrow)"/>';
+    else s += txt(470, 64, rpm === 0 ? '안 움직임' : '제자리 (앞뒤 힘이 비김)', { size: 12, fill: 'var(--accent2)', bold: true });
+
+    // 오른쪽 아래: 위에서 본 배와 노즐 (조향)
+    s += '<rect x="470" y="244" width="200" height="80" rx="8" fill="var(--card)" stroke="var(--line)"/>';
+    s += txt(570, 260, '위에서 본 모습 · 조향', { size: 11, fill: 'var(--muted)' });
+    s += '<path d="M520 270 H610 L640 284 L610 298 H520 Z" fill="var(--hull)" stroke="var(--obj-line)"/>';
+    const a = steer * Math.PI / 180;                   // 노즐이 꺾인 만큼 물도 비스듬히 (오른쪽 조향 = 물이 왼쪽 아래로)
+    const nx = 520 - 14 * Math.cos(a), ny = 284 + 14 * Math.sin(a);
+    s += '<line x1="520" y1="284" x2="' + nx.toFixed(1) + '" y2="' + ny.toFixed(1) + '" stroke="var(--obj-line)" stroke-width="6" stroke-linecap="round"/>';
+    if (rpm > 0 && b === 'up') s += '<line x1="' + nx.toFixed(1) + '" y1="' + ny.toFixed(1) + '" x2="' + (nx - 26 * Math.cos(a)).toFixed(1) + '" y2="' + (ny + 26 * Math.sin(a)).toFixed(1) + '" stroke="var(--water)" stroke-width="' + w(.6) + '" marker-end="url(#arrow)"/>';
+    if (rpm > 0 && b === 'up' && steer !== 0) s += '<path d="M646 284 Q656 284 656 ' + (284 + Math.sign(steer) * 22) + '" fill="none" stroke="var(--ok)" stroke-width="3" marker-end="url(#arrow)"/>';
+
+    $('scene').innerHTML = '<g data-state="' + [rpm, b, steer, hyd].join(':') + '">' + s + '</g>';
+
+    // 한 줄 설명
+    let say;
+    if (rpm === 0) say = '엔진이 안 돌면 날개도 안 돈다. 덮개를 내리든 노즐을 꺾든 <b>물이 없어서 아무 일도 없다</b>.';
+    else if (b === 'up') say = '덮개를 올려 물이 <b>뒤로</b> 뿜어진다 → 배가 <b>앞으로</b> 간다.' + (steer ? ' 노즐을 ' + (steer > 0 ? '오른쪽' : '왼쪽') + '으로 꺾어 뱃머리가 ' + (steer > 0 ? '오른쪽' : '왼쪽') + '으로 돈다.' : '');
+    else if (b === 'half') say = '덮개를 반만 내려 물 절반은 뒤로, 절반은 앞으로 꺾인다 → 힘이 비겨 <b>제자리</b>. 엔진은 돌고 있다.';
+    else say = '덮개가 노즐을 덮어 물이 <b>앞쪽 아래로</b> 꺾인다 → 배가 <b>뒤로</b> 간다. 날개는 여전히 같은 방향으로 돈다.';
+    if (!hyd) say += ' <b>유압이 끊겨</b> 덮개·노즐이 지금 자리에서 굳었다 — 버튼·조향을 움직여도 안 바뀐다. 카드 <code>1000</code> 워터젯 가능 = 아니요.';
+    $('say').innerHTML = say;
+    $('vals').innerHTML = '<tr><th colspan="2">이때 카드 <code>1000</code>에는</th></tr>' +
+      '<tr><td>백업 중</td><td>아니요</td></tr><tr><td>워터젯 가능</td><td style="font-weight:600;color:' + (hyd ? 'var(--ok)' : 'var(--bad)') + '">' + (hyd ? '예' : '아니요 — 유압 없음') + '</td></tr>';
+  }
+
+  $('rpmR').addEventListener('input', draw);
+  $('steerR').addEventListener('input', draw);
+  document.querySelectorAll('[data-b]').forEach((x) => x.addEventListener('click', () => { bucket = x.dataset.b; draw(); }));
+  $('hydB').addEventListener('click', () => { hyd = !hyd; draw(); });
+  draw();
+
+  // ── 맨 위: 바닷물 → 흡입구 → 날개 → 뿜음 → 반동 (배 뒤 = 왼쪽, 좌표는 그림용) ──
+  let step = 'all';
+  const SAY0 = {
+    all: '물을 싣고 다니지 않는다. <b>배 밑 바닷물</b>을 빨아들여 → 날개가 뒤로 세게 밀어내고 → 그 <b>반동</b>으로 배가 앞으로 간다. 버튼을 하나씩 눌러 보자.',
+    suck: '배 바닥 <b>흡입구(창살)</b>로 배 밑 바닷물을 빨아들인다. 물을 따로 싣고 다니지 않는다 — 선풍기가 주변 공기를 쓰듯, 주변 바닷물을 쓴다. 바다 위에 있는 한 물이 떨어질 일이 없다.',
+    push: '엔진이 축으로 돌리는 <b>날개</b>가 관 속 물을 뒤로 세게 민다. 헤어드라이어 속 작은 선풍기 날개가 공기를 미는 것과 같다 — 공기 대신 물일 뿐.',
+    shoot: '밀린 물이 좁아지는 노즐을 지나 배 뒤로 <b>쫙 뿜어진다</b>. 이게 "물대포". 겉에서 보이는 모습이고, 그 속에서는 ②의 날개가 돌고 있다.',
+    go: '물을 뒤로 세게 뿜으면 배는 <b>앞으로 밀린다</b> — 반동. 풍선을 불었다 놓으면 바람이 뒤로 나가며 풍선이 앞으로 날아가는 것, 소방 호스를 여럿이 꽉 잡는 것과 같다. 이 미는 힘은 축 → <a href="06-thrust-bearing.html">베어링</a> → 배로 전해진다.',
+  };
+  function drawFlow() {
+    document.querySelectorAll('[data-w]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.w === step));
+    const on = (w) => step === 'all' || step === w;
+    const op = (w) => on(w) ? 1 : .25;
+    let s = '';
+    // 바다 + 물결
+    s += '<rect x="0" y="150" width="680" height="140" fill="var(--sea)"/>';
+    s += '<path d="M0 150 q20 -6 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0" fill="none" stroke="var(--water)" stroke-width="1.5" opacity=".6"/>';
+    s += txt(540, 262, '배 밑 바닷물', { size: 13, fill: 'var(--water)', bold: true });
+    // 배 몸통
+    s += '<path d="M70 100 H610 Q664 104 660 120 Q640 182 590 196 H100 Q74 196 70 176 Z" fill="var(--hull)" stroke="var(--obj-line)"/>';
+    s += txt(84, 92, '← 배 뒤', { size: 11, fill: 'var(--muted)', anchor: 'start' }) + txt(640, 92, '뱃머리 →', { size: 11, fill: 'var(--muted)', anchor: 'end' });
+    // 관: 흡입구(배 바닥) → 뒤쪽 노즐
+    const duct = 'M352 196 C320 172 220 160 72 160';
+    s += '<path d="' + duct + '" fill="none" stroke="var(--obj-line)" stroke-width="24"/><path d="' + duct + '" fill="none" stroke="var(--sea)" stroke-width="20"/>';
+    for (let x = 334; x <= 372; x += 9) s += '<line x1="' + x + '" y1="191" x2="' + (x + 4) + '" y2="201" stroke="var(--obj-line)" stroke-width="2"/>';
+    s += '<g opacity="' + op('suck') + '">' + txt(392, 216, '흡입구 (창살)', { size: 11, fill: 'var(--muted)', anchor: 'start' }) + '</g>';
+    // 축 + 베어링 + 엔진
+    s += '<line x1="176" y1="162" x2="470" y2="150" stroke="var(--steel)" stroke-width="6"/>';
+    s += '<rect x="262" y="146" width="22" height="16" rx="3" fill="var(--gold)" fill-opacity=".5" stroke="var(--accent2)"/>';
+    s += '<rect x="470" y="124" width="90" height="48" rx="8" fill="var(--obj)" stroke="var(--obj-line)"/>' + txt(515, 153, '엔진', { size: 13, bold: true });
+    // 날개
+    const bl = '<circle cx="176" cy="162" r="4" fill="var(--obj-line)"/>' + [0, 120, 240].map((a) => '<ellipse cx="176" cy="153" rx="3.5" ry="9" fill="var(--steel)" transform="rotate(' + a + ' 176 162)"/>').join('');
+    s += '<g opacity="' + op('push') + '">' + (on('push') ? '<g class="spin" style="animation-duration:.6s">' + bl + '</g>' : bl) + txt(176, 136, '날개', { size: 12, bold: true, fill: step === 'push' ? 'var(--accent)' : 'var(--text)' }) + '</g>';
+    // 물 흐름 ① 바다 → 흡입구, ② 관 속, ③ 뒤로 뿜음
+    const flowLine = (d, w, act) => '<path d="' + d + '" fill="none" stroke="var(--water)" stroke-width="' + w + '" stroke-dasharray="6 6"' + (act ? ' class="run" style="animation-duration:.7s"' : '') + '/>';
+    s += '<g opacity="' + op('suck') + '">' + flowLine('M352 268 L352 200', 4, on('suck')) + flowLine('M318 268 L340 202', 3, on('suck')) + flowLine('M386 268 L364 202', 3, on('suck')) + '</g>';
+    s += '<g opacity="' + op('push') + '">' + flowLine('M346 192 C316 172 222 162 80 160', 6, on('push')) + '</g>';
+    s += '<g opacity="' + op('shoot') + '"><line x1="68" y1="160" x2="10" y2="160" stroke="var(--water)" stroke-width="12" marker-end="url(#arrow)"/>' +
+      txt(40, 140, '물대포', { size: 13, bold: true, fill: step === 'shoot' ? 'var(--accent)' : 'var(--water)' }) + '</g>';
+    // ④ 반동: 배가 앞으로
+    s += '<g opacity="' + op('go') + '"><line x1="250" y1="60" x2="470" y2="60" stroke="var(--ok)" stroke-width="8" marker-end="url(#arrow)"/>' +
+      txt(360, 44, '반동 → 배가 앞으로', { size: 14, bold: true, fill: 'var(--ok)' }) + '</g>';
+    if (step === 'go') s += '<line x1="190" y1="174" x2="258" y2="168" stroke="var(--accent)" stroke-width="4" marker-end="url(#arrow)"/>' + txt(222, 190, '날개가 앞으로 밀림', { size: 11, fill: 'var(--accent)', bold: true });
+    $('flow').innerHTML = '<g data-state="' + step + '">' + s + '</g>';
+    $('say0').innerHTML = SAY0[step];
+  }
+  document.querySelectorAll('[data-w]').forEach((b) => b.addEventListener('click', () => { step = b.dataset.w; drawFlow(); }));
+  drawFlow();
+</script>
+</body>
+</html>

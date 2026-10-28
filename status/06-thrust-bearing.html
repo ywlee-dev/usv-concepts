@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>스러스트 베어링 개념</title>
+<style>
+  :root {
+    --bg: #fafaf8; --card: #ffffff; --text: #1f1f1d; --muted: #6b6a65; --line: #d8d6ce;
+    --link: #185FA5; --en: #185FA5; --accent: #D85A30; --accent2: #BA7517; --ok: #1D9E75; --bad: #C8402F;
+    --obj: #dfe8f3; --obj-hi: #f4f8fc; --obj-line: #5f5e5a; --floor: #f1efe8; --chip-on: #fbe9e2;
+    --skin: #f2c9a0; --sleeve: #7f9cc0; --gold: #d9a21b; --wood: #b98b5e; --steel: #8a8984; --water: #3b8fd6;
+    --oil: #e0b13a; --hull: #eceae4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1c1c1a; --card: #262624; --text: #ecebe6; --muted: #a8a69e; --line: #44443f;
+      --link: #85B7EB; --en: #9cc6f0; --obj: #34465a; --obj-hi: #4a5f76; --obj-line: #b4b2a9; --floor: #302f2b; --chip-on: #4a2c22;
+      --skin: #c99a72; --sleeve: #5a7090; --wood: #9a7350; --steel: #9d9c96; --bad: #E8705F; --water: #6cb0ec; --oil: #b8912e; --hull: #2f2e2a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.7 "Pretendard", "Malgun Gothic", system-ui, sans-serif; }
+  main { max-width: 820px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 4px; }
+  h2 { font-size: 18px; font-weight: 600; margin: 32px 0 8px; }
+  .lead { color: var(--muted); margin: 0 0 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .controls { display: grid; grid-template-columns: auto 1fr auto; gap: 10px 14px; align-items: center; margin-top: 8px; font-size: 15px; color: var(--muted); }
+  .controls output { min-width: 110px; color: var(--text); }
+  .buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+  .buttons .cap { font-size: 15px; color: var(--muted); margin-right: 4px; }
+  button { font: inherit; font-size: 14px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); cursor: pointer; }
+  button:hover { border-color: var(--muted); }
+  button[aria-pressed="true"] { border-color: var(--accent); background: var(--chip-on); font-weight: 600; }
+  button:disabled { opacity: .45; cursor: default; }
+  .say { margin: 14px 0 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--bg); border-radius: 0 8px 8px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  .vals { margin-top: 12px; font-size: 14px; }
+  .vals td { padding: 5px 10px; }
+  .vals td:first-child { color: var(--muted); white-space: nowrap; width: 1%; }
+  .vals .hot { font-weight: 600; color: var(--accent); }
+  .steps { display: grid; grid-template-columns: max-content 1fr; gap: 6px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; font-size: 15px; }
+  .steps b { white-space: nowrap; }
+  svg text { font-family: inherit; }
+  /* 도는 것: 구슬은 제 가운데로, 축 줄무늬는 흐르게 */
+  .spin { transform-box: fill-box; transform-origin: center; animation: spin linear infinite; }
+  .run { animation: run linear infinite; }
+  .orbit { transform-box: view-box; transform-origin: 290px 205px; animation: spin linear infinite; }   /* 앞에서 본 베어링 가운데 */
+  .rev { animation-direction: reverse; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes run { to { stroke-dashoffset: -24; } }
+  @media (prefers-reduced-motion: reduce) { .spin, .run, .orbit { animation: none; } }
+  .note { font-size: 14px; color: var(--muted); }
+  .check { border: 1px dashed var(--accent2); border-radius: 8px; padding: 10px 12px; font-size: 15px; }
+  .check b:first-child { color: var(--accent2); }
+  main ul { padding-left: 20px; }
+  a { color: var(--link); }
+  code { font-size: 14px; }
+  .fig { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .fig-hint { display: none; }
+  @media (max-width: 600px) {
+    .fig svg { min-width: 560px; }
+    .fig-hint { display: block; font-size: 13px; color: var(--muted); text-align: center; margin: 4px 0 0; }
+    .controls { grid-template-columns: 1fr auto; gap: 2px 12px; }
+    .controls label { grid-column: 1 / -1; margin-top: 8px; }
+    .steps { grid-template-columns: 1fr; gap: 0; }
+    .steps span { margin-bottom: 6px; }
+    table { font-size: 14px; }
+    th, td { padding: 6px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="index.html">← 개념 그림 목록</a> · <a href="00-big-picture.html">00 큰 그림</a> · 이전: <a href="05-transmission.html">05 변속기</a> · 다음: <a href="07-hydraulic.html">07 유압 장치</a></p>
+  <h1>스러스트 베어링 — 돌게는 두고, 밀리는 것만 막는다</h1>
+  <p class="lead">워터젯 날개는 <b>빙글빙글 돌면서</b> 동시에 물의 반동으로 <b>앞으로 밀린다</b>. 이 두 가지를 한꺼번에 받아 주는 것이 스러스트 베어링이다. 아래에서 베어링 자리를 바꿔 보면, 왜 꼭 이 부품이어야 하는지 보인다. 오른쪽 회전의자도 같이 바뀐다.</p>
+
+  <p class="note">"물대포"와 "날개가 돈다", "반동"이 어떻게 이어지는지 헷갈리면 <a href="03-waterjet.html">03 워터젯</a> 맨 위 그림(배 밑 바닷물 → 뿜음 → 반동)을 먼저 보자.</p>
+  <h2 style="margin-top:0">먼저 한 장으로 — 도는 축과 안 도는 배 사이에 끼는 회전 받침</h2>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 250" role="img" aria-labelledby="t0 d0">
+      <title id="t0">베어링이 하는 일 네 가지</title>
+      <desc id="d0">왼쪽 워터젯 날개, 오른쪽 엔진, 그 사이를 잇는 도는 축. 축 가운데에 베어링이 끼어 있고 베어링 다리가 아래 배 바닥에 박혀 있다. 단계마다 엔진이 돌리는 것, 베어링이 잘 돌게 두는 것, 밀리는 힘을 배에 넘기는 것, 기름이 필요한 것이 강조된다.</desc>
+      <g id="simple"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">하나씩</span>
+      <button data-r="all" aria-pressed="true">한눈에</button>
+      <button data-r="turn" aria-pressed="false">① 엔진이 돌린다</button>
+      <button data-r="roll" aria-pressed="false">② 베어링이 잘 돌게 둔다</button>
+      <button data-r="hold" aria-pressed="false">③ 붙잡아 배를 민다</button>
+      <button data-r="oil" aria-pressed="false">④ 그래서 기름</button>
+    </div>
+    <div class="say" id="say0"></div>
+  </div>
+  <h2>누가 누구를 돌리나 — 축이 돌아서, 구슬이 따라 구른다</h2>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 290" role="img" aria-labelledby="t9 d9">
+      <title id="t9">엔진 → 축 → 날개, 구슬은 따라 구름</title>
+      <desc id="d9">왼쪽 엔진이 축을 돌리고 오른쪽 끝 워터젯 날개가 같이 돈다. 축 가운데 베어링을 앞에서 본 확대 그림: 가운데 도는 축, 바깥 안 도는 고리, 그 사이 구슬이 따라 구른다. 왼쪽 아래는 볼펜 끝 구슬 비유.</desc>
+      <g id="cause"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="controls">
+      <label for="rpmR">엔진 회전</label>
+      <input type="range" id="rpmR" min="0" max="100" step="10" value="60">
+      <output id="rpmV">60 %</output>
+    </div>
+    <div class="buttons"><span class="cap">시험해 보기</span>
+      <button data-c="normal" aria-pressed="true">보통</button>
+      <button data-c="push" aria-pressed="false">구슬만 손으로 굴려 보면?</button>
+      <button data-c="nob" aria-pressed="false">구슬이 없다면?</button>
+    </div>
+    <div class="say" id="say9"></div>
+  </div>
+  <p class="say"><b>정리</b> — 스러스트 베어링 = 구슬로 축을 <b>부드럽게 돌게</b> 하면서, 밀리는 힘은 <b>붙잡아 배에 넘기는</b> 부품. 돌리는 건 엔진이고, 구슬은 축을 따라 구를 뿐이다. 구슬이 계속 구르며 비비니 기름이 필요하고, 그 기름을 보는 것이 카드 <code>0600</code>.</p>
+  <p class="note">아래 그림은 이 베어링 속을 옆에서 크게 확대한 것이다. 위 그림들이 이해되면 넘어가도 된다.</p>
+
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 330" role="img" aria-labelledby="t1 d1">
+      <title id="t1">확대한 스러스트 베어링과 회전의자</title>
+      <desc id="d1">왼쪽은 워터젯 날개에서 엔진까지 이어진 축과, 가운데 크게 확대한 베어링 통. 축의 턱이 구슬을 누르고, 구슬 뒤 고정판과 다리를 거쳐 힘이 배 바닥으로 내려간다. 오른쪽은 같은 일을 하는 회전의자.</desc>
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M1 1L9 5L1 9z" fill="context-stroke"/>
+        </marker>
+      </defs>
+      <g id="scene"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">베어링 자리에</span>
+      <button data-m="bearing" aria-pressed="true">스러스트 베어링</button>
+      <button data-m="weld" aria-pressed="false">그냥 꽉 고정했다면?</button>
+      <button data-m="none" aria-pressed="false">아무것도 없다면?</button>
+    </div>
+    <div class="controls">
+      <label for="fR">물 미는 힘</label>
+      <input type="range" id="fR" min="0" max="100" step="5" value="60">
+      <output id="fV">60 %</output>
+    </div>
+    <div class="buttons"><span class="cap">기름 고장</span>
+      <button id="leakB" aria-pressed="false">오일 샘</button>
+      <button id="hotB" aria-pressed="false">과열</button>
+      <button id="flowB" aria-pressed="false">오일 흐름 막힘</button>
+    </div>
+    <div class="say" id="say"></div>
+    <table class="vals" id="vals"></table>
+  </div>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. 실제 베어링 모양·구슬 수, 오일 양·온도 숫자와 판정 기준(40%, 90℃)은 그림용이다.</p>
+
+  <h2>1. 한 걸음씩</h2>
+  <div class="steps">
+    <b>① 배는 왜 가나</b><span>날개가 물을 <b>뒤로</b> 밀면, 물이 날개를 <b>앞으로</b> 되민다(반동). 스케이트 신고 벽을 밀면 내가 뒤로 밀려나는 것과 같다. 배가 나가는 힘은 이것뿐이다.</span>
+    <b>② 문제</b><span>밀리는 그 날개는 엔진이 축으로 <b>돌리고 있다</b>. 배에 꽉 붙이면 못 돌고, 그냥 두면 축째로 앞으로 밀려 엔진을 들이받는다.</span>
+    <b>③ 해결</b><span><b>돌게는 두고, 앞으로 밀리는 것만 막는</b> 받침 = 스러스트 베어링. 축의 턱이 구슬을 누르고, 구슬은 굴러서 축이 돌게 두면서 그 누름을 고정판 → 다리 → 배 바닥으로 넘긴다.</span>
+    <b>④ 그래서</b><span>배 바닥이 밀리니 <b>배 전체가 앞으로</b> 간다. 배를 미는 힘은 전부 이 작은 부품을 지난다.</span>
+  </div>
+
+  <h2>2. 회전의자와 똑같다</h2>
+  <table>
+    <tr><th>회전의자</th><th>배</th></tr>
+    <tr><td>의자가 빙글 돈다</td><td>축이 빙글 돈다</td></tr>
+    <tr><td>몸무게가 <b>아래로</b> 누른다</td><td>반동이 <b>앞으로</b> 민다</td></tr>
+    <tr><td>기둥 밑 받침이 누름을 받으면서도 돌게 둔다</td><td><b>스러스트 베어링</b>이 같은 일을 한다</td></tr>
+    <tr><td>받침이 굳으면(용접) → 안 돈다</td><td>꽉 고정하면 → 날개가 못 돌아 물이 안 나간다</td></tr>
+    <tr><td>받침이 없으면 → 푹 꺼진다</td><td>베어링이 없으면 → 축이 밀려 엔진을 들이받는다</td></tr>
+  </table>
+  <p>방향만 "아래" 대신 "앞"일 뿐이다. 그림에서 세 버튼을 눌러 보면 왼쪽 배와 오른쪽 의자가 같은 모양으로 갈린다.</p>
+
+  <h2>3. 왜 기름을 보나 — 카드 <code>0600</code></h2>
+  <p>그림에서 힘을 올리면 구슬이 <b>꾹 눌려 달아오른다</b>. 돌면서 눌리고 비비니 열이 나고 닳는다. 그래서 기름으로 미끄럽게 하고 식힌다. 회전의자도 기름이 마르면 "끼익" 한다. 카드는 <b>그 기름만</b> 본다.</p>
+  <table>
+    <tr><th>칸</th><th>뜻</th><th>그림에서</th></tr>
+    <tr><td>오일 레벨</td><td>기름이 얼마나 차 있나 (0~250 %)</td><td>통 아래 노란 높이</td></tr>
+    <tr><td>오일 온도</td><td>기름 온도 (-40~210 ℃)</td><td>통 안 온도계</td></tr>
+    <tr><td>오일 레벨 상태</td><td><code>OK</code> · <code>Low/High</code> · <code>Error</code>(센서 고장) · <code>Not fitted</code>(미장착)</td><td>빨간 점선 아래면 Low</td></tr>
+    <tr><td>오일 온도 상태</td><td>위와 같은 네 가지</td><td>온도계 빨간 선 위면 High</td></tr>
+    <tr><td>오일 유량 상태</td><td><code>OK</code> · <code>Not OK</code>(기름이 안 돎) · <code>Error</code> · <code>Not fitted</code></td><td>통 안 순환 화살표</td></tr>
+  </table>
+  <p><b>관제사가 읽는 법</b>: 상태 칸 셋이 모두 <code>OK</code>면 안심. 하나라도 아니면 "베어링 기름에 문제 — 계속 쓰면 구슬이 상해 배를 미는 힘을 못 받는다". 숫자 칸 둘은 얼마나 나쁜지 볼 때.</p>
+
+  <h2>4. 다른 카드와의 관계</h2>
+  <ul>
+    <li><code>1000</code> 워터젯 가능의 조건 목록에 베어링은 <b>없다</b>. 기름이 나빠도 "예"로 남을 수 있다 → <code>0600</code>을 따로 봐야만 안다(<a href="01-power-chain.html">01 동력 사슬</a>).</li>
+    <li>심하면 <code>1200</code> 알람으로 올 가능성이 크다(확인할 것).</li>
+  </ul>
+
+  <h2>5. 몸으로 해 보기</h2>
+  <p>회전의자에 앉아 발을 들고 빙글 돌아 보자. 내 몸무게가 기둥을 꾹 누르는데도 잘 돈다 — 기둥 밑 받침 덕분이다. 이제 그 받침이 <b>옆으로 누운 것</b>이 배의 스러스트 베어링이다. 누르는 쪽이 "아래" 대신 "앞"일 뿐.</p>
+
+  <div class="check"><b>확인할 것</b> — 문서에 없어서 그림에서 정한 것.
+    <ul>
+      <li>OK와 Low/High를 가르는 기준(레벨·온도)은 장치 안에서 정해지고 문서에 없다. 그림은 40%·90℃.</li>
+      <li>힘이 셀수록 오일 온도가 오르는 정도, 구슬이 눌리는 모습은 그림용 과장이다.</li>
+      <li>"꽉 고정"과 "없음"은 이해를 위한 가정이다. 실제 배에 그런 상태는 없다(없으면 카드는 <code>Not fitted</code>로 올 것).</li>
+      <li>베어링 문제가 <code>1200</code> 알람으로 오는지, 몇 번 코드로 오는지는 NCM 알람 목록(STATUS_VALUES.md 7-5)과 맞춰 봐야 한다.</li>
+      <li>실제 배에서 베어링이 워터젯 몸통 안에 있는지 따로 있는지는 그림과 다를 수 있다.</li>
+    </ul>
+  </div>
+
+  <h2>6. 원래 자료와 연결하면</h2>
+  <ul>
+    <li><code>STATUS_VALUES.md</code> 0600 — 칸별 값, 1-1 Discrete 네 값, 7-1 NCM 글자(<code>Low/High</code>, <code>Not fitted</code>).</li>
+    <li>화면: 카드 <code>thrust-bearing</code>(0600) — <code>src/widgets/diagnostics/diagnostic-fields.js</code>.</li>
+  </ul>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const F = { leak: false, hot: false, flow: false };
+  const LOW = 40, HIGH_T = 90;                         // 판정 기준 (그림용)
+  let mode = 'bearing';                                // bearing | weld | none
+
+  const txt = (x, y, t, o) => '<text x="' + x + '" y="' + y + '" font-size="' + ((o && o.size) || 12) + '" fill="' + ((o && o.fill) || 'var(--text)') + '"' +
+    ' text-anchor="' + ((o && o.anchor) || 'middle') + '"' + ((o && o.bold) ? ' font-weight="600"' : '') + '>' + t + '</text>';
+  const zig = (x, y1, y2) => { let d = 'M' + x + ' ' + y1; for (let y = y1, i = 0; y < y2; y += 6, i++) d += ' L' + (x + (i % 2 ? -5 : 5)) + ' ' + (y + 6); return '<path d="' + d + '" fill="none" stroke="var(--bad)" stroke-width="2.5"/>'; };
+
+  function model() {
+    const f = +$('fR').value;
+    const level = F.leak ? 22 : 78;                                   // %
+    const temp = F.hot ? 112 : Math.round(38 + f * 0.35 + (F.flow ? 25 : 0));   // ℃, 흐름이 막히면 덜 식음
+    return { f, k: f / 100, level, temp };
+  }
+
+  function draw() {
+    const { f, k, level, temp } = model();
+    $('fV').textContent = f + ' %';
+    document.querySelectorAll('[data-m]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.m === mode));
+    for (const key in F) { $(key + 'B').setAttribute('aria-pressed', F[key]); $(key + 'B').disabled = mode !== 'bearing'; }
+    const spinning = f > 0 && mode !== 'weld';          // 꽉 고정하면 축이 못 돎
+    const dur = (1.8 - k * 1.4).toFixed(2) + 's';
+    const shift = mode === 'none' && f > 0 ? 30 : 0;    // 받침이 없으면 축이 엔진 쪽으로 밀림
+    const push = mode === 'bearing' ? k * 6 : 0;        // 턱이 구슬을 누르는 만큼 (그림용 과장)
+    let s = '';
+
+    // ── 왼쪽: 배 ──
+    s += '<rect x="0" y="262" width="472" height="68" fill="var(--hull)"/><line x1="0" y1="262" x2="472" y2="262" stroke="var(--obj-line)"/>';
+    s += txt(12, 284, '배 바닥 (배 몸통)', { size: 11, fill: 'var(--muted)', anchor: 'start' });
+    // 배가 가는 쪽
+    s += txt(240, 24, '배가 가는 쪽', { size: 12, fill: 'var(--muted)' });
+    if (mode === 'bearing' && f > 0) s += '<line x1="190" y1="40" x2="' + (190 + k * 150).toFixed(0) + '" y2="40" stroke="var(--ok)" stroke-width="6" marker-end="url(#arrow)"/>';
+    else s += txt(240, 44, f === 0 ? '안 움직임' : mode === 'weld' ? '물이 안 나가 안 움직임' : '힘이 배에 안 전해짐', { size: 12, bold: true, fill: f === 0 ? 'var(--muted)' : 'var(--bad)' });
+    // 워터젯 날개 + 물
+    s += '<path d="M30 118 L96 108 L96 192 L30 182 Z" fill="var(--obj)" stroke="var(--obj-line)"/>' + txt(63, 100, '워터젯 날개', { size: 11, fill: 'var(--muted)' });
+    if (spinning) s += '<line x1="26" y1="150" x2="4" y2="150" stroke="var(--water)" stroke-width="' + (2 + k * 9).toFixed(1) + '" marker-end="url(#arrow)"/>';
+    // 축 (+ 도는 줄무늬)
+    s += '<line x1="' + (96 + shift) + '" y1="150" x2="' + (404 + shift) + '" y2="150" stroke="var(--steel)" stroke-width="9"/>';
+    if (spinning) s += '<line x1="' + (96 + shift) + '" y1="150" x2="' + (404 + shift) + '" y2="150" stroke="var(--obj-line)" stroke-width="9" stroke-dasharray="3 9" opacity=".5" class="run" style="animation-duration:' + dur + '"/>';
+    // 반동 화살표
+    if (f > 0 && mode !== 'weld') {
+      const end = mode === 'none' ? 396 : 228 + push;
+      s += '<line x1="104" y1="128" x2="' + end.toFixed(0) + '" y2="128" stroke="var(--accent)" stroke-width="' + (2 + k * 6).toFixed(1) + '" marker-end="url(#arrow)" opacity=".85"/>';
+      s += txt(140, 118, '반동 →', { size: 12, fill: 'var(--accent)', bold: true });
+    }
+
+    if (mode === 'none') {
+      s += '<rect x="180" y="72" width="170" height="160" rx="12" fill="none" stroke="var(--line)" stroke-dasharray="6 5"/>';
+      s += txt(265, 62, '베어링 없음', { size: 12, bold: true, fill: 'var(--bad)' });
+    } else {
+      // 베어링 통 + 다리 + 볼트
+      s += '<path d="M206 232 L200 262 M324 232 L330 262" stroke="var(--obj-line)" stroke-width="6"/>';
+      s += '<circle cx="200" cy="262" r="4" fill="var(--obj-line)"/><circle cx="330" cy="262" r="4" fill="var(--obj-line)"/>';
+      s += '<rect x="180" y="72" width="170" height="160" rx="12" fill="var(--obj-hi)" stroke="var(--obj-line)"/>';
+      s += mode === 'weld' ? txt(265, 62, '꽉 고정(용접) — 축이 못 돎', { size: 12, bold: true, fill: 'var(--bad)' }) : txt(265, 62, '스러스트 베어링 (확대) · 0600', { size: 12, bold: true });
+      // 기름
+      const oh = 26 * level / 100, ly = 228 - 26 * LOW / 100;
+      s += '<rect x="184" y="' + (228 - oh).toFixed(1) + '" width="162" height="' + oh.toFixed(1) + '" fill="var(--oil)" opacity=".6"/>';
+      s += '<line x1="180" y1="' + ly.toFixed(1) + '" x2="350" y2="' + ly.toFixed(1) + '" stroke="var(--bad)" stroke-dasharray="4 3"/>';
+      if (mode === 'bearing') {
+        if (!F.flow) s += '<path d="M200 222 C196 206 214 200 222 210" fill="none" stroke="var(--accent2)" stroke-width="2" marker-end="url(#arrow)"/>';
+        else s += txt(206, 220, '✕', { size: 13, fill: 'var(--bad)', bold: true });
+      }
+      // 축의 턱 (눌린 만큼 오른쪽으로)
+      s += '<rect x="' + (234 + push).toFixed(1) + '" y="98" width="14" height="104" rx="3" fill="var(--steel)" stroke="var(--obj-line)"/>';
+      s += txt(232, 94, '축의 턱', { size: 10, fill: 'var(--muted)', anchor: 'end' });
+      // 구슬: 힘만큼 눌리고 달아오름, 돌면 홈 표시가 돈다
+      for (const y of [108, 128, 172, 192]) {
+        const rx = mode === 'bearing' ? 9 - k * 2.5 : 9;
+        const ball = '<ellipse cx="' + (264 + push * .5).toFixed(1) + '" cy="' + y + '" rx="' + rx.toFixed(1) + '" ry="9" fill="var(--card)" stroke="var(--obj-line)"/>' +
+          (mode === 'bearing' ? '<ellipse cx="' + (264 + push * .5).toFixed(1) + '" cy="' + y + '" rx="' + rx.toFixed(1) + '" ry="9" fill="var(--accent)" opacity="' + (k * .7).toFixed(2) + '"/>' : '') +
+          '<line x1="' + (264 + push * .5).toFixed(1) + '" y1="' + (y - 8) + '" x2="' + (264 + push * .5).toFixed(1) + '" y2="' + (y - 3) + '" stroke="var(--obj-line)" stroke-width="2"/>';
+        s += spinning ? '<g class="spin" style="animation-duration:' + dur + '">' + ball + '</g>' : ball;
+      }
+      s += txt(264, 222, '구슬', { size: 10, fill: 'var(--muted)' });
+      // 고정판 (통에 붙음)
+      s += '<rect x="278" y="94" width="12" height="112" rx="2" fill="var(--obj-line)"/>';
+      s += txt(296, 90, '고정판', { size: 10, fill: 'var(--muted)', anchor: 'start' });
+      if (mode === 'bearing' && f > 0) s += txt(256, 88, '꾹!', { size: 13 + k * 5, fill: 'var(--accent)', bold: true });
+      // 온도계
+      s += '<rect x="318" y="96" width="10" height="96" rx="5" fill="var(--card)" stroke="var(--obj-line)"/>';
+      const tH = Math.max(0, Math.min(130, temp));
+      s += '<rect x="320" y="' + (190 - 92 * tH / 130).toFixed(1) + '" width="6" height="' + (92 * tH / 130).toFixed(1) + '" rx="3" fill="' + (temp > HIGH_T ? 'var(--bad)' : 'var(--accent2)') + '"/>';
+      const tY = 190 - 92 * HIGH_T / 130;
+      s += '<line x1="314" y1="' + tY.toFixed(1) + '" x2="332" y2="' + tY.toFixed(1) + '" stroke="var(--bad)" stroke-dasharray="3 2"/>';
+      s += txt(265, 250, temp + ' ℃ · 레벨 ' + level + '%', { size: 11, bold: true });
+      // 힘이 다리 → 배 바닥 → 앞으로
+      if (mode === 'bearing' && f > 0) {
+        const w = (2 + k * 4).toFixed(1);
+        s += '<line x1="290" y1="150" x2="336" y2="150" stroke="var(--accent)" stroke-width="' + w + '" opacity=".6"/>';
+        s += '<line x1="338" y1="200" x2="332" y2="256" stroke="var(--accent)" stroke-width="' + w + '" marker-end="url(#arrow)"/>';
+        s += '<line x1="196" y1="236" x2="196" y2="256" stroke="var(--accent)" stroke-width="' + w + '" marker-end="url(#arrow)" opacity=".6"/>';
+        s += '<line x1="344" y1="278" x2="452" y2="278" stroke="var(--accent)" stroke-width="' + w + '" marker-end="url(#arrow)"/>';
+        s += txt(398, 300, '배 바닥을 앞으로 밂', { size: 11, fill: 'var(--accent)', bold: true });
+      }
+      if (mode === 'weld') {
+        s += zig(252, 100, 200) + zig(276, 100, 200);
+      }
+    }
+    // 엔진
+    const hit = mode === 'none' && f > 0, stuck = mode === 'weld' && f > 0;
+    s += '<rect x="404" y="112" width="64" height="76" rx="8" fill="' + (hit || stuck ? 'var(--chip-on)' : 'var(--obj)') + '" stroke="' + (hit || stuck ? 'var(--bad)' : 'var(--obj-line)') + '" stroke-width="' + (hit || stuck ? 2.5 : 1) + '"/>';
+    s += txt(436, 146, '엔진', { size: 13, bold: true }) + txt(436, 164, hit ? '들이받힘!' : stuck ? '꽉 막힘' : '돌리기만', { size: 10, fill: hit || stuck ? 'var(--bad)' : 'var(--muted)', bold: hit || stuck });
+
+    // ── 오른쪽: 회전의자 ──
+    s += '<rect x="486" y="60" width="186" height="256" rx="10" fill="var(--card)" stroke="var(--line)"/>';
+    s += txt(579, 80, '회전의자로 치면', { size: 12, bold: true, fill: 'var(--muted)' });
+    s += '<line x1="496" y1="262" x2="662" y2="262" stroke="var(--obj-line)"/>';
+    const seatY = mode === 'none' ? 222 : 172;
+    // 다리 + 바퀴
+    s += '<path d="M530 256 H628" stroke="var(--obj-line)" stroke-width="5" stroke-linecap="round"/><circle cx="532" cy="259" r="3" fill="var(--obj-line)"/><circle cx="626" cy="259" r="3" fill="var(--obj-line)"/>';
+    // 기둥 + 받침 (= 베어링)
+    s += '<line x1="579" y1="256" x2="579" y2="' + (seatY + 12) + '" stroke="var(--steel)" stroke-width="7"/>';
+    if (mode === 'bearing') s += '<rect x="567" y="' + (seatY + 12) + '" width="24" height="10" rx="3" fill="var(--gold)" stroke="var(--obj-line)"/>' + txt(612, seatY + 22, '받침', { size: 10, fill: 'var(--accent2)', anchor: 'start', bold: true });
+    if (mode === 'weld') s += zig(579, seatY + 12, seatY + 34) + txt(612, seatY + 26, '용접', { size: 10, fill: 'var(--bad)', anchor: 'start', bold: true });
+    // 의자 + 사람
+    s += '<rect x="540" y="' + seatY + '" width="78" height="12" rx="4" fill="var(--wood)"/><rect x="610" y="' + (seatY - 48) + '" width="9" height="50" rx="3" fill="var(--wood)"/>';
+    s += '<circle cx="568" cy="' + (seatY - 46) + '" r="10" fill="var(--skin)" stroke="var(--obj-line)"/><rect x="558" y="' + (seatY - 34) + '" width="22" height="34" rx="8" fill="var(--sleeve)"/>';
+    // 몸무게 ↓ (= 반동 →)
+    if (f > 0) s += '<line x1="526" y1="' + (seatY - 52) + '" x2="526" y2="' + (seatY - 6) + '" stroke="var(--accent)" stroke-width="' + (2 + k * 4).toFixed(1) + '" marker-end="url(#arrow)"/>' +
+      txt(526, seatY - 58, '몸무게', { size: 10, fill: 'var(--accent)', bold: true });
+    // 도는지
+    if (mode === 'bearing') s += '<path d="M552 ' + (seatY + 36) + ' a27 7 0 1 0 54 0" fill="none" stroke="var(--ok)" stroke-width="2.5" marker-end="url(#arrow)"/>';
+    if (mode === 'weld') s += '<path d="M552 ' + (seatY + 40) + ' a27 7 0 1 0 54 0" fill="none" stroke="var(--line)" stroke-width="2.5"/>' + txt(579, seatY + 54, '✕', { size: 13, fill: 'var(--bad)', bold: true });
+    const chairSay = { bearing: '돌고, 버틴다', weld: '버티지만 안 돈다', none: '푹 꺼진다' }[mode];
+    s += txt(579, 286, chairSay, { size: 13, bold: true, fill: mode === 'bearing' ? 'var(--ok)' : 'var(--bad)' });
+    s += txt(579, 304, '몸무게 ↓ = 반동 →', { size: 10, fill: 'var(--muted)' });
+
+    $('scene').innerHTML = '<g data-state="' + [mode, f, F.leak, F.hot, F.flow].join(':') + '">' + s + '</g>';
+
+    // 카드 값
+    const rows = mode === 'none'
+      ? [['오일 레벨', '—'], ['오일 온도', '—'], ['오일 레벨 상태', 'Not fitted'], ['오일 온도 상태', 'Not fitted'], ['오일 유량 상태', 'Not fitted']]
+      : [['오일 레벨', level + ' %'], ['오일 온도', temp + ' ℃'], ['오일 레벨 상태', level < LOW ? 'Low/High' : 'OK'], ['오일 온도 상태', temp > HIGH_T ? 'Low/High' : 'OK'], ['오일 유량 상태', F.flow ? 'Not OK' : 'OK']];
+    const prev = draw.prev || {};
+    $('vals').innerHTML = '<tr><th colspan="2">이때 카드 <code>0600</code>에는</th></tr>' + rows.map(([a, v]) =>
+      '<tr><td>' + a + '</td><td class="' + (prev[a] !== undefined && prev[a] !== v ? 'hot' : '') + '"' + (/Low|Not OK/.test(v) ? ' style="color:var(--bad);font-weight:600"' : '') + '>' + v + '</td></tr>').join('');
+    draw.prev = Object.fromEntries(rows);
+
+    let say;
+    if (mode === 'weld') say = '축을 배에 <b>꽉 붙여 버리면</b> 밀리지는 않지만 <b>돌지도 못한다</b>. 날개가 서니 물이 안 나가고, 엔진은 막힌 축을 못 돌린다. 의자로 치면 기둥을 용접해 버린 것.';
+    else if (mode === 'none') say = f > 0 ? '받침이 <b>없으면</b> 축은 돌지만 반동에 <b>통째로 밀려</b> 엔진을 들이받는다. 엔진은 미는 힘을 받도록 만들어지지 않아 상한다. 의자로 치면 받침이 빠져 푹 꺼진 것. 카드는 <code>Not fitted</code>(미장착).'
+      : '받침이 없는 그림. 물 미는 힘을 올려 보자.';
+    else if (f === 0) say = '물을 안 밀면 반동도 없다. 베어링은 그냥 축을 받치고만 있다. 물 미는 힘을 올려 보자.';
+    else {
+      say = '축은 <b>빙글빙글 돈다</b>(구슬도 굴러간다). 동시에 반동이 축의 턱을 앞으로 밀어 구슬을 <b>꾹</b> 누른다. 구슬은 굴러서 돌게 두면서 그 누름을 고정판 → 다리 → 배 바닥으로 넘긴다 → <b>배가 앞으로</b>. 의자: 몸무게를 받으면서도 돈다.';
+      const bad = [];
+      if (F.leak) bad.push('기름이 새서 <b>레벨 상태 = Low/High</b>');
+      if (temp > HIGH_T) bad.push('기름이 뜨거워 <b>온도 상태 = Low/High</b>');
+      if (F.flow) bad.push('기름이 안 돌아 <b>유량 상태 = Not OK</b>');
+      if (bad.length) say += ' 그런데 ' + bad.join(', ') + ' — 눌리며 도는 구슬이 금방 상한다. <code>1000</code> 워터젯 가능은 그래도 예라서 이 카드를 따로 봐야 안다.';
+    }
+    $('say').innerHTML = say;
+  }
+
+  // ── 맨 위 간단한 그림: 단계마다 한 가지만 강조 (좌표는 그림용) ──
+  let role = 'all';
+  const SAY0 = {
+    all: '베어링은 <b>도는 축</b>과 <b>안 도는 배</b> 사이에 끼는 <b>회전 받침</b>이다. 스스로 힘을 내지 않는다. 버튼을 하나씩 눌러 보자.',
+    turn: '<b>돌리는 건 엔진</b>이다. 피젯 스피너를 손가락으로 튕기는 것. 베어링은 축을 돌리지 않는다.',
+    roll: '베어링 안 <b>쇠구슬이 굴러서</b> 축이 <b>미끄럽게</b> 돈다. 피젯 스피너 가운데처럼 — 꽉 잡혀 있어도 잘 돈다.',
+    hold: '날개가 물을 <b>뒤로</b> 밀면 축은 <b>앞으로</b> 밀린다. 베어링이 축을 <b>붙잡아</b> 그 힘을 다리 → 배 바닥으로 넘긴다 → <b>배가 앞으로 간다</b>. 문 경첩이 문 무게를 문틀에 넘기는 것과 같다.',
+    oil: '돌면서 꽉 붙잡으니 계속 <b>비벼서 뜨거워진다</b>. 그래서 <b>기름</b>으로 미끄럽게 하고 식힌다. 그 기름을 보는 것이 카드 <code>0600</code> — 레벨(충분한가) · 유량(잘 도나) · 온도(그 결과 뜨거운가).',
+  };
+  function drawSimple() {
+    document.querySelectorAll('[data-r]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.r === role));
+    const on = (r) => role === 'all' || role === r;
+    const dim = (r) => on(r) ? 1 : .3;
+    let s = '';
+    // 배 바닥 (안 도는 것)
+    s += '<rect x="0" y="206" width="680" height="44" fill="var(--hull)"/><line x1="0" y1="206" x2="680" y2="206" stroke="var(--obj-line)"/>';
+    s += txt(16, 232, '배 (안 도는 것)', { size: 13, bold: true, anchor: 'start' });
+    // 워터젯 날개 (왼쪽) + 물
+    s += '<g opacity="' + dim('hold') + '"><path d="M34 92 L96 82 L96 158 L34 148 Z" fill="var(--obj)" stroke="var(--obj-line)"/>' + txt(65, 74, '워터젯 날개', { size: 12 }) + '</g>';
+    if (on('hold')) s += '<line x1="30" y1="120" x2="6" y2="120" stroke="var(--water)" stroke-width="7" marker-end="url(#arrow)"/>';
+    // 축 (도는 것)
+    s += '<line x1="96" y1="120" x2="572" y2="120" stroke="var(--steel)" stroke-width="10"/>';
+    if (on('turn') || on('roll')) s += '<line x1="96" y1="120" x2="572" y2="120" stroke="var(--obj-line)" stroke-width="10" stroke-dasharray="3 9" opacity=".5" class="run" style="animation-duration:.8s"/>';
+    s += txt(196, 148, '도는 것 (축)', { size: 13, bold: true });
+    // 엔진 (오른쪽)
+    const eOn = role === 'turn';
+    s += '<g opacity="' + dim('turn') + '"><rect x="572" y="84" width="90" height="72" rx="8" fill="' + (eOn ? 'var(--chip-on)' : 'var(--obj)') + '" stroke="' + (eOn ? 'var(--accent)' : 'var(--obj-line)') + '" stroke-width="' + (eOn ? 2.5 : 1) + '"/>' +
+      txt(617, 116, '엔진', { size: 14, bold: true }) + txt(617, 136, '= 돌린다', { size: 12, fill: 'var(--accent)', bold: true }) + '</g>';
+    if (role === 'turn') s += '<path d="M500 146 a14 14 0 1 1 18 0" fill="none" stroke="var(--accent)" stroke-width="3" marker-end="url(#arrow)"/>' + txt(470, 172, '엔진이 축을 돌림', { size: 12, fill: 'var(--accent)', bold: true });
+    // 베어링 (가운데) + 다리
+    const bOn = role === 'roll' || role === 'hold' || role === 'oil';
+    s += '<path d="M306 164 L300 206 M354 164 L360 206" stroke="var(--obj-line)" stroke-width="6"/>';
+    s += '<rect x="290" y="76" width="80" height="88" rx="10" fill="' + (bOn ? 'var(--gold)' : 'var(--obj-hi)') + '" fill-opacity="' + (bOn ? .35 : 1) + '" stroke="' + (bOn ? 'var(--accent2)' : 'var(--obj-line)') + '" stroke-width="' + (bOn ? 2.5 : 1.5) + '"/>';
+    for (const [cx, cy] of [[316, 96], [344, 96], [316, 144], [344, 144]]) {
+      const ball = '<circle cx="' + cx + '" cy="' + cy + '" r="8" fill="var(--card)" stroke="var(--obj-line)"/><line x1="' + cx + '" y1="' + (cy - 7) + '" x2="' + cx + '" y2="' + (cy - 2) + '" stroke="var(--obj-line)" stroke-width="2"/>';
+      s += role === 'roll' ? '<g class="spin" style="animation-duration:.8s">' + ball + '</g>' : ball;
+    }
+    s += txt(330, 62, '베어링 = 회전 받침', { size: 13, bold: true, fill: bOn ? 'var(--accent2)' : 'var(--text)' });
+    if (role === 'roll') s += txt(380, 82, '쇠구슬이 굴러 미끄럽게 돎', { size: 12, fill: 'var(--accent2)', bold: true, anchor: 'start' });
+    // 붙잡아 배를 민다
+    if (role === 'hold') {
+      s += '<line x1="104" y1="96" x2="282" y2="96" stroke="var(--accent)" stroke-width="5" marker-end="url(#arrow)"/>' + txt(150, 88, '앞으로 밀림 →', { size: 12, fill: 'var(--accent)', bold: true });
+      s += '<line x1="362" y1="168" x2="368" y2="200" stroke="var(--accent)" stroke-width="4" marker-end="url(#arrow)"/>';
+      s += '<line x1="390" y1="228" x2="520" y2="228" stroke="var(--accent)" stroke-width="5" marker-end="url(#arrow)"/>' + txt(456, 220, '배를 앞으로 밂', { size: 12, fill: 'var(--accent)', bold: true });
+      s += txt(600, 40, '배가 가는 쪽 →', { size: 13, fill: 'var(--ok)', bold: true });
+      s += '<line x1="560" y1="52" x2="650" y2="52" stroke="var(--ok)" stroke-width="5" marker-end="url(#arrow)"/>';
+    }
+    // 기름
+    if (role === 'oil') {
+      s += '<path d="M330 172 c-8 10 -8 16 0 18 c8 -2 8 -8 0 -18 z" fill="var(--oil)" stroke="var(--accent2)" stroke-width="1"/>';
+      s += txt(384, 152, '비벼서 뜨거워짐 → 기름 필요', { size: 12, fill: 'var(--accent2)', bold: true, anchor: 'start' });
+      s += txt(384, 174, '그 기름을 보는 것 = 카드 0600', { size: 12, fill: 'var(--accent)', bold: true, anchor: 'start' });
+    }
+    $('simple').innerHTML = '<g data-state="' + role + '">' + s + '</g>';
+    $('say0').innerHTML = SAY0[role];
+  }
+  document.querySelectorAll('[data-r]').forEach((b) => b.addEventListener('click', () => { role = b.dataset.r; drawSimple(); }));
+  drawSimple();
+
+  // ── 누가 누구를 돌리나: 엔진 → 축 → 날개, 구슬은 따라 구름 (좌표는 그림용) ──
+  let cmode = 'normal';                                // normal | push(구슬만 손으로) | nob(구슬 없음)
+  function drawCause() {
+    const k = +$('rpmR').value / 100;
+    $('rpmV').textContent = Math.round(k * 100) + ' %';
+    document.querySelectorAll('[data-c]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.c === cmode));
+    const shaftOn = cmode !== 'push' && k > 0;          // 축은 엔진이 돌릴 때만 돈다
+    const per = 2.6 - 2 * k;                             // 한 바퀴 초 (빠를수록 짧음)
+    const sDur = (cmode === 'nob' ? per * 3 : per).toFixed(2) + 's';
+    const ballsOn = cmode === 'push' || (cmode === 'normal' && k > 0);
+    let s = '';
+
+    // 위: 엔진 → 축 → 날개
+    s += '<rect x="20" y="58" width="92" height="74" rx="8" fill="' + (shaftOn ? 'var(--chip-on)' : 'var(--obj)') + '" stroke="' + (shaftOn ? 'var(--accent)' : 'var(--obj-line)') + '" stroke-width="' + (shaftOn ? 2.5 : 1) + '"/>';
+    s += txt(66, 92, '엔진', { size: 15, bold: true }) + txt(66, 112, cmode === 'push' ? '멈춤' : '돌리는 쪽', { size: 11, fill: cmode === 'push' ? 'var(--muted)' : 'var(--accent)', bold: true });
+    s += '<line x1="112" y1="95" x2="468" y2="95" stroke="var(--steel)" stroke-width="10"/>';
+    if (shaftOn) s += '<line x1="112" y1="95" x2="468" y2="95" stroke="var(--obj-line)" stroke-width="10" stroke-dasharray="3 9" opacity=".5" class="run" style="animation-duration:' + sDur + '"/>';
+    if (shaftOn) {
+      s += '<line x1="120" y1="56" x2="250" y2="56" stroke="var(--accent)" stroke-width="3" marker-end="url(#arrow)"/>' + txt(185, 46, '① 엔진이 축을 돌린다', { size: 12, fill: 'var(--accent)', bold: true });
+      s += '<line x1="330" y1="56" x2="460" y2="56" stroke="var(--accent)" stroke-width="3" marker-end="url(#arrow)"/>' + txt(395, 46, '② 날개가 같이 돈다', { size: 12, fill: 'var(--accent)', bold: true });
+    } else s += txt(290, 46, cmode === 'push' ? '엔진이 안 돌리면 축은 서 있다' : '엔진이 멈춤 — 다 선다', { size: 12, fill: 'var(--muted)', bold: true });
+    // 베어링 (축 위) + 확대 선
+    s += '<rect x="262" y="74" width="56" height="42" rx="6" fill="var(--gold)" fill-opacity=".3" stroke="var(--accent2)" stroke-width="2"/>';
+    s += txt(290, 70, '베어링', { size: 11, fill: 'var(--accent2)', bold: true });
+    s += '<path d="M266 116 L246 156 M314 116 L334 156" stroke="var(--muted)" stroke-dasharray="3 3"/>';
+    // 날개 (오른쪽 끝) + 물
+    const blades = '<circle cx="498" cy="95" r="7" fill="var(--obj-line)"/>' + [0, 120, 240].map((a) => '<ellipse cx="498" cy="77" rx="7" ry="16" fill="var(--obj)" stroke="var(--obj-line)" transform="rotate(' + a + ' 498 95)"/>').join('');
+    s += shaftOn ? '<g class="spin" style="animation-duration:' + sDur + '">' + blades + '</g>' : blades;
+    s += txt(498, 136, '워터젯 날개', { size: 11, fill: 'var(--muted)' });
+    if (shaftOn) s += '<line x1="524" y1="95" x2="' + (560 + k * 60).toFixed(0) + '" y2="95" stroke="var(--water)" stroke-width="' + (2 + k * 6).toFixed(1) + '" marker-end="url(#arrow)"/>' + txt(560, 84, '물', { size: 11, fill: 'var(--water)' });
+
+    // 아래 가운데: 앞에서 본 베어링 (바깥 고리 안 돎 / 가운데 축 / 사이 구슬)
+    s += '<circle cx="290" cy="205" r="52" fill="var(--obj-hi)" stroke="var(--obj-line)" stroke-width="8"/>';
+    if (cmode === 'nob') {
+      s += '<g' + (shaftOn ? ' class="orbit" style="animation-duration:' + sDur + '"' : '') + '><circle cx="290" cy="205" r="46" fill="var(--steel)" stroke="var(--bad)" stroke-width="2"/><line x1="290" y1="162" x2="290" y2="176" stroke="var(--obj-line)" stroke-width="3"/></g>';
+      if (shaftOn) for (const a of [30, 150, 260]) { const r = a * Math.PI / 180, x = 290 + 50 * Math.cos(r), y = 205 + 50 * Math.sin(r);
+        s += '<path d="M' + x.toFixed(0) + ' ' + y.toFixed(0) + ' l6 -8 l2 8 l7 -5" fill="none" stroke="#f5a142" stroke-width="2.5"/>'; }
+    } else {
+      s += '<g' + (shaftOn ? ' class="orbit" style="animation-duration:' + sDur + '"' : '') + '><circle cx="290" cy="205" r="20" fill="var(--steel)"/><line x1="290" y1="187" x2="290" y2="196" stroke="var(--obj-line)" stroke-width="3"/></g>';
+      let balls = '';
+      for (let i = 0; i < 8; i++) {
+        const r = i * Math.PI / 4, x = 290 + 34 * Math.cos(r), y = 205 + 34 * Math.sin(r);
+        const ball = '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="9" fill="var(--card)" stroke="var(--accent2)" stroke-width="1.5"/>' +
+          '<line x1="' + x.toFixed(1) + '" y1="' + (y - 8).toFixed(1) + '" x2="' + x.toFixed(1) + '" y2="' + (y - 3).toFixed(1) + '" stroke="var(--obj-line)" stroke-width="2"/>';
+        balls += ballsOn ? '<g class="spin rev" style="animation-duration:' + (per * .5).toFixed(2) + 's">' + ball + '</g>' : ball;
+      }
+      s += ballsOn ? '<g class="orbit" style="animation-duration:' + (per * 2).toFixed(2) + 's">' + balls + '</g>' : balls;
+    }
+    s += txt(290, 209, '축', { size: 10, fill: cmode === 'nob' ? 'var(--card)' : 'var(--card)', bold: true });
+    s += txt(290, 280, '앞에서 본 베어링 (확대)', { size: 11, fill: 'var(--muted)' });
+    if (cmode === 'push') s += '<circle cx="232" cy="234" r="9" fill="var(--skin)" stroke="var(--obj-line)"/><path d="M224 242 l-14 14" stroke="var(--sleeve)" stroke-width="7" stroke-linecap="round"/>';
+
+    // 오른쪽: 이름표
+    const lab = (y, t, c, b) => txt(362, y, t, { size: 12, anchor: 'start', fill: c || 'var(--text)', bold: b });
+    s += lab(168, '바깥 고리 — 안 돎 (배에 붙음)', 'var(--muted)');
+    if (cmode === 'nob') s += lab(196, '구슬 없음 → 쇠끼리 바로 비빔', 'var(--bad)', true) + lab(216, '뻑뻑해서 천천히 돎 · 뜨거움 · 닳음', 'var(--bad)');
+    else if (cmode === 'push') s += lab(196, '손가락으로 구슬만 굴림', 'var(--accent2)', true) + lab(216, '→ 가운데 축은 그대로 (안 돎)', 'var(--bad)', true);
+    else s += lab(196, '③ 구슬 — 축을 따라 구름', 'var(--accent2)', true) + lab(216, '스스로 안 돎, 마찰만 줄임', 'var(--accent2)');
+    s += lab(244, '가운데 축 — 엔진이 돌림', 'var(--muted)');
+
+    // 왼쪽 아래: 볼펜 비유
+    s += '<rect x="20" y="160" width="190" height="116" rx="8" fill="var(--card)" stroke="var(--line)"/>';
+    s += txt(115, 178, '볼펜으로 치면', { size: 12, fill: 'var(--muted)', bold: true });
+    s += '<line x1="34" y1="252" x2="196" y2="252" stroke="var(--obj-line)"/>';
+    s += '<line x1="78" y1="196" x2="118" y2="240" stroke="var(--sleeve)" stroke-width="9" stroke-linecap="round"/><path d="M114 236 L124 247 L118 238 Z" fill="var(--obj-line)"/>';
+    const pb = '<circle cx="125" cy="248" r="4.5" fill="var(--card)" stroke="var(--obj-line)"/><line x1="125" y1="244" x2="125" y2="246" stroke="var(--obj-line)" stroke-width="1.5"/>';
+    s += ballsOn && cmode === 'normal' ? '<g class="spin" style="animation-duration:' + (per * .5).toFixed(2) + 's">' + pb + '</g>' : pb;
+    s += '<line x1="136" y1="222" x2="190" y2="222" stroke="var(--ok)" stroke-width="3" marker-end="url(#arrow)"/>' + txt(163, 214, '손이 펜을 밂', { size: 10, fill: 'var(--ok)', bold: true });
+    s += txt(115, 268, '끝 구슬은 따라 구름', { size: 11, fill: 'var(--accent2)', bold: true });
+
+    $('cause').innerHTML = '<g data-state="' + cmode + ':' + k + '">' + s + '</g>';
+    let say;
+    if (cmode === 'push') say = '구슬만 손으로 굴려 보면? <b>가운데 축은 안 돈다</b>. 날개도 그대로, 물도 안 나간다. 구슬은 힘을 내지 않는다 → <b>돌리는 건 엔진뿐</b>.';
+    else if (cmode === 'nob') say = k > 0 ? '구슬이 없으면 축이 바깥 고리에 <b>쇠끼리 바로 비빈다</b> → 뻑뻑해서 천천히 돌고, 불꽃·열이 나고 닳는다. 그래서 구슬이 있다 = <b>축을 부드럽게 돌리려고</b>.' : '구슬이 없는 그림. 엔진 회전을 올려 보자.';
+    else say = k > 0 ? '① 엔진이 축을 돌린다 → ② 축 끝 날개가 <b>같이</b> 돈다(물이 나감). ③ 베어링 구슬은 축에 닿아 있어서 <b>따라 구른다</b> — 스스로 돌지 않는다. 구슬 덕분에 축이 <b>부드럽게</b> 돈다. 볼펜 끝 구슬이 손을 따라 구르는 것과 같다.'
+      : '엔진이 멈추면 축도, 날개도, 구슬도 <b>다 선다</b>. 구슬은 혼자 돌지 않는다.';
+    $('say9').innerHTML = say;
+  }
+  $('rpmR').addEventListener('input', drawCause);
+  document.querySelectorAll('[data-c]').forEach((b) => b.addEventListener('click', () => { cmode = b.dataset.c; drawCause(); }));
+  drawCause();
+
+  document.querySelectorAll('[data-m]').forEach((b) => b.addEventListener('click', () => { mode = b.dataset.m; draw(); }));
+  $('fR').addEventListener('input', draw);
+  for (const key in F) $(key + 'B').addEventListener('click', () => { F[key] = !F[key]; draw(); });
+  draw();
+</script>
+</body>
+</html>

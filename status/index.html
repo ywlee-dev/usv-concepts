@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>운항상태 개념 그림</title>
+<style>
+  :root { --bg: #fafaf8; --card: #ffffff; --text: #1f1f1d; --muted: #6b6a65; --line: #d8d6ce; --link: #185FA5; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #1c1c1a; --card: #262624; --text: #ecebe6; --muted: #a8a69e; --line: #44443f; --link: #85B7EB; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.7 "Pretendard", "Malgun Gothic", system-ui, sans-serif; }
+  main { max-width: 820px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 24px; }
+  ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+  li { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  a { color: var(--link); font-weight: 600; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .desc { color: var(--muted); font-size: 15px; display: block; }
+  h2 { font-size: 18px; font-weight: 600; margin: 32px 0 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  th, td { border-bottom: 1px solid var(--line); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+</style>
+</head>
+<body>
+<main>
+  <p><a href="../index.html">← 운항 개념 그림 (조작기)</a></p>
+  <h1>운항상태 개념 그림</h1>
+  <p class="lead">운항상태 관제 화면의 카드 10장(<code>0300</code>~<code>1200</code>)이 배에서 무엇을 가리키는지 그림으로 이해하기 위한 모음.</p>
+  <ul>
+    <li><a href="00-big-picture.html">큰 그림 — 먼저 보기</a>
+      <span class="desc">배 부품을 누르면 자동차로 치면 무엇인지, 화면의 어느 카드에 나오는지. 보고서가 배에서 우리 앱까지 오는 길, 0300·조종권·백업 설명</span></li>
+    <li><a href="01-power-chain.html">동력 사슬</a>
+      <span class="desc">엔진 → 변속기 → 베어링 → 워터젯, 옆의 유압 장치 — 장치 하나에 문제를 내면 "워터젯 가능"(1000)이 어떻게 바뀌나</span></li>
+    <li><a href="02-control-authority.html">조종권</a>
+      <span class="desc">우리 관제 · 현장 조타석 · 백업 · 자율운항 · 강제 로컬 중 누가 핸들을 쥐었나, 우리가 가져오려면 무엇이 막나 (0500·0400)</span></li>
+    <li><a href="03-waterjet.html">부품 · 워터젯</a>
+      <span class="desc">바닥 흡입구 → 임펠러 → 노즐. 엔진 회전, 후진 덮개(버킷), 조향 노즐, 유압 끊김을 움직여 본다 (1000)</span></li>
+    <li><a href="04-engine.html">부품 · 엔진</a>
+      <span class="desc">피스톤·크랭크축·시동 모터. 꺼짐 → 시동 → 예열 → 작동, 관제 명령이 엔진 제어기를 거쳐 가는 길, 현장 패널·셧다운 (0800·1100·0300)</span></li>
+    <li><a href="05-transmission.html">부품 · 변속기</a>
+      <span class="desc">원판 두 장이 붙으면 전진, 떨어지면 중립. 스로틀을 올린 채 옮기면 거부(38), 전진↔후진 바로는 거부(37) (0900·0300)</span></li>
+    <li><a href="06-thrust-bearing.html">부품 · 스러스트 베어링</a>
+      <span class="desc">물을 민 반동이 축 → 베어링 → 배 몸통으로. 오일 샘·과열·흐름 막힘, 베어링이 없다면? (0600)</span></li>
+    <li><a href="07-hydraulic.html">부품 · 유압 장치</a>
+      <span class="desc">전력 → 펌프 → 기름 → 밸브 → 피스톤이 노즐·버킷을 민다. 전력 끊김·새는 곳·기름 부족·과열 (0700)</span></li>
+  </ul>
+
+  <h2>한눈에 — 카드 10장은 세 덩어리</h2>
+  <table>
+    <tr><th>덩어리</th><th>카드</th><th>물어보는 것</th></tr>
+    <tr><td>동력 사슬 (01)</td><td>0800 · 1100 · 0900 · 0600 · 0700 · 1000</td><td>배가 물을 뿜을 수 있나, 막혔다면 어느 칸에서</td></tr>
+    <tr><td>조종권 (02)</td><td>0500 · 0400 · 0300</td><td>지금 우리가 이 배를 움직일 수 있나</td></tr>
+    <tr><td>알람 (다음)</td><td>1200</td><td>무슨 일이 일어났나 (상태가 아니라 사건)</td></tr>
+  </table>
+</main>
+</body>
+</html>

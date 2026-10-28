@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>변속기 개념</title>
+<style>
+  :root {
+    --bg: #fafaf8; --card: #ffffff; --text: #1f1f1d; --muted: #6b6a65; --line: #d8d6ce;
+    --link: #185FA5; --en: #185FA5; --accent: #D85A30; --accent2: #BA7517; --ok: #1D9E75; --bad: #C8402F;
+    --obj: #dfe8f3; --obj-hi: #f4f8fc; --obj-line: #5f5e5a; --floor: #f1efe8; --chip-on: #fbe9e2;
+    --skin: #f2c9a0; --sleeve: #7f9cc0; --gold: #d9a21b; --wood: #b98b5e; --steel: #8a8984; --water: #3b8fd6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1c1c1a; --card: #262624; --text: #ecebe6; --muted: #a8a69e; --line: #44443f;
+      --link: #85B7EB; --en: #9cc6f0; --obj: #34465a; --obj-hi: #4a5f76; --obj-line: #b4b2a9; --floor: #302f2b; --chip-on: #4a2c22;
+      --skin: #c99a72; --sleeve: #5a7090; --wood: #9a7350; --steel: #9d9c96; --bad: #E8705F; --water: #6cb0ec; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.7 "Pretendard", "Malgun Gothic", system-ui, sans-serif; }
+  main { max-width: 820px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 4px; }
+  h2 { font-size: 18px; font-weight: 600; margin: 32px 0 8px; }
+  .lead { color: var(--muted); margin: 0 0 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .controls { display: grid; grid-template-columns: auto 1fr auto; gap: 10px 14px; align-items: center; margin-top: 8px; font-size: 15px; color: var(--muted); }
+  .controls output { min-width: 110px; color: var(--text); }
+  .buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+  .buttons .cap { font-size: 15px; color: var(--muted); margin-right: 4px; }
+  button { font: inherit; font-size: 14px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); cursor: pointer; }
+  button:hover { border-color: var(--muted); }
+  button[aria-pressed="true"] { border-color: var(--accent); background: var(--chip-on); font-weight: 600; }
+  .say { margin: 14px 0 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--bg); border-radius: 0 8px 8px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  .vals { margin-top: 12px; font-size: 14px; }
+  .vals td { padding: 5px 10px; }
+  .vals td:first-child { color: var(--muted); white-space: nowrap; width: 1%; }
+  .vals .hot { font-weight: 600; color: var(--accent); }
+  svg text { font-family: inherit; }
+  .note { font-size: 14px; color: var(--muted); }
+  .check { border: 1px dashed var(--accent2); border-radius: 8px; padding: 10px 12px; font-size: 15px; }
+  .check b:first-child { color: var(--accent2); }
+  main ul { padding-left: 20px; }
+  a { color: var(--link); }
+  code { font-size: 14px; }
+  .fig { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .fig-hint { display: none; }
+  @media (max-width: 600px) {
+    .fig svg { min-width: 560px; }
+    .fig-hint { display: block; font-size: 13px; color: var(--muted); text-align: center; margin: 4px 0 0; }
+    .controls { grid-template-columns: 1fr auto; gap: 2px 12px; }
+    .controls label { grid-column: 1 / -1; margin-top: 8px; }
+    table { font-size: 14px; }
+    th, td { padding: 6px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="index.html">← 개념 그림 목록</a> · <a href="00-big-picture.html">00 큰 그림</a> · 이전: <a href="04-engine.html">04 엔진</a> · 다음: <a href="06-thrust-bearing.html">06 베어링</a></p>
+  <h1>변속기 — 엔진 힘을 잇고 끊는 곳</h1>
+  <p class="lead">엔진은 계속 돈다. 그 회전을 워터젯까지 <b>이을지(전진) 끊을지(중립)</b>를 변속기가 정한다. 레버를 옮겨 보고, 스로틀을 올린 채 옮기려 하면 무슨 일이 생기는지 보자.</p>
+
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 290" role="img" aria-labelledby="t1 d1">
+      <title id="t1">변속기 속 두 원판과 변속 레버</title>
+      <desc id="d1">왼쪽 엔진에서 들어온 축 끝에 원판이 있고, 오른쪽 워터젯으로 나가는 축 끝에도 원판이 있다. 전진이면 두 원판이 붙어 함께 돌고, 중립이면 떨어져 나가는 축이 멈춘다. 위에는 변속 레버 R N F와 스로틀 막대.</desc>
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M1 1L9 5L1 9z" fill="context-stroke"/>
+        </marker>
+      </defs>
+      <g id="scene"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">레버 옮기기</span>
+      <button data-g="R">R 후진</button><button data-g="N">N 중립</button><button data-g="F">F 전진</button>
+    </div>
+    <div class="controls">
+      <label for="thR">스로틀</label>
+      <input type="range" id="thR" min="0" max="100" step="5" value="10">
+      <output id="thV">10 %</output>
+    </div>
+    <div class="buttons"><span class="cap">막는 것</span>
+      <button id="noCtl" aria-pressed="false">우리에게 제어권 없음</button>
+      <button id="engLocal" aria-pressed="false">엔진이 로컬 제어 중</button>
+    </div>
+    <div class="say" id="say"></div>
+    <table class="vals" id="vals"></table>
+  </div>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. "스로틀 20% 넘으면 변속 거부"의 20은 그림용이다.</p>
+
+  <h2>1. 무엇인가</h2>
+  <p>변속기 안에는 <b>원판 두 장</b>(클러치)이 마주 보고 있다. 왼쪽 원판은 엔진 축에, 오른쪽 원판은 워터젯으로 가는 축에 붙어 있다.</p>
+  <table>
+    <tr><th>레버</th><th>안에서 일어나는 일</th><th>워터젯</th></tr>
+    <tr><td><b>F 전진</b></td><td>두 원판을 꽉 붙인다 → 엔진과 같이 돈다</td><td>날개가 돌아 물을 뒤로 뿜음</td></tr>
+    <tr><td><b>N 중립</b></td><td>두 원판을 뗀다 → 엔진만 혼자 헛돈다</td><td>날개가 멈춤, 물 없음</td></tr>
+    <tr><td><b>R 후진</b></td><td>작은 기어 하나를 끼워 돌아가는 방향을 뒤집는다</td><td>날개가 거꾸로 돎 (아래 확인할 것)</td></tr>
+  </table>
+  <p>⚠ 워터젯 배는 <b>뒤로 갈 때 기어를 R로 바꾸지 않는다.</b> F에 둔 채 버킷(덮개)을 내린다(<a href="03-waterjet.html">03 워터젯</a>). 그래서 평소 이 레버는 대부분 <b>F 아니면 N</b>이다.</p>
+
+  <h2>2. 그림에서 일어나는 일</h2>
+  <ul>
+    <li><b>레버를 옮기면</b> 원판이 붙거나 떨어지고, 오른쪽 축의 회전 화살표가 생기거나 사라진다.</li>
+    <li><b>스로틀을 20% 넘게 올리고</b> 레버를 옮기면 거부된다 → 변속 금지 사유 <b>38 스로틀 높음</b>. 빨리 도는 원판을 갑자기 붙이면 부서지기 때문.</li>
+    <li><b>F에서 바로 R</b>(또는 반대)로 가려 하면 거부된다 → <b>37</b>. 반드시 N을 거친다.</li>
+    <li>제어권이 없으면 <b>40</b>, 엔진이 로컬이면 <b>35</b>.</li>
+  </ul>
+
+  <h2>3. 카드 <code>0900</code> 변속기 상태 — 칸 넷</h2>
+  <table>
+    <tr><th>칸</th><th>뜻</th><th>그림에서</th></tr>
+    <tr><td>기어 상태</td><td>지금 실제 기어. 4 주 전진 · 3 중립 · 1 주 후진 (그 밖에 2 보조 후진, 5 보조 전진, 6 부스트 대기, 14 에러, 15 미장착)</td><td>레버 손잡이 위치, 원판</td></tr>
+    <tr><td>변속 금지</td><td>변속기 <b>스스로</b> 막고 있나. 0 변속 허용 · 1 변속 금지 · 2 에러 · 3 미장착</td><td>— (이 그림은 늘 0)</td></tr>
+    <tr><td>변속 가능</td><td>지금 레버를 옮겨도 되나. 1 변속 허락 · 0 변속 불가</td><td>스로틀 막대의 선, 막는 것 버튼</td></tr>
+    <tr><td>변속 금지 사유</td><td>왜 안 되나(또는 됐나). 0 변속 완료 · 1 진행 중 · 32 이상은 거부 이유</td><td>빨간 거부 글자</td></tr>
+  </table>
+
+  <h2>4. 같은 기어, 번호가 두 개</h2>
+  <table>
+    <tr><th>기어</th><th><code>0900</code> (워터젯 회사)</th><th><code>0300</code> (엔진 회사)</th></tr>
+    <tr><td>전진</td><td>4</td><td>1</td></tr>
+    <tr><td>중립</td><td>3</td><td>0</td></tr>
+    <tr><td>후진</td><td>1</td><td>2</td></tr>
+  </table>
+  <p>회사가 달라서 번호표가 다르다(<a href="00-big-picture.html">00 큰 그림</a> 5장). 화면은 번호 대신 문구로 보여 주니 헷갈리지 않지만, 로그의 숫자를 볼 때는 어느 카드인지 먼저 본다.</p>
+
+  <h2>5. 몸으로 해 보기</h2>
+  <p>자전거 페달(엔진)과 뒷바퀴(워터젯) 사이의 <b>체인</b>이 변속기다. 체인이 걸려 있으면(F) 페달을 밟는 대로 바퀴가 돈다. 체인이 빠지면(N) 페달은 헛돌고 바퀴는 선다. 페달을 미친 듯이 돌리면서 체인을 걸려고 하면? 체인이 튕기고 기어가 상한다 — 그래서 <b>스로틀을 내려야</b> 변속을 받아 준다.</p>
+
+  <div class="check"><b>확인할 것</b> — 문서에 없어서 그림에서 정한 것.
+    <ul>
+      <li>변속을 거부하는 스로틀 기준(그림은 20%)은 문서에 없다.</li>
+      <li>이 배 변속기에 R이 실제로 있는지, 있다면 무엇에 쓰는지 모른다. 워터젯 배에서는 R로 날개를 거꾸로 돌려 흡입구에 걸린 쓰레기를 빼는 데 쓰기도 한다(일반적인 쓰임).</li>
+      <li>사유 37의 뜻이 문서는 "잘못된 전환(전진↔후진 바로)", NCM은 "잘못된 변속 신호"다. 그림은 문서 뜻을 따랐다.</li>
+      <li>거부 이유가 여럿 겹칠 때 어느 번호가 오는지(우선순위)는 문서에 없다. 그림은 40 → 35 → 38 → 37 순.</li>
+      <li>"변속 금지" 칸이 1이 되는 경우는 그리지 않았다.</li>
+    </ul>
+  </div>
+
+  <h2>6. 원래 자료와 연결하면</h2>
+  <ul>
+    <li><code>STATUS_VALUES.md</code> 0900 — 기어 상태·변속 금지 사유 값표, 7-3장 NCM 문구.</li>
+    <li><code>1000</code> 워터젯 가능은 기어박스가 <b>전진</b>이어야 예(<a href="01-power-chain.html">01 동력 사슬</a>).</li>
+    <li>화면: 카드 <code>transmission</code>(0900) — <code>src/widgets/diagnostics/diagnostic-fields.js</code>.</li>
+  </ul>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const LIMIT = 20;                                    // 이 % 넘으면 변속 거부 (그림용)
+  const REASON = { 0: '변속 완료', 35: '로컬 제어 중', 37: '잘못된 전환 (전진↔후진 바로)', 38: '스로틀 높음', 40: '외부 제어권 없음' };
+  const G0900 = { R: '1 주 후진 상태', N: '3 중립 상태', F: '4 주 전진 상태' };
+  const G0300 = { N: '0 중립', F: '1 전진', R: '2 후진' };
+  const GX = { R: 60, N: 100, F: 140 };                // 레버 칸 x
+  let gear = 'F', noCtl = false, local = false;
+  let last = null;                                     // 마지막 시도: { req, code }
+
+  const txt = (x, y, t, o) => '<text x="' + x + '" y="' + y + '" font-size="' + ((o && o.size) || 12) + '" fill="' + ((o && o.fill) || 'var(--text)') + '"' +
+    ' text-anchor="' + ((o && o.anchor) || 'middle') + '"' + ((o && o.bold) ? ' font-weight="600"' : '') + '>' + t + '</text>';
+
+  const blockCode = () => noCtl ? 40 : local ? 35 : (+$('thR').value > LIMIT ? 38 : 0);
+
+  function tryShift(req) {
+    if (req === gear) { last = { req, code: 0 }; return; }
+    let code = blockCode();
+    if (!code && gear !== 'N' && req !== 'N') code = 37;
+    if (!code) gear = req;
+    last = { req, code };
+  }
+
+  function draw() {
+    const th = +$('thR').value;
+    $('thV').textContent = th + ' %';
+    document.querySelectorAll('[data-g]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.g === gear));
+    $('noCtl').setAttribute('aria-pressed', noCtl);
+    $('engLocal').setAttribute('aria-pressed', local);
+    const refused = last && last.code !== 0;
+    let s = '';
+
+    // 변속 레버: 손잡이 = 지금 기어, 거부된 요청은 흐린 손잡이 + ✕
+    s += '<rect x="20" y="16" width="160" height="96" rx="10" fill="var(--obj-hi)" stroke="var(--obj-line)"/>';
+    s += txt(100, 34, '변속 레버', { size: 12, bold: true });
+    s += '<line x1="60" y1="72" x2="140" y2="72" stroke="var(--obj-line)" stroke-width="3" stroke-linecap="round"/>';
+    for (const g of ['R', 'N', 'F']) s += txt(GX[g], 56, g, { size: 15, bold: g === gear, fill: g === gear ? 'var(--accent)' : 'var(--muted)' });
+    if (refused) s += '<circle cx="' + GX[last.req] + '" cy="72" r="9" fill="none" stroke="var(--bad)" stroke-dasharray="3 2"/>' +
+      '<path d="M' + (GX[last.req] - 5) + ' 67l10 10M' + (GX[last.req] + 5) + ' 67l-10 10" stroke="var(--bad)" stroke-width="2"/>';
+    s += '<circle cx="' + GX[gear] + '" cy="72" r="10" fill="var(--accent)"/>';
+    s += txt(100, 100, '0900 기어 ' + G0900[gear].split(' ')[0] + ' · 0300 기어 ' + G0300[gear].split(' ')[0], { size: 10, fill: 'var(--muted)' });
+
+    // 스로틀 막대
+    s += '<rect x="214" y="22" width="22" height="84" rx="4" fill="var(--card)" stroke="var(--obj-line)"/>';
+    const h = 84 * th / 100;
+    s += '<rect x="214" y="' + (106 - h).toFixed(1) + '" width="22" height="' + h.toFixed(1) + '" rx="4" fill="' + (th > LIMIT ? 'var(--bad)' : 'var(--ok)') + '" opacity=".75"/>';
+    const ly = 106 - 84 * LIMIT / 100;
+    s += '<line x1="206" y1="' + ly + '" x2="244" y2="' + ly + '" stroke="var(--accent2)" stroke-width="2" stroke-dasharray="4 3"/>';
+    s += txt(250, ly + 4, '이 아래여야 변속', { size: 10, fill: 'var(--accent2)', anchor: 'start' });
+    s += txt(225, 16, '스로틀', { size: 11, fill: 'var(--muted)' });
+
+    // 거부 글자
+    if (refused) s += txt(470, 60, '거부: ' + last.code + ' ' + REASON[last.code], { size: 13, bold: true, fill: 'var(--bad)' });
+    else if (last) s += txt(470, 60, '변속 완료 (0)', { size: 13, bold: true, fill: 'var(--ok)' });
+
+    // 엔진 → 들어가는 축 (엔진은 늘 돈다)
+    s += '<rect x="20" y="160" width="76" height="70" rx="8" fill="var(--obj)" stroke="var(--obj-line)"/>' + txt(58, 200, '엔진', { size: 14, bold: true });
+    s += '<line x1="96" y1="195" x2="300" y2="195" stroke="var(--steel)" stroke-width="7"/>';
+    s += '<path d="M150 214 a12 12 0 1 1 16 0" fill="none" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#arrow)"/>' + txt(158, 240, '늘 돎', { size: 11, fill: 'var(--muted)' });
+    // 변속기 몸통
+    s += '<rect x="230" y="140" width="250" height="114" rx="12" fill="var(--obj-hi)" stroke="var(--obj-line)" opacity=".9"/>';
+    s += txt(242, 158, '변속기 · 0900', { size: 12, bold: true, anchor: 'start' });
+    // 원판 둘: 붙음(F·R) / 떨어짐(N)
+    const joined = gear !== 'N';
+    const outX = joined ? 312 : 336;
+    s += '<rect x="300" y="160" width="12" height="70" rx="3" fill="var(--steel)"/>';
+    s += '<rect x="' + outX + '" y="160" width="12" height="70" rx="3" fill="' + (joined ? 'var(--steel)' : 'var(--obj-line)') + '"/>';
+    if (!joined) s += txt(324, 250, '떨어짐', { size: 11, fill: 'var(--accent2)', bold: true });
+    else s += txt(320, 250, '붙음', { size: 11, fill: 'var(--ok)', bold: true });
+    // 후진 기어: R일 때만 끼워짐
+    s += '<circle cx="410" cy="' + (gear === 'R' ? 220 : 236) + '" r="11" fill="' + (gear === 'R' ? 'var(--gold)' : 'var(--obj)') + '" stroke="var(--obj-line)" stroke-dasharray="3 2"/>';
+    s += txt(440, 240, '후진 기어', { size: 10, fill: gear === 'R' ? 'var(--accent2)' : 'var(--muted)', anchor: 'start' });
+    // 나가는 축 → 워터젯
+    s += '<line x1="' + (outX + 12) + '" y1="195" x2="600" y2="195" stroke="var(--steel)" stroke-width="7"/>';
+    s += txt(640, 200, '워터젯', { size: 13, bold: true });
+    if (gear === 'F') s += '<path d="M530 214 a12 12 0 1 1 16 0" fill="none" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#arrow)"/>';
+    if (gear === 'R') s += '<path d="M546 214 a12 12 0 1 0 -16 0" fill="none" stroke="var(--bad)" stroke-width="2.5" marker-end="url(#arrow)"/>';
+    s += txt(560, 252, { F: '같이 돎 → 물을 뒤로', N: '멈춤 → 물 없음', R: '거꾸로 돎' }[gear], { size: 12, fill: gear === 'F' ? 'var(--ok)' : gear === 'N' ? 'var(--accent2)' : 'var(--bad)', bold: true });
+    if (gear === 'F') s += '<line x1="600" y1="170" x2="664" y2="170" stroke="var(--water)" stroke-width="5" marker-end="url(#arrow)"/>';
+
+    $('scene').innerHTML = '<g data-state="' + [gear, th, noCtl, local, last ? last.req + last.code : ''].join(':') + '">' + s + '</g>';
+
+    // 카드 값
+    const bc = blockCode();
+    const code = last ? last.code : bc;
+    const rows = [
+      ['0900 기어 상태', G0900[gear]],
+      ['0900 변속 금지', '0 변속 허용'],
+      ['0900 변속 가능', bc ? '0 변속 불가' : '1 변속 허락'],
+      ['0900 변속 금지 사유', code + ' ' + REASON[code]],
+      ['0300 기어 상태', G0300[gear]],
+      ['1000 워터젯 가능', gear === 'F' ? '예' : '아니요 (전진이 아님)'],
+    ];
+    const prev = draw.prev || {};
+    $('vals').innerHTML = '<tr><th colspan="2">이때 카드에는</th></tr>' + rows.map(([k, v]) =>
+      '<tr><td>' + k + '</td><td class="' + (prev[k] !== undefined && prev[k] !== v ? 'hot' : '') + '">' + v + '</td></tr>').join('');
+    draw.prev = Object.fromEntries(rows);
+
+    let say;
+    if (refused) say = '<b>' + last.req + '</b>로 옮기려 했지만 거부: <b>' + last.code + ' ' + REASON[last.code] + '</b>. 기어는 ' + gear + ' 그대로.' +
+      ({ 38: ' 스로틀을 ' + LIMIT + '% 아래로 내리고 다시.', 37: ' 먼저 N으로 옮긴 다음 다시.', 40: ' 제어권을 먼저 가져와야 한다(02 조종권).', 35: ' 엔진 현장 패널이 잡고 있다(04 엔진).' }[last.code] || '');
+    else if (gear === 'F') say = '<b>전진</b>: 두 원판이 붙어 엔진 회전이 워터젯까지 간다. 물이 뒤로 뿜어진다.';
+    else if (gear === 'N') say = '<b>중립</b>: 원판이 떨어져 엔진은 혼자 헛돌고 워터젯은 멈춘다. <code>1000</code> 워터젯 가능 = 아니요.';
+    else say = '<b>후진 기어</b>: 작은 기어가 끼어 회전 방향이 뒤집힌다. 워터젯 배는 보통 후진을 버킷으로 하니, 이건 특별한 때만 쓴다(확인할 것).';
+    if (!last && bc) say += ' 지금 레버를 옮기면 <b>' + bc + ' ' + REASON[bc] + '</b>(으)로 거부된다 → 변속 가능 = 0 변속 불가.';
+    $('say').innerHTML = say;
+  }
+
+  document.querySelectorAll('[data-g]').forEach((b) => b.addEventListener('click', () => { tryShift(b.dataset.g); draw(); }));
+  $('thR').addEventListener('input', () => { last = null; draw(); });
+  $('noCtl').addEventListener('click', () => { noCtl = !noCtl; last = null; draw(); });
+  $('engLocal').addEventListener('click', () => { local = !local; last = null; draw(); });
+  draw();
+</script>
+</body>
+</html>
