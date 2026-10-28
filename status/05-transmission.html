@@ -45,6 +45,11 @@
   main ul { padding-left: 20px; }
   a { color: var(--link); }
   code { font-size: 14px; }
+  .spin { transform-box: fill-box; transform-origin: center; animation: spin linear infinite; }
+  .rev { animation-direction: reverse; }
+  .run { animation: run .6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes run { to { stroke-dashoffset: -24; } }
   .fig { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .fig-hint { display: none; }
   @media (max-width: 600px) {
@@ -106,7 +111,7 @@
 
   <h2>2. 그림에서 일어나는 일</h2>
   <ul>
-    <li><b>레버를 옮기면</b> 원판이 붙거나 떨어지고, 오른쪽 축의 회전 화살표가 생기거나 사라진다.</li>
+    <li><b>레버를 옮기면</b> 원판이 붙거나 떨어지고, 오른쪽 워터젯 날개가 같이 돌거나(F) 멈추거나(N) 거꾸로 돈다(R). 왼쪽 엔진 바퀴는 늘 돌고, 스로틀을 올리면 둘 다 빨라진다.</li>
     <li><b>스로틀을 20% 넘게 올리고</b> 레버를 옮기면 거부된다 → 변속 금지 사유 <b>38 스로틀 높음</b>. 빨리 도는 원판을 갑자기 붙이면 부서지기 때문.</li>
     <li><b>F에서 바로 R</b>(또는 반대)로 가려 하면 거부된다 → <b>37</b>. 반드시 N을 거친다.</li>
     <li>제어권이 없으면 <b>40</b>, 엔진이 로컬이면 <b>35</b>.</li>
@@ -163,6 +168,12 @@
   const txt = (x, y, t, o) => '<text x="' + x + '" y="' + y + '" font-size="' + ((o && o.size) || 12) + '" fill="' + ((o && o.fill) || 'var(--text)') + '"' +
     ' text-anchor="' + ((o && o.anchor) || 'middle') + '"' + ((o && o.bold) ? ' font-weight="600"' : '') + '>' + t + '</text>';
 
+  // 도는 바퀴: dur 초에 한 바퀴, dur 없으면 멈춤
+  const rotor = (cx, cy, col, dur, rev) => '<g' + (dur ? ' class="spin' + (rev ? ' rev' : '') + '" style="animation-duration:' + dur + 's"' : '') + '>' +
+    '<circle cx="' + cx + '" cy="' + cy + '" r="14" fill="var(--card)" stroke="' + col + '" stroke-width="2.5"/>' +
+    [0, 120, 240].map((a) => { const r = a * Math.PI / 180; return '<line x1="' + cx + '" y1="' + cy + '" x2="' + (cx + 12 * Math.cos(r)).toFixed(1) + '" y2="' + (cy + 12 * Math.sin(r)).toFixed(1) + '" stroke="' + col + '" stroke-width="3" stroke-linecap="round"/>'; }).join('') +
+    '</g>';
+
   const blockCode = () => noCtl ? 40 : local ? 35 : (+$('thR').value > LIMIT ? 38 : 0);
 
   function tryShift(req) {
@@ -208,6 +219,8 @@
     // 엔진 → 들어가는 축 (엔진은 늘 돈다)
     s += '<rect x="20" y="160" width="76" height="70" rx="8" fill="var(--obj)" stroke="var(--obj-line)"/>' + txt(58, 200, '엔진', { size: 14, bold: true });
     s += '<line x1="96" y1="195" x2="300" y2="195" stroke="var(--steel)" stroke-width="7"/>';
+    const dur = (1.6 - th * 0.012).toFixed(2);          // 스로틀 높을수록 빨리 (그림용)
+    s += rotor(125, 195, 'var(--accent)', dur);
     s += '<path d="M150 214 a12 12 0 1 1 16 0" fill="none" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#arrow)"/>' + txt(158, 240, '늘 돎', { size: 11, fill: 'var(--muted)' });
     // 변속기 몸통
     s += '<rect x="230" y="140" width="250" height="114" rx="12" fill="var(--obj-hi)" stroke="var(--obj-line)" opacity=".9"/>';
@@ -225,10 +238,12 @@
     // 나가는 축 → 워터젯
     s += '<line x1="' + (outX + 12) + '" y1="195" x2="600" y2="195" stroke="var(--steel)" stroke-width="7"/>';
     s += txt(640, 200, '워터젯', { size: 13, bold: true });
+    s += rotor(505, 195, gear === 'N' ? 'var(--muted)' : gear === 'R' ? 'var(--bad)' : 'var(--accent)', joined ? dur : null, gear === 'R');
     if (gear === 'F') s += '<path d="M530 214 a12 12 0 1 1 16 0" fill="none" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#arrow)"/>';
     if (gear === 'R') s += '<path d="M546 214 a12 12 0 1 0 -16 0" fill="none" stroke="var(--bad)" stroke-width="2.5" marker-end="url(#arrow)"/>';
     s += txt(560, 252, { F: '같이 돎 → 물을 뒤로', N: '멈춤 → 물 없음', R: '거꾸로 돎' }[gear], { size: 12, fill: gear === 'F' ? 'var(--ok)' : gear === 'N' ? 'var(--accent2)' : 'var(--bad)', bold: true });
-    if (gear === 'F') s += '<line x1="600" y1="170" x2="664" y2="170" stroke="var(--water)" stroke-width="5" marker-end="url(#arrow)"/>';
+    if (gear === 'F') s += '<line x1="600" y1="170" x2="664" y2="170" stroke="var(--water)" stroke-width="5" marker-end="url(#arrow)"/>' +
+      '<line class="run" x1="600" y1="170" x2="656" y2="170" stroke="var(--card)" stroke-width="2" stroke-dasharray="6 6"/>';
 
     $('scene').innerHTML = '<g data-state="' + [gear, th, noCtl, local, last ? last.req + last.code : ''].join(':') + '">' + s + '</g>';
 
