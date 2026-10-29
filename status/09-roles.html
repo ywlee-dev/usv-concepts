@@ -92,7 +92,7 @@
     <tr><td>1 시작</td><td><b>엔진</b></td><td>힘이 없다. 아무것도 안 돈다</td><td>힘을 만든다</td><td><code>0300</code> <code>0800</code> <code>1100</code></td></tr>
     <tr><td>2</td><td><b>변속기</b></td><td>엔진이 도는 동안 워터젯도 <b>무조건</b> 돈다 → 배를 세울 수 없다. 엔진은 껐다 켰다 하기 어렵다</td><td>엔진은 돌게 두고 힘만 <b>끊는다</b> (자동차의 N)</td><td><code>0900</code></td></tr>
     <tr><td>3</td><td><b>축</b></td><td>엔진과 워터젯이 떨어져 있어 회전이 안 간다</td><td>회전을 뒤로 <b>전한다</b></td><td>—</td></tr>
-    <tr><td>4</td><td><b>베어링</b></td><td>물을 민 반동이 축을 앞으로 밀어 변속기·엔진을 <b>들이받는다</b>. 배는 안 나가고 기계만 상한다</td><td>반동을 받아 <b>배 몸통에 넘긴다</b> → 배가 나간다</td><td><code>0600</code></td></tr>
+    <tr><td>4</td><td><b>베어링</b></td><td>물을 민 반동이 축을 앞으로 밀어 변속기·엔진을 <b>들이받는다</b>. 배는 나가긴 하지만 그 힘이 <b>약한 길</b>(톱니·원판)로 가서 기계가 상하고 결국 선다</td><td>반동을 받아 <b>튼튼한 길로</b> 배 몸통에 넘긴다</td><td><code>0600</code></td></tr>
     <tr><td>5 결과</td><td><b>워터젯</b></td><td>축은 도는데 물을 못 민다. 배가 안 나간다</td><td>회전을 <b>물줄기</b>로 바꾼다</td><td><code>1000</code></td></tr>
   </table>
   <p style="margin-top:14px"><b>길 바깥에서 돕는 둘</b></p>
@@ -255,7 +255,7 @@
     engine: ['bad', '엔진이 없으면 → 힘이 없다. 아무것도 안 돈다', '<b>엔진</b>을 빼면 힘의 출발점이 없다. 축도 날개도 안 돌고 물도 없다. 모든 것의 <b>시작</b>이다.'],
     gear: ['bad', '변속기가 없으면 → 엔진이 돌면 워터젯도 무조건 돈다', '<b>변속기</b>를 빼면 엔진과 워터젯이 늘 붙어 있다. 엔진은 시동을 건 뒤 계속 돌아야 하니, 물도 <b>계속</b> 나간다 → 배를 <b>세울 수 없다</b>. 그래서 "끊는 장치"가 필요하다(자동차의 N).'],
     shaft: ['bad', '축이 없으면 → 회전이 뒤로 못 간다. 워터젯이 멈춘다', '<b>축</b>을 빼면 엔진은 도는데 그 회전이 뒤쪽 워터젯까지 <b>못 간다</b>. 엔진과 워터젯이 떨어져 있어서 긴 막대가 필요하다.'],
-    bearing: ['bad', '베어링이 없으면 → 반동이 앞쪽 기계를 들이받는다. 배는 안 나간다', '<b>베어링</b>을 빼면 물을 민 반동이 축을 앞으로 밀어 <b>변속기·엔진을 들이받는다</b>. 그 힘이 배 몸통에 안 가니 배는 안 나가고 기계만 상한다. 베어링이 반동을 <b>배에 넘겨 줘야</b> 배가 나간다.'],
+    bearing: ['bad', '베어링이 없으면 → 반동이 변속기·엔진을 짓누른다. 나가다가 고장', '<b>베어링</b>을 빼면 물을 민 반동이 축을 앞으로 밀어 <b>변속기·엔진을 들이받는다</b>. 변속기·엔진도 배에 고정돼 있어서 힘은 결국 배 몸통에 닿고, 배는 <b>나가긴 한다</b>. 문제는 길이다. 톱니·원판은 <b>돌리라고</b> 만든 것이라 미는 힘을 받으면 비틀리고 닳는다 → <b>고장 나서 선다</b>. 소방관이 손을 놓고 호스를 배로 버티는 것과 같다. 베어링은 반동을 <b>튼튼한 길로</b> 배 몸통에 넘기는 손이다.'],
     jet: ['bad', '워터젯이 없으면 → 축은 도는데 물을 못 민다. 배가 안 나간다', '<b>워터젯</b>을 빼면 회전은 끝까지 오는데 그걸 <b>물줄기로 바꿀 곳</b>이 없다. 헛도는 막대일 뿐, 배는 안 나간다. 워터젯이 <b>결과</b>다.'],
     hyd: ['warn', '유압이 없으면 → 배는 나가지만 직진만. 돌기·후진·멈춤 불가', '<b>유압</b>을 빼도 힘의 길은 그대로라 배는 <b>나간다</b>. 하지만 노즐·버킷이 굳어 <b>방향을 못 바꾼다</b> — 돌지도, 뒤로 가거나 멈추지도 못한다. 유압은 길 <b>바깥</b>에서 방향만 맡는다.'],
   };
@@ -268,13 +268,14 @@
     const engineOn = g !== 'engine';
     const reach = engineOn && g !== 'shaft';
     const water = reach && g !== 'jet';
-    const moves = water && g !== 'bearing';
+    const moves = water;
     let x = '';
     if (engineOn) x += rot(288);
     if (reach) x += rot(430);
     if (water) x += '<path class="run" d="M478 238 Q520 230 532 192" fill="none" stroke="var(--water)" stroke-width="3" stroke-dasharray="6 6"/>' +
       '<line class="run" x1="634" y1="168" x2="676" y2="168" stroke="var(--water)" stroke-width="5" stroke-dasharray="8 4"/>';
-    if (moves) x += '<line x1="170" y1="240" x2="70" y2="240" stroke="var(--ok)" stroke-width="4" marker-end="url(#ar)"/>' + txt(120, 260, '배가 앞으로', { size: 13, bold: true, fill: 'var(--ok)' });
+    const weak = g === 'bearing'; // 그림용: 힘이 변속기·엔진을 거쳐 몸통에 닿음
+    if (moves) x += '<line x1="170" y1="240" x2="70" y2="240" stroke="' + (weak ? 'var(--bad)' : 'var(--ok)') + '" stroke-width="4"' + (weak ? ' stroke-dasharray="8 5"' : '') + ' marker-end="url(#ar)"/>' + txt(120, 260, weak ? '나가긴 함 (기계가 버팀)' : '배가 앞으로', { size: 13, bold: true, fill: weak ? 'var(--bad)' : 'var(--ok)' });
     if (g === 'gear') x += txt(391, 136, '늘 붙어 있음', { size: 12, bold: true, fill: 'var(--bad)' });
     if (g === 'shaft') x += txt(476, 108, '회전이 안 감', { size: 12, bold: true, fill: 'var(--bad)' });
     if (g === 'bearing') x += '<line x1="470" y1="168" x2="430" y2="168" stroke="var(--bad)" stroke-width="5" marker-end="url(#ar)"/>' +
