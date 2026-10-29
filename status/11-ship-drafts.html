@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>배 그림 시안</title>
+<style>
+  :root {
+    --bg: #fafaf8; --card: #ffffff; --text: #1f1f1d; --muted: #6b6a65; --line: #d8d6ce;
+    --link: #185FA5; --en: #185FA5; --accent: #D85A30; --accent2: #BA7517; --ok: #1D9E75; --bad: #C8402F;
+    --obj: #dfe8f3; --obj-hi: #f4f8fc; --obj-line: #5f5e5a; --floor: #f1efe8; --chip-on: #fbe9e2;
+    --steel: #8a8984; --water: #3b8fd6; --sea: #d6e8f7; --oil: #d9a21b; --screen: #f3f2ee; --info: #2b74b0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1c1c1a; --card: #262624; --text: #ecebe6; --muted: #a8a69e; --line: #44443f;
+      --link: #85B7EB; --en: #9cc6f0; --obj: #34465a; --obj-hi: #4a5f76; --obj-line: #b4b2a9; --floor: #302f2b; --chip-on: #4a2c22;
+      --steel: #9d9c96; --bad: #E8705F; --water: #6cb0ec; --sea: #1f3346; --oil: #e2b23c; --screen: #1f1f1d; --info: #6fb3e8; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.7 "Pretendard", "Malgun Gothic", system-ui, sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 4px; }
+  h2 { font-size: 18px; font-weight: 600; margin: 32px 0 8px; }
+  .lead { color: var(--muted); margin: 0 0 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+  .buttons .cap { font-size: 15px; color: var(--muted); margin-right: 4px; }
+  button { font: inherit; font-size: 14px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); cursor: pointer; }
+  button:hover { border-color: var(--muted); }
+  button[aria-pressed="true"] { border-color: var(--accent); background: var(--chip-on); font-weight: 600; }
+  .say { margin: 14px 0 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--bg); border-radius: 0 8px 8px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  svg text { font-family: inherit; }
+  .note { font-size: 14px; color: var(--muted); }
+  .check { border: 1px dashed var(--accent2); border-radius: 8px; padding: 10px 12px; font-size: 15px; }
+  .check b:first-child { color: var(--accent2); }
+  main ul { padding-left: 20px; }
+  a { color: var(--link); }
+  code { font-size: 14px; }
+  .fig { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .fig-hint { display: none; }
+  .panel { background: var(--screen); border: 1px solid var(--line); border-radius: 10px; padding: 6px; }
+  .draft-title { display: flex; align-items: baseline; gap: 10px; margin: 0 0 6px; }
+  .draft-title b { font-size: 17px; }
+  .draft-title span { color: var(--muted); font-size: 14px; }
+  .blink { animation: blink 1s steps(2, start) infinite; }
+  @keyframes blink { to { visibility: hidden; } }
+  @media (max-width: 600px) {
+    .fig svg { min-width: 560px; }
+    .fig-hint { display: block; font-size: 13px; color: var(--muted); text-align: center; margin: 4px 0 0; }
+    table { font-size: 14px; }
+    th, td { padding: 6px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="index.html">← 개념 그림 목록</a> · <a href="00-big-picture.html">00 큰 그림</a> · 이전: <a href="10-monitor-mockup.html">10 관제 화면 밑그림</a> · 다음: <a href="12-control-reading.html">12 조종권 읽는 법</a></p>
+  <h1>배 그림 시안 — 셋을 나란히 놓고 고르기</h1>
+  <p class="lead">앱에 넣은 배 그림은 부품 크기가 제각각이고, 조종권이 허공에 떠 있고, 넓은 화면에서는 그림만 작아져 "워터젯 가능"이 따로 떠 보였다. 같은 가짜 값으로 시안 세 개를 그렸다. 위 버튼으로 상황을 바꾸면 세 그림이 함께 바뀐다.</p>
+
+  <div class="card">
+    <div class="buttons"><span class="cap">상황</span>
+      <button data-sc="run">정상 운항</button>
+      <button data-sc="partial">엔진·변속기 값 없음</button>
+      <button data-sc="local">엔진 현장 패널</button>
+      <button data-sc="neutral">중립(N) 대기</button>
+      <button data-sc="cabin">조타실이 쥠</button>
+      <button data-sc="lost">연결 끊김</button>
+    </div>
+    <div class="say" id="say"></div>
+  </div>
+  <p class="note">관제 화면 패널 폭(약 1600px)을 그대로 줄여 그렸다. 값·색은 가짜다(그림용). "엔진·변속기 값 없음"은 2026-10-29 실제 화면 상태다.</p>
+
+  <h2>A. 요약 칸 + 배 — 왼쪽에 답, 오른쪽에 그림 ✔ 고름(2026-10-29, 앱에 옮김)</h2>
+  <div class="panel"><div class="fig">
+    <svg width="100%" viewBox="0 0 1600 260" role="img" aria-labelledby="ta da"><title id="ta">시안 A</title><desc id="da">왼쪽 요약 칸에 워터젯 가능·알람·왜·수신, 오른쪽에 뱃머리가 뾰족한 배와 같은 크기 부품 네 개.</desc><g id="draftA"></g></svg>
+  </div></div>
+  <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+
+  <h2>B. 배 하나에 다 — 답도 그림 안에</h2>
+  <div class="panel"><div class="fig">
+    <svg width="100%" viewBox="0 0 1600 260" role="img" aria-labelledby="tb db"><title id="tb">시안 B</title><desc id="db">배가 폭을 다 쓰고, 워터젯 가능은 물줄기 끝에, 알람은 선실 지붕에, 왜 한 줄은 하늘 자리에.</desc><g id="draftB"></g></svg>
+  </div></div>
+  <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+
+  <h2>C. 줄 지도 — 배 모양 없이 흐름만</h2>
+  <div class="panel"><div class="fig">
+    <svg width="100%" viewBox="0 0 1600 170" role="img" aria-labelledby="tc dc"><title id="tc">시안 C</title><desc id="dc">지하철 노선도처럼 조종권에서 엔진, 변속기, 베어링, 워터젯, 물까지 한 줄. 유압은 워터젯에서 갈라진다. 높이가 가장 낮다.</desc><g id="draftC"></g></svg>
+  </div></div>
+  <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+
+  <h2>1. 셋을 비교하면</h2>
+  <table>
+    <tr><th></th><th>A. 요약 칸 + 배</th><th>B. 배 하나에 다</th><th>C. 줄 지도</th></tr>
+    <tr><td>"몰 수 있나"</td><td>왼쪽 칸 맨 위, 크게 — 늘 같은 자리</td><td>물줄기 끝 — 그림을 따라가면 닿는 자리</td><td>왼쪽 칸 맨 위(A와 같음)</td></tr>
+    <tr><td>배로 보이나</td><td>예 (뱃머리·선실·받침)</td><td>예, 가장 크게</td><td>아니요 — 흐름만</td></tr>
+    <tr><td>높이</td><td>중간</td><td>중간</td><td><b>가장 낮음</b> — 카드에 높이를 많이 남김</td></tr>
+    <tr><td>넓은 화면</td><td>요약 칸이 그림 옆에 붙어 떠 보이지 않음</td><td>그림이 폭을 다 씀</td><td>줄이 폭을 다 씀</td></tr>
+    <tr><td>걸리는 것</td><td>요약 칸만큼 그림이 좁아짐</td><td>답이 그림 여기저기에 흩어짐</td><td>"배 안의 어디"가 안 보임 (공부 그림과 연결이 약함)</td></tr>
+  </table>
+
+  <h2>2. 세 시안에 공통으로 고친 것</h2>
+  <ul>
+    <li><b>사슬 한 줄:</b> 엔진 · 변속기 · 베어링 · 워터젯을 같은 크기·높이·간격으로.</li>
+    <li><b>조종권은 배 위 선실</b>(A·B) — 허공에 뜬 상자가 아니라 배의 일부. 명령 줄은 엔진 위로 곧게 한 번만 내려간다.</li>
+    <li><b>배 모양:</b> 뱃머리는 뾰족(왼쪽), 배 뒤는 평평(오른쪽, 물이 나가는 쪽). 바다는 물결선 하나.</li>
+    <li><b>글자:</b> 그림 안에는 부품 이름과 값만. 줄 설명은 범례로, 왜 한 줄은 한 자리에 고정.</li>
+    <li><b>모름은 조용히:</b> "모름"을 큰 상자로 강조하지 않는다 — 받은 것이 없을 때 가장 큰 글자가 "모름"이면 고장처럼 보인다(앱 화면에서 본 것).</li>
+  </ul>
+
+  <div class="check"><b>확인할 것</b> — 고르기 전에 볼 것.
+    <ul>
+      <li>관제 PC 모니터의 가로·세로(1080p 인지, 세로로 긴 창인지) — A·B 는 높이 260, C 는 170 비율.</li>
+      <li>"몰 수 있나"를 늘 같은 자리에서 보는 게 나은지(A·C), 그림 흐름 끝에서 보는 게 나은지(B).</li>
+    </ul>
+  </div>
+
+  <h2>3. 원래 자료와 연결하면</h2>
+  <ul>
+    <li>지금 앱 그림: <code>src/widgets/ship-view/</code>(규격 README). 고른 시안을 거기로 옮긴다.</li>
+    <li>밑그림: <a href="10-monitor-mockup.html">10 관제 화면 밑그림</a>, 계획: <code>UI_PLAN.md</code> 3-1장.</li>
+  </ul>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const txt = (x, y, t, o = {}) => '<text x="' + x + '" y="' + y + '" font-size="' + (o.size || 16) + '" fill="' + (o.fill || 'var(--text)') + '"' +
+    ' text-anchor="' + (o.anchor || 'middle') + '"' + (o.bold ? ' font-weight="700"' : '') + '>' + t + '</text>';
+  const DEFS = '<defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1L9 5L1 9z" fill="context-stroke"/></marker></defs>';
+  const COL = { ok: 'var(--ok)', warn: 'var(--accent2)', bad: 'var(--bad)', info: 'var(--info)', none: 'var(--steel)' };
+
+  // ── 상황(가짜 값, 그림용) ──
+  const OK = (value) => ({ level: 'ok', value });
+  const NONE = { level: 'none', value: '—' };
+  function base() {
+    return {
+      parts: { control: OK('우리 관제'), engine: OK('1650 rpm'), gear: OK('F'), bearing: OK('기름 82%'), jet: OK('예'), hyd: OK('15000 kPa') },
+      can: { level: 'ok', text: '예' }, alarm: { level: 'ok', text: '없음' }, recv: '17:20:00',
+      why: { level: 'ok', text: '모두 정상' }, segs: ['ok', 'ok', 'ok'], cmdCut: null, hydOk: true, water: true,
+      say: '모두 정상. 세 시안 모두 초록, 물이 나간다.',
+    };
+  }
+  const SC = {
+    run: base,
+    partial: () => Object.assign(base(), {
+      parts: { ...base().parts, engine: NONE, gear: NONE }, why: { level: 'none', text: '엔진 · 변속기 값 없음' }, segs: ['unknown', 'unknown', 'ok'],
+      say: '실제 화면(10-29) 상태. 엔진·변속기는 값이 안 와서 회색이지만 <b>끊긴 게 아니라 모름</b> — 줄은 회색 실선, 1000 이 예라 물은 나간다.' }),
+    local: () => Object.assign(base(), {
+      parts: { ...base().parts, engine: { level: 'bad', value: '로컬' }, gear: { level: 'bad', value: 'F' }, jet: { level: 'bad', value: '아니요' } },
+      can: { level: 'bad', text: '아니요' }, why: { level: 'bad', text: '엔진 · 로컬(현장 패널) 제어 ON' }, cmdCut: 'engine', water: false,
+      say: '엔진 현장 패널. 추진 줄은 그대로, <b>명령 줄에 ✕</b>.' }),
+    neutral: () => Object.assign(base(), {
+      parts: { ...base().parts, engine: OK('700 rpm'), gear: OK('N'), jet: { level: 'warn', value: '아니요' } },
+      can: { level: 'warn', text: '아니요' }, why: { level: 'warn', text: '워터젯 · 아니요 — 변속기 중립' }, segs: ['ok', 'cut', 'cut'], water: false,
+      say: '중립 대기. <b>변속기 뒤부터 점선(끊김)</b>, 워터젯 아니요는 주황(일부러 세운 배).' }),
+    cabin: () => Object.assign(base(), {
+      parts: { ...base().parts, control: { level: 'bad', value: '다른 곳' } }, why: { level: 'bad', text: '조종권 · 제어 중 아님' }, cmdCut: 'control',
+      say: '조타실이 쥠. 배는 멀쩡(워터젯 예)한데 <b>선실 쪽 명령 줄에 ✕</b>.' }),
+    lost: () => ({
+      parts: Object.fromEntries(['control', 'engine', 'gear', 'bearing', 'jet', 'hyd'].map((k) => [k, NONE])),
+      can: { level: 'none', text: '모름' }, alarm: { level: 'none', text: '모름' }, recv: '—', why: { level: 'none', text: '받은 상태 없음' },
+      segs: ['unknown', 'unknown', 'unknown'], cmdCut: null, hydOk: false, water: false,
+      say: '연결 끊김. 모두 회색 — <b>"모름"을 크게 강조하지 않는다</b>(앱에서 큰 "모름" 상자가 고장처럼 보였다).' }),
+  };
+  let cur = 'run';
+
+  // ── 공용 조각 ──
+  // 부품 상자: 테두리 색 하나 + 값 하나. 모름은 회색 점선
+  function part(x, y, w, h, name, d, size = 18) {
+    const c = COL[d.level];
+    return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="9" fill="var(--card)" stroke="' + c + '" stroke-width="' + (d.level === 'none' ? 2 : 3.5) + '"' + (d.level === 'none' ? ' stroke-dasharray="7 5"' : '') + '/>' +
+      '<circle cx="' + (x + w - 12) + '" cy="' + (y + 12) + '" r="6" fill="' + c + '"' + (d.level === 'bad' ? ' class="blink"' : '') + '/>' +
+      txt(x + w / 2, y + h / 2 - 4, name, { size, bold: true }) +
+      txt(x + w / 2, y + h / 2 + size + 2, d.value, { size: size - 1, bold: true, fill: d.level === 'none' ? 'var(--muted)' : d.level === 'ok' ? 'var(--text)' : c });
+  }
+  // 추진 줄 토막: ok 굵은 선 · cut 흐린 점선 · unknown 회색 실선
+  function seg(x1, x2, y, state) {
+    const style = state === 'ok' ? 'stroke="var(--obj-line)" stroke-width="9"'
+      : state === 'cut' ? 'stroke="var(--steel)" stroke-width="9" stroke-dasharray="9 8" opacity=".45"'
+      : 'stroke="var(--steel)" stroke-width="9" opacity=".45"';
+    return '<line x1="' + x1 + '" y1="' + y + '" x2="' + x2 + '" y2="' + y + '" ' + style + '/>';
+  }
+  const cross = (x, y) => txt(x, y + 9, '✕', { size: 28, bold: true, fill: 'var(--bad)' });
+  const legend = (x, y) => '<line x1="' + x + '" y1="' + (y - 6) + '" x2="' + (x + 34) + '" y2="' + (y - 6) + '" stroke="var(--obj-line)" stroke-width="7"/>' + txt(x + 44, y, '추진', { size: 14, anchor: 'start', fill: 'var(--muted)' }) +
+    '<line x1="' + (x + 120) + '" y1="' + (y - 6) + '" x2="' + (x + 154) + '" y2="' + (y - 6) + '" stroke="var(--muted)" stroke-width="2.5" stroke-dasharray="5 5"/>' + txt(x + 164, y, '명령', { size: 14, anchor: 'start', fill: 'var(--muted)' });
+
+  // 배 한 척 — x0 부터 폭 W. 뱃머리 뾰족(왼쪽), 배 뒤 평평(오른쪽). 선실(조종권)은 갑판 위, 명령 줄은 엔진 위로 곧게
+  function ship(s, x0, W, opt = {}) {
+    const top = 112, bottom = 222, cy = 168, unit = W / 10;
+    const bowX = x0, deckX = x0 + unit * 0.9, sternX = x0 + W - unit * 0.55;
+    let g = '';
+    g += '<path d="M' + bowX + ' ' + (top + 30) + ' L' + deckX + ' ' + top + ' H' + sternX + ' V' + bottom + ' H' + (deckX + 20) + ' Q' + (bowX + 30) + ' ' + bottom + ' ' + bowX + ' ' + (top + 30) + ' Z" fill="var(--obj-hi)" stroke="var(--obj-line)" stroke-width="2"/>';
+    g += '<path d="M' + (x0 - 10) + ' ' + (bottom - 8) + ' q 25 -8 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0" fill="none" stroke="var(--water)" stroke-width="2" opacity=".55"/>';
+    // 사슬 네 칸: 같은 크기·같은 간격
+    const bw = unit * 1.45, bh = 74, gap = (sternX - deckX - unit * 1.9 - bw * 4) / 3;
+    const xs = [0, 1, 2, 3].map((i) => deckX + unit * 0.75 + i * (bw + gap));
+    const keys = ['engine', 'gear', 'bearing', 'jet'];
+    for (let i = 0; i < 3; i++) g += seg(xs[i] + bw, xs[i + 1], cy, s.segs[i]);
+    // 받침: 엔진 다리, 베어링 받침
+    g += '<rect x="' + (xs[0] + 20) + '" y="' + (cy + bh / 2) + '" width="10" height="' + (bottom - cy - bh / 2) + '" fill="var(--obj-line)"/><rect x="' + (xs[0] + bw - 30) + '" y="' + (cy + bh / 2) + '" width="10" height="' + (bottom - cy - bh / 2) + '" fill="var(--obj-line)"/>';
+    g += '<path d="M' + (xs[2] + bw / 2 - 16) + ' ' + (cy + bh / 2) + ' h32 l10 ' + (bottom - cy - bh / 2) + ' h-52 Z" fill="var(--obj-line)"/>';
+    // 노즐·버킷(배 뒤) · 유압(워터젯 위 갑판) · 물
+    const jx = xs[3] + bw, hc = s.hydOk ? 'var(--oil)' : 'var(--steel)', nf = s.hydOk ? 'var(--obj-line)' : 'var(--steel)';
+    g += '<path d="M' + jx + ' ' + (cy - 12) + ' L' + (sternX + 22) + ' ' + (cy - 7) + ' L' + (sternX + 22) + ' ' + (cy + 7) + ' L' + jx + ' ' + (cy + 12) + ' Z" fill="var(--obj)" stroke="' + nf + '" stroke-width="2"' + (s.hydOk ? '' : ' stroke-dasharray="5 4"') + '/>';
+    g += '<path d="M' + (sternX + 34) + ' ' + (cy - 26) + ' q 16 26 0 52" fill="none" stroke="' + nf + '" stroke-width="6" stroke-linecap="round"' + (s.hydOk ? '' : ' stroke-dasharray="5 5"') + '/>';
+    const hx = xs[3], hy = top - 58;
+    g += '<path d="M' + (hx + bw - 10) + ' ' + (hy + 48) + ' C' + (sternX + 10) + ' ' + (hy + 60) + ' ' + (sternX + 30) + ' ' + (cy - 60) + ' ' + (sternX + 30) + ' ' + (cy - 28) + '" fill="none" stroke="' + hc + '" stroke-width="3.5"' + (s.hydOk ? '' : ' stroke-dasharray="6 5"') + '/>';
+    if (s.water) g += '<line x1="' + (sternX + 50) + '" y1="' + cy + '" x2="' + (x0 + W + (opt.waterTo || 40)) + '" y2="' + cy + '" stroke="var(--water)" stroke-width="7" marker-end="url(#ar)"/>';
+    g += part(hx, hy, bw, 50, '유압', s.parts.hyd, 16);
+    for (let i = 0; i < 4; i++) g += part(xs[i], cy - bh / 2, bw, bh, ['엔진', '변속기', '베어링', '워터젯'][i], s.parts[keys[i]]);
+    // 선실(조종권): 엔진 위 갑판에 붙임. 명령 줄은 곧게 아래로
+    const cx = xs[0], cw = bw;
+    g += '<path d="M' + (cx + cw / 2) + ' ' + (top - 2) + ' V' + (cy - bh / 2) + '" stroke="' + (s.cmdCut ? 'var(--bad)' : 'var(--muted)') + '" stroke-width="2.5" stroke-dasharray="5 5"/>';
+    g += part(cx, top - 64, cw, 54, '조종권', s.parts.control, 17);
+    // 명령이 안 감(조종권 없음 · 엔진 로컬): 선실과 엔진 사이 짧은 선 옆에 작은 ✕ — 이유는 상자 값이 말한다
+    if (s.cmdCut) g += txt(cx + cw / 2 + 16, top + 14, '✕', { size: 20, bold: true, fill: 'var(--bad)' });
+    return { g, xs, bw, sternX, top, cy };
+  }
+
+  // 요약 칸: 몰 수 있나(크게) · 알람 · 왜 · 수신. "모름"은 조용히(회색, 작은 테두리)
+  function summary(s, x, y, w, h) {
+    const c = COL[s.can.level], quiet = s.can.level === 'none';
+    let g = '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="12" fill="var(--card)" stroke="var(--line)"/>';
+    g += txt(x + 20, y + 32, '워터젯 가능', { size: 16, anchor: 'start', fill: 'var(--muted)' });
+    g += '<rect x="' + (x + 20) + '" y="' + (y + 44) + '" width="' + (w - 40) + '" height="62" rx="10" fill="' + (quiet ? 'none' : c) + '" fill-opacity="' + (quiet ? 0 : 0.12) + '" stroke="' + c + '" stroke-width="' + (quiet ? 1.5 : 3) + '"' + (quiet ? ' stroke-dasharray="6 5"' : '') + '/>';
+    g += txt(x + w / 2, y + 88, s.can.text, { size: quiet ? 24 : 36, bold: !quiet, fill: quiet ? 'var(--muted)' : c });
+    g += '<circle cx="' + (x + 28) + '" cy="' + (y + 132) + '" r="7" fill="' + COL[s.alarm.level] + '"/>' + txt(x + 44, y + 138, '알람 ' + s.alarm.text, { size: 17, anchor: 'start', bold: true, fill: s.alarm.level === 'ok' ? 'var(--text)' : COL[s.alarm.level] });
+    g += '<line x1="' + (x + 22) + '" y1="' + (y + 158) + '" x2="' + (x + 22) + '" y2="' + (y + 196) + '" stroke="' + COL[s.why.level] + '" stroke-width="5"/>';
+    g += txt(x + 36, y + 184, s.why.text, { size: 17, anchor: 'start', bold: s.why.level !== 'none', fill: s.why.level === 'none' ? 'var(--muted)' : 'var(--text)' });
+    g += txt(x + w - 20, y + h - 14, '수신 ' + s.recv, { size: 14, anchor: 'end', fill: 'var(--muted)' });
+    return g;
+  }
+
+  function drawA(s) {
+    let g = DEFS + summary(s, 10, 10, 380, 240);
+    const sh = ship(s, 440, 1080);
+    g += sh.g + legend(470, 252);
+    $('draftA').innerHTML = g;
+  }
+
+  function drawB(s) {
+    let g = DEFS;
+    const sh = ship(s, 30, 1370, { waterTo: 150 });
+    g += sh.g;
+    // 몰 수 있나 = 물줄기 끝
+    const c = COL[s.can.level], wx = 30 + 1370 + 95;
+    g += txt(wx, sh.cy - 46, '워터젯 가능', { size: 15, fill: 'var(--muted)' });
+    g += '<rect x="' + (wx - 66) + '" y="' + (sh.cy - 36) + '" width="132" height="48" rx="9" fill="var(--card)" stroke="' + c + '" stroke-width="' + (s.can.level === 'none' ? 1.5 : 3) + '"' + (s.can.level === 'none' ? ' stroke-dasharray="6 5"' : '') + '/>';
+    g += txt(wx, sh.cy - 2, s.can.text, { size: s.can.level === 'none' ? 20 : 28, bold: s.can.level !== 'none', fill: s.can.level === 'none' ? 'var(--muted)' : c });
+    // 알람 = 선실 옆 종
+    const ax = sh.xs[0] + sh.bw + 24, ay = sh.top - 40;
+    g += '<path d="M' + ax + ' ' + (ay + 16) + ' q0 -22 14 -22 q14 0 14 22 l5 6 h-38 Z" fill="' + COL[s.alarm.level] + '"' + (s.alarm.level === 'bad' ? ' class="blink"' : '') + '/>' + txt(ax + 44, ay + 20, '알람 ' + s.alarm.text, { size: 17, anchor: 'start', bold: true, fill: s.alarm.level === 'ok' ? 'var(--text)' : COL[s.alarm.level] });
+    // 왜 한 줄 = 배 아래 범례 옆(하늘은 선실·알람·유압으로 차 있다)
+    const wyx = 330;
+    g += '<line x1="' + wyx + '" y1="' + 234 + '" x2="' + wyx + '" y2="' + 258 + '" stroke="' + COL[s.why.level] + '" stroke-width="5"/>' + txt(wyx + 14, 252, s.why.text, { size: 18, anchor: 'start', bold: s.why.level !== 'none', fill: s.why.level === 'none' ? 'var(--muted)' : 'var(--text)' });
+    g += txt(1590, 22, '수신 ' + s.recv, { size: 14, anchor: 'end', fill: 'var(--muted)' }) + legend(60, 252);
+    $('draftB').innerHTML = g;
+  }
+
+  function drawC(s) {
+    // 요약 칸은 A 와 같은 내용을 낮은 높이에 촘촘히: 몰 수 있나 + 알람 · 수신 + 왜
+    let g = DEFS;
+    const c = COL[s.can.level], quiet = s.can.level === 'none';
+    g += '<rect x="10" y="10" width="380" height="150" rx="12" fill="var(--card)" stroke="var(--line)"/>';
+    g += txt(30, 40, '워터젯 가능', { size: 15, anchor: 'start', fill: 'var(--muted)' });
+    g += '<rect x="150" y="16" width="220" height="44" rx="9" fill="none" stroke="' + c + '" stroke-width="' + (quiet ? 1.5 : 3) + '"' + (quiet ? ' stroke-dasharray="6 5"' : '') + '/>' + txt(260, 48, s.can.text, { size: quiet ? 20 : 28, bold: !quiet, fill: quiet ? 'var(--muted)' : c });
+    g += '<circle cx="36" cy="86" r="7" fill="' + COL[s.alarm.level] + '"/>' + txt(52, 92, '알람 ' + s.alarm.text, { size: 16, anchor: 'start', bold: true, fill: s.alarm.level === 'ok' ? 'var(--text)' : COL[s.alarm.level] }) + txt(370, 92, '수신 ' + s.recv, { size: 13, anchor: 'end', fill: 'var(--muted)' });
+    g += '<line x1="30" y1="108" x2="30" y2="146" stroke="' + COL[s.why.level] + '" stroke-width="5"/>' + txt(44, 134, s.why.text, { size: 16, anchor: 'start', bold: s.why.level !== 'none', fill: s.why.level === 'none' ? 'var(--muted)' : 'var(--text)' });
+    // 노선: 조종권 ┄ 엔진 ━ 변속기 ━ 베어링 ━ 워터젯 ━▶ 물, 유압은 워터젯 위로 갈라짐
+    const y = 104, bw = 170, bh = 62, xs = [640, 860, 1080, 1300];
+    g += '<line x1="590" y1="' + y + '" x2="' + xs[0] + '" y2="' + y + '" stroke="' + (s.cmdCut ? 'var(--bad)' : 'var(--muted)') + '" stroke-width="2.5" stroke-dasharray="5 5"/>';
+    for (let i = 0; i < 3; i++) g += seg(xs[i] + bw, xs[i + 1], y, s.segs[i]);
+    if (s.water) g += '<line x1="' + (xs[3] + bw) + '" y1="' + y + '" x2="1590" y2="' + y + '" stroke="var(--water)" stroke-width="7" marker-end="url(#ar)"/>' + txt(1560, y + 32, '물', { size: 15, bold: true, fill: 'var(--water)' });
+    const hc = s.hydOk ? 'var(--oil)' : 'var(--steel)';
+    g += '<line x1="' + (xs[3] + bw / 2) + '" y1="44" x2="' + (xs[3] + bw / 2) + '" y2="' + (y - bh / 2) + '" stroke="' + hc + '" stroke-width="3.5"' + (s.hydOk ? '' : ' stroke-dasharray="6 5"') + '/>';
+    g += part(430, y - bh / 2, 160, bh, '조종권', s.parts.control, 17);
+    if (s.cmdCut === 'control') g += cross(615, y - 14);
+    if (s.cmdCut === 'engine') g += cross(615, y - 14);
+    ['엔진', '변속기', '베어링', '워터젯'].forEach((name, i) => { g += part(xs[i], y - bh / 2, bw, bh, name, s.parts[['engine', 'gear', 'bearing', 'jet'][i]], 17); });
+    g += part(xs[3], 4, bw, 40, '유압 · ' + s.parts.hyd.value, { ...s.parts.hyd, value: '' }, 15);
+    g += legend(640, 162);
+    $('draftC').innerHTML = g;
+  }
+
+  function draw() {
+    const s = SC[cur]();
+    document.querySelectorAll('[data-sc]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.sc === cur));
+    $('say').innerHTML = s.say;
+    drawA(s); drawB(s); drawC(s);
+  }
+  document.querySelectorAll('[data-sc]').forEach((b) => b.addEventListener('click', () => { cur = b.dataset.sc; draw(); }));
+  draw();
+</script>
+</body>
+</html>

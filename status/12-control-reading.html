@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>조종권 읽는 법</title>
+<style>
+  :root {
+    --bg: #fafaf8; --card: #ffffff; --text: #1f1f1d; --muted: #6b6a65; --line: #d8d6ce;
+    --link: #185FA5; --en: #185FA5; --accent: #D85A30; --accent2: #BA7517; --ok: #1D9E75; --bad: #C8402F;
+    --obj: #dfe8f3; --obj-hi: #f4f8fc; --obj-line: #5f5e5a; --floor: #f1efe8; --chip-on: #fbe9e2;
+    --steel: #8a8984; --water: #3b8fd6; --sea: #d6e8f7; --oil: #d9a21b; --info: #2b74b0; --hl: #fff4cc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1c1c1a; --card: #262624; --text: #ecebe6; --muted: #a8a69e; --line: #44443f;
+      --link: #85B7EB; --en: #9cc6f0; --obj: #34465a; --obj-hi: #4a5f76; --obj-line: #b4b2a9; --floor: #302f2b; --chip-on: #4a2c22;
+      --steel: #9d9c96; --bad: #E8705F; --water: #6cb0ec; --sea: #1f3346; --oil: #e2b23c; --info: #6fb3e8; --hl: #4a4220; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.7 "Pretendard", "Malgun Gothic", system-ui, sans-serif; }
+  main { max-width: 820px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 4px; }
+  h2 { font-size: 18px; font-weight: 600; margin: 32px 0 8px; }
+  .lead { color: var(--muted); margin: 0 0 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+  .buttons .cap { font-size: 15px; color: var(--muted); margin-right: 4px; }
+  button { font: inherit; font-size: 14px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); cursor: pointer; }
+  button:hover { border-color: var(--muted); }
+  button[aria-pressed="true"] { border-color: var(--accent); background: var(--chip-on); font-weight: 600; }
+  .say { margin: 14px 0 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--bg); border-radius: 0 8px 8px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  svg text { font-family: inherit; }
+  .note { font-size: 14px; color: var(--muted); }
+  .check { border: 1px dashed var(--accent2); border-radius: 8px; padding: 10px 12px; font-size: 15px; }
+  .check b:first-child { color: var(--accent2); }
+  main ul, main ol { padding-left: 20px; }
+  a { color: var(--link); }
+  code { font-size: 14px; }
+  .fig { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .fig-hint { display: none; }
+  @media (max-width: 600px) {
+    .fig svg { min-width: 560px; }
+    .fig-hint { display: block; font-size: 13px; color: var(--muted); text-align: center; margin: 4px 0 0; }
+    table { font-size: 14px; }
+    th, td { padding: 6px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="index.html">← 개념 그림 목록</a> · <a href="00-big-picture.html">00 큰 그림</a> · 처음 보기: <a href="02-control-authority.html">02 조종권</a> · 다음: <a href="13-bad-values.html">13 칸별 나쁜 값</a></p>
+  <h1>조종권 읽는 법 — 카드 두 장으로 "누가 쥐었나"를 가르기</h1>
+  <p class="lead"><a href="02-control-authority.html">02</a>에서 "누가 핸들을 쥐었나"를 배웠다. 이번엔 <b>관제 화면에 오는 칸</b>으로 그걸 읽는다. 단서는 카드 두 장 — <code>0400</code> 시스템 상태와 <code>0500</code> 외부 제어 인터페이스. 배 그림의 조종권 상자가 지금은 "우리 관제 / 다른 곳"만 말하는데, 더 나눌 수 있을까?</p>
+
+  <h2>먼저 한 장으로 — 상황을 고르면 단서 칸에 불이 들어온다</h2>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 760 360" role="img" aria-labelledby="t0 d0">
+      <title id="t0">0400·0500 칸과 조종권 판단</title>
+      <desc id="d0">왼쪽에 0400 시스템 상태 칸, 가운데에 0500 외부 제어 인터페이스 칸, 오른쪽에 판단 결과. 결과를 정한 칸이 노랗게 칠해진다.</desc>
+      <g id="scene"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">상황</span>
+      <button data-s="ours">우리가 제어 중</button>
+      <button data-s="today">오늘 실제 배</button>
+      <button data-s="canTake">가져올 수 있음</button>
+      <button data-s="locked">다른 곳이 쥐고 잠금</button>
+      <button data-s="backup">백업 모드</button>
+      <button data-s="forced">강제 로컬</button>
+      <button data-s="nobody">아무도 안 쥠</button>
+      <button data-s="timeout">명령 끊김</button>
+    </div>
+    <div class="say" id="say"></div>
+  </div>
+  <p class="note">설명을 돕기 위한 그림이다. 값은 그림용이고, "오늘 실제 배"만 2026-10-29 로그 그대로다. 판단 순서(오른쪽)는 문서에 없어 그림에서 정했다 — 아래 확인할 것.</p>
+
+  <h2>1. 단서는 어디에 있나</h2>
+  <table>
+    <tr><th>카드 · 칸</th><th>알려 주는 것</th><th>값</th></tr>
+    <tr><td><code>0400</code> 제어 중(주소)</td><td>지금 제어권을 쥔 장치의 주소</td><td>254(<code>FE</code>) = 아무도 없음. 그 밖의 번호가 어느 장치인지는 배마다 달라 문서에 없다</td></tr>
+    <tr><td><code>0400</code> 잠금 · 백업 중</td><td>쥔 장치가 잠갔나 / 어떤 장치든 백업 모드인가</td><td>true · false</td></tr>
+    <tr><td><code>0500</code> 제어 중</td><td><b>우리(외부 제어)</b>가 쥐었나</td><td>true = 우리</td></tr>
+    <tr><td><code>0500</code> 전송 OK</td><td>가져올 수 있나(또는 이미 가졌나)</td><td>false 면 이유는 제어권 상세</td></tr>
+    <tr><td><code>0500</code> 강제 로컬 · 요청 시간 초과</td><td>현장이 강제로 막았나 / 우리 명령이 끊겼나</td><td>true 면 이상</td></tr>
+    <tr><td><code>0500</code> 제어권 상세(9번째 칸)</td><td><b>왜</b> — 쥐었는지, 가져올 수 있는지, 못 가져오면 이유</td><td>0 제어 중 · 16·17 가져올 수 있음 · 33·34·64 바뀌는 중 · 32·35~41·63 못 가져옴</td></tr>
+  </table>
+
+  <h2>2. 판단 순서 — 위에서부터 먼저 걸리는 것</h2>
+  <ol>
+    <li><b>아무도 안 쥠</b> — <code>0400</code> 주소가 254 → 주의(누군가 잡아야 함).</li>
+    <li><b>강제 로컬</b> — <code>0500</code> 강제 로컬 true → 이상(현장이 막음, 우리가 못 가져옴).</li>
+    <li><b>명령 끊김</b> — <code>0500</code> 요청 시간 초과 true → 이상(쥐었어도 명령이 안 감).</li>
+    <li><b>백업</b> — <code>0400</code> 백업 중 true, 또는 상세 36 → 주의.</li>
+    <li><b>우리 관제</b> — <code>0500</code> 제어 중 true → 정상.</li>
+    <li><b>가져올 수 있음</b> — 상세 16·17 → 정보(지금은 다른 곳이지만 넘겨받을 수 있다).</li>
+    <li><b>바뀌는 중</b> — 상세 33·34·64 → 주의(1초 뒤 다시).</li>
+    <li><b>다른 곳 — 못 가져옴</b> — 그 밖 → 이상. 이유는 상세 문구(예: 37 = 잠금, 40 = 스로틀 높음).</li>
+  </ol>
+  <p>지금 앱은 5번과 8번만 쓴다("우리 관제 / 다른 곳"). 이 순서를 쓰면 배 그림의 조종권 상자가 <b>"가져올 수 있음", "백업", "아무도 없음"</b>까지 말할 수 있다.</p>
+
+  <h2>3. 조타실·백업 장치를 이름으로 부를 수 있나</h2>
+  <p><b>아직 못 한다.</b> <code>0400</code> 주소는 장치 번호일 뿐, 그 번호가 조타실인지 백업 패널인지는 설치마다 다르다(문서: "설치마다 달라 문서에 없음"). 실제 로그에는 <code>176(0XB0)</code>, <code>208(0XD0)</code>, <code>0(0X0)</code> 이 왔다. 이 배의 주소 표를 받으면 "다른 곳" 대신 <b>"조타실"</b>처럼 이름을 붙일 수 있다.</p>
+
+  <div class="check"><b>확인할 것</b> — 문서에 없거나 맞지 않는 것.
+    <ul>
+      <li><b>오늘 실제 배: 제어 중 = 예 인데 제어권 상세 = 16(가져올 수 있음).</b> 문서대로면 쥐었을 땐 상세 0(제어 중)이어야 한다. 둘 중 무엇을 믿나? 그림은 "제어 중"을 먼저 믿는다(5번이 6번보다 위).</li>
+      <li><code>0400</code> 주소 176 · 208 · 0 이 각각 어느 장치인가(우리 관제 · 조타실 · 백업 패널 …). 0 은 무엇인가.</li>
+      <li>판단 순서(위 2장)는 그림에서 정했다 — 서버팀·제조사와 맞춰 본다.</li>
+    </ul>
+  </div>
+
+  <h2>4. 원래 자료와 연결하면</h2>
+  <ul>
+    <li><code>STATUS_VALUES.md</code> 0400 · 0500 · 7-2(0500 은 11칸, 고급 제어 중이 5번째) · 7-3(제어권 상세 문구).</li>
+    <li>앱: 판정 <code>src/shared/status-judge</code>(조종권 부품), 배 그림 <code>src/widgets/ship-view</code>(조종권 상자).</li>
+    <li>처음 배울 때: <a href="02-control-authority.html">02 조종권</a>. 배 그림 시안: <a href="11-ship-drafts.html">11</a>.</li>
+  </ul>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const txt = (x, y, t, o = {}) => '<text x="' + x + '" y="' + y + '" font-size="' + (o.size || 14) + '" fill="' + (o.fill || 'var(--text)') + '"' +
+    ' text-anchor="' + (o.anchor || 'start') + '"' + (o.bold ? ' font-weight="700"' : '') + '>' + t + '</text>';
+  const COL = { ok: 'var(--ok)', warn: 'var(--accent2)', bad: 'var(--bad)', info: 'var(--info)', none: 'var(--steel)' };
+
+  // 제어권 상세 문구(STATUS_VALUES.md 7-3, 줄임)
+  const DETAIL = { 0: '제어 중', 16: '가져올 수 있음(일치)', 17: '가져올 수 있음(정지)', 32: '금지', 33: '변경 중', 34: '충돌', 35: '무효한 명령', 36: '백업 모드', 37: '잠금', 38: '부적절한 명령', 39: '후진 0 아님', 40: '스로틀 높음', 41: '알람', 63: '거부', 64: '원인 불명' };
+  // 칸 안에 들어갈 짧은 말(카드 칸 폭이 좁다) — 판단 결과에는 위 DETAIL 을 쓴다
+  const SHORT = { 0: '제어 중', 16: '가져옴 가능', 17: '가져옴 가능', 32: '금지', 33: '변경 중', 34: '충돌', 35: '무효', 36: '백업', 37: '잠금', 38: '부적절', 39: '후진≠0', 40: '스로틀↑', 41: '알람', 63: '거부', 64: '불명' };
+  // 상황(그림용 값). today 만 2026-10-29 실제 로그
+  const BASE400 = { addr: '208', locked: false, backup: false };
+  const BASE500 = { controlling: true, locked: false, auto: false, txOk: true, adv: false, test: false, forced: false, timeout: false, detail: 0, dpi: false, ovr: false };
+  const SC = {
+    ours: { a: {}, b: {}, say: '우리 관제가 쥐었다. <b>0500 제어 중 = 예</b>, 상세 0(제어 중).' },
+    today: { a: { addr: '208(0XD0)' }, b: { detail: 16 }, say: '<b>2026-10-29 실제 배 값.</b> 제어 중 = 예 인데 상세는 16(가져올 수 있음) — 문서와 어긋난다. 그림은 "제어 중"을 먼저 믿어 <b>우리 관제</b>로 읽는다(아래 확인할 것).' },
+    canTake: { a: { addr: '176' }, b: { controlling: false, detail: 16 }, say: '지금은 다른 곳(주소 176)이 쥐었지만 상세 16 — <b>넘겨받을 수 있다.</b> 관제사가 "가져오기"만 누르면 된다.' },
+    locked: { a: { addr: '61', locked: true }, b: { controlling: false, txOk: false, detail: 37 }, say: '다른 곳이 쥐고 <b>잠갔다</b>(0400 잠금, 상세 37). 그쪽에서 풀어 줘야 한다.' },
+    backup: { a: { backup: true }, b: { controlling: false, txOk: false, detail: 36 }, say: '<b>백업 모드</b>(0400 백업 중, 상세 36). 정상 제어 장치 대신 예비 장치가 쥐었다.' },
+    forced: { a: { addr: '176' }, b: { controlling: false, txOk: false, forced: true, detail: 32 }, say: '<b>강제 로컬</b> — 현장이 외부 제어를 막았다. 배 위에서 풀기 전엔 못 가져온다.' },
+    nobody: { a: { addr: '254' }, b: { controlling: false, detail: 17 }, say: '<b>아무도 안 쥠</b>(0400 주소 254). 배가 서 있고(상세 17 정지) 누구든 잡을 수 있다.' },
+    timeout: { a: {}, b: { timeout: true }, say: '우리가 쥐었지만 <b>요청 시간 초과</b> — 우리 명령이 배에 제때 안 간다. 쥔 것만 믿으면 안 된다.' },
+  };
+  let cur = 'ours';
+
+  // 판단 순서(문서에 없음 — 그림에서 정함). 걸린 칸 이름을 같이 돌려준다
+  function decide(a, b) {
+    const addr = Number(String(a.addr).match(/^\d+/)?.[0]);
+    if (addr === 254 || /^fe$/i.test(a.addr)) return { level: 'warn', text: '아무도 안 쥠', by: ['addr'] };
+    if (b.forced) return { level: 'bad', text: '강제 로컬', by: ['forced'] };
+    if (b.timeout) return { level: 'bad', text: '명령 끊김', by: ['timeout'] };
+    if (a.backup || b.detail === 36) return { level: 'warn', text: '백업', by: a.backup ? ['backup', 'detail'] : ['detail'] };
+    if (b.controlling) return { level: 'ok', text: '우리 관제', by: ['controlling'] };
+    if ([16, 17].includes(b.detail)) return { level: 'info', text: '가져올 수 있음', by: ['detail'] };
+    if ([33, 34, 64].includes(b.detail)) return { level: 'warn', text: '바뀌는 중', by: ['detail'] };
+    return { level: 'bad', text: '다른 곳 — ' + (DETAIL[b.detail] || b.detail), by: ['controlling', 'detail', ...(a.locked ? ['locked400'] : [])] };
+  }
+
+  const yesNo = (v) => (v ? '예' : '아니요');
+  function rows(x, y, title, list, lit) {
+    let g = '<rect x="' + x + '" y="' + y + '" width="250" height="' + (40 + list.length * 24) + '" rx="10" fill="var(--card)" stroke="var(--line)"/>';
+    g += txt(x + 14, y + 26, title, { size: 15, bold: true });
+    list.forEach(([key, label, value], i) => {
+      const yy = y + 40 + i * 24, on = lit.includes(key);
+      if (on) g += '<rect x="' + (x + 6) + '" y="' + (yy - 1) + '" width="238" height="22" rx="5" fill="var(--hl)" stroke="var(--accent2)"/>';
+      g += txt(x + 14, yy + 15, label, { size: 13, fill: on ? 'var(--text)' : 'var(--muted)', bold: on }) + txt(x + 236, yy + 15, value, { size: 13, anchor: 'end', bold: true });
+    });
+    return g;
+  }
+
+  function draw() {
+    const s = SC[cur], a = { ...BASE400, ...s.a }, b = { ...BASE500, ...s.b };
+    const r = decide(a, b);
+    document.querySelectorAll('[data-s]').forEach((el) => el.setAttribute('aria-pressed', el.dataset.s === cur));
+    let g = '';
+    g += rows(10, 10, '0400 시스템 상태', [['addr', '제어 중(주소)', a.addr], ['locked400', '잠금', yesNo(a.locked)], ['backup', '백업 중', yesNo(a.backup)]], r.by);
+    g += rows(280, 10, '0500 외부 제어 인터페이스', [
+      ['controlling', '① 제어 중', yesNo(b.controlling)], ['locked', '② 잠금', yesNo(b.locked)], ['auto', '③ 자율운항 중', yesNo(b.auto)],
+      ['txOk', '④ 전송 OK', yesNo(b.txOk)], ['adv', '⑤ 고급 제어 중', yesNo(b.adv)], ['test', '⑥ 테스트 중', yesNo(b.test)],
+      ['forced', '⑦ 강제 로컬', yesNo(b.forced)], ['timeout', '⑧ 요청 시간 초과', yesNo(b.timeout)],
+      ['detail', '⑨ 제어권 상세', b.detail + ' ' + (SHORT[b.detail] || '')], ['dpi', '⑩ DPI 중', yesNo(b.dpi)], ['ovr', '⑪ 오버라이드', yesNo(b.ovr)]], r.by);
+    // 결과: 배 그림의 조종권 상자처럼
+    const c = COL[r.level];
+    g += '<path d="M536 150 h20" stroke="var(--muted)" stroke-width="2" marker-end="url(#ar)"/>';
+    g += '<defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M1 1L9 5L1 9z" fill="context-stroke"/></marker></defs>';
+    g += txt(565, 104, '배 그림의 조종권 상자', { size: 13, fill: 'var(--muted)' });
+    g += '<rect x="565" y="116" width="185" height="76" rx="10" fill="var(--card)" stroke="' + c + '" stroke-width="3.5"/>';
+    g += '<circle cx="738" cy="128" r="6" fill="' + c + '"/>';
+    g += txt(657, 146, '조종권', { size: 16, bold: true, anchor: 'middle' });
+    const words = r.text.split(' — ');
+    g += txt(657, 172, words[0], { size: 16, bold: true, anchor: 'middle', fill: r.level === 'ok' ? 'var(--text)' : c });
+    if (words[1]) g += txt(657, 214, words[1], { size: 14, anchor: 'middle', fill: c, bold: true });
+    g += txt(565, 250, '노랗게 칠한 칸이 이 판단을 정했다', { size: 12, fill: 'var(--muted)' });
+    $('scene').innerHTML = g;
+    $('say').innerHTML = s.say;
+  }
+  document.querySelectorAll('[data-s]').forEach((el) => el.addEventListener('click', () => { cur = el.dataset.s; draw(); }));
+  draw();
+</script>
+</body>
+</html>
