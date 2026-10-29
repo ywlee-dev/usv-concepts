@@ -31,6 +31,8 @@
   button { font: inherit; font-size: 14px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); cursor: pointer; }
   button:hover { border-color: var(--muted); }
   button[aria-pressed="true"] { border-color: var(--accent); background: var(--chip-on); font-weight: 600; }
+  .why { margin: 0 0 12px; padding: 10px 12px; border: 2px solid var(--accent); border-radius: 8px; font-size: 16px; }
+  .why > b:first-child { color: var(--accent); }
   .say { margin: 14px 0 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--bg); border-radius: 0 8px 8px 0; }
   table { border-collapse: collapse; width: 100%; font-size: 15px; }
   th, td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
@@ -63,6 +65,7 @@
 <main>
   <p class="note"><a href="index.html">← 개념 그림 목록</a> · <a href="00-big-picture.html">00 큰 그림</a> · 이전: <a href="06-thrust-bearing.html">06 베어링</a> · 다음: <a href="08-alarm.html">08 알람</a> · <a href="09-roles.html">09 역할 정리</a></p>
   <h1>유압 장치 — 기름을 눌러 노즐과 버킷을 미는 손</h1>
+  <p class="why"><b>왜 있나?</b> 유압이 없어도 힘의 길은 그대로라 배는 <b>나간다</b>. 하지만 노즐·버킷이 굳어 <b>방향을 못 바꾼다</b> — 돌기·후진·멈춤이 안 된다. <a href="09-roles.html#x=hyd">빼 보기 그림에서 보기 →</a></p>
   <p class="lead">워터젯의 노즐(조향)과 버킷(후진 덮개)은 무거운 물살을 버텨야 해서 모터로 직접 못 돌린다. 펌프가 기름을 세게 눌러 보내고, 그 기름이 <b>피스톤</b>을 밀어 움직인다. 엔진이 "세기"라면 유압은 "방향"이다.</p>
 
   <div class="card">

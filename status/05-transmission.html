@@ -30,6 +30,8 @@
   button { font: inherit; font-size: 14px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); cursor: pointer; }
   button:hover { border-color: var(--muted); }
   button[aria-pressed="true"] { border-color: var(--accent); background: var(--chip-on); font-weight: 600; }
+  .why { margin: 0 0 12px; padding: 10px 12px; border: 2px solid var(--accent); border-radius: 8px; font-size: 16px; }
+  .why > b:first-child { color: var(--accent); }
   .say { margin: 14px 0 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--bg); border-radius: 0 8px 8px 0; }
   .say.no { border-left: 6px solid var(--bad); background: var(--chip-on); font-size: 17px; }
   .say.no b:first-child { color: var(--bad); }
@@ -69,6 +71,7 @@
 <main>
   <p class="note"><a href="index.html">← 개념 그림 목록</a> · <a href="00-big-picture.html">00 큰 그림</a> · 이전: <a href="04-engine.html">04 엔진</a> · 다음: <a href="06-thrust-bearing.html">06 베어링</a></p>
   <h1>변속기 — 엔진 힘을 잇고 끊는 곳</h1>
+  <p class="why"><b>왜 있나?</b> 변속기가 없으면 엔진이 도는 동안 워터젯도 <b>늘 붙어</b> 돈다 → 배를 <b>세울 수 없다</b>. 엔진은 계속 돌아야 하니 "끊는 장치"가 필요하다(자동차의 N). <a href="09-roles.html#x=gear">빼 보기 그림에서 보기 →</a></p>
   <p class="lead">엔진은 계속 돈다. 그 회전을 워터젯까지 <b>이을지(전진) 끊을지(중립)</b>를 변속기가 정한다. 처음엔 <b>N 중립</b>이다. <b>F 전진</b>을 눌러 원판이 붙고 날개가 도는 걸 보고, 스로틀을 올린 채 옮기려 하면 무슨 일이 생기는지 보자.</p>
 
   <div class="card">

@@ -260,6 +260,8 @@
     hyd: ['warn', '유압이 없으면 → 배는 나가지만 직진만. 돌기·후진·멈춤 불가', '<b>유압</b>을 빼도 힘의 길은 그대로라 배는 <b>나간다</b>. 하지만 노즐·버킷이 굳어 <b>방향을 못 바꾼다</b> — 돌지도, 뒤로 가거나 멈추지도 못한다. 유압은 길 <b>바깥</b>에서 방향만 맡는다.'],
   };
   let gone = 'none';
+  const fromHash = location.hash.match(/x=(\w+)/); // 부품 페이지의 "빼 보기 그림에서 보기" 링크
+  if (fromHash && OUT[fromHash[1]]) gone = fromHash[1];
   function drawRemove() {
     document.querySelectorAll('[data-x]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.x === gone));
     const g = gone;
