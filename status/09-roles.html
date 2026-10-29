@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>부품 역할 정리</title>
+<title>엔진에서 워터젯까지</title>
 <style>
   :root {
     --bg: #fafaf8; --card: #ffffff; --text: #1f1f1d; --muted: #6b6a65; --line: #d8d6ce;
@@ -59,10 +59,59 @@
 <body>
 <main>
   <p class="note"><a href="index.html">← 개념 그림 목록</a> · <a href="00-big-picture.html">00 큰 그림</a> · 이전: <a href="08-alarm.html">08 알람</a></p>
-  <h1>누가 무슨 일을 하나 — 부품 역할 정리</h1>
-  <p class="lead">부품을 하나씩 공부하다 보면 역할이 섞인다. "유압이 힘을 나눠 주나?", "기름이 다 유압인가?" — 이 페이지는 <b>부품마다 맡은 일 한 가지</b>를 한 장에 놓고 비교한다.</p>
+  <h1>엔진에서 워터젯까지 — 가운데 부품은 왜 있나</h1>
+  <p class="lead"><b>시작은 엔진</b>(힘이 생김), <b>결과는 워터젯</b>(물을 뿜어 배가 나감)이다. 가운데 부품은 모두 이 길에서 생기는 <b>문제 하나씩</b>을 풀려고 있다. 가장 쉬운 질문은 <b>"이걸 빼면 무슨 일이 생기나?"</b>다.</p>
 
-  <h2>먼저 한 장으로 — 일을 고르면 맡은 부품에 불이 들어온다</h2>
+  <h2>먼저 한 장으로 — 하나씩 빼 보기</h2>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 300" role="img" aria-labelledby="t0 d0">
+      <title id="t0">부품을 하나 빼면 생기는 일</title>
+      <desc id="d0">배 옆모습. 엔진, 변속기, 축, 베어링, 워터젯, 유압 중 하나를 빼면 회전·물줄기·배의 움직임이 어떻게 바뀌는지 보인다.</desc>
+      <g id="remove"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">빼 보기</span>
+      <button data-x="none">다 있음</button>
+      <button data-x="engine">엔진</button>
+      <button data-x="gear">변속기</button>
+      <button data-x="shaft">축</button>
+      <button data-x="bearing">베어링</button>
+      <button data-x="jet">워터젯</button>
+      <button data-x="hyd">유압</button>
+    </div>
+    <div class="say" id="say0"></div>
+  </div>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. 부품의 위치와 크기는 그림용이다. 왼쪽이 뱃머리(앞)다.</p>
+
+  <h2>1. 빼 보면 왜 있는지 보인다</h2>
+  <p><b>힘의 길</b> — 왼쪽에서 오른쪽으로 한 줄.</p>
+  <table>
+    <tr><th>순서</th><th>부품</th><th>이게 없으면</th><th>그래서 하는 일</th><th>카드</th></tr>
+    <tr><td>1 시작</td><td><b>엔진</b></td><td>힘이 없다. 아무것도 안 돈다</td><td>힘을 만든다</td><td><code>0300</code> <code>0800</code> <code>1100</code></td></tr>
+    <tr><td>2</td><td><b>변속기</b></td><td>엔진이 도는 동안 워터젯도 <b>무조건</b> 돈다 → 배를 세울 수 없다. 엔진은 껐다 켰다 하기 어렵다</td><td>엔진은 돌게 두고 힘만 <b>끊는다</b> (자동차의 N)</td><td><code>0900</code></td></tr>
+    <tr><td>3</td><td><b>축</b></td><td>엔진과 워터젯이 떨어져 있어 회전이 안 간다</td><td>회전을 뒤로 <b>전한다</b></td><td>—</td></tr>
+    <tr><td>4</td><td><b>베어링</b></td><td>물을 민 반동이 축을 앞으로 밀어 변속기·엔진을 <b>들이받는다</b>. 배는 안 나가고 기계만 상한다</td><td>반동을 받아 <b>배 몸통에 넘긴다</b> → 배가 나간다</td><td><code>0600</code></td></tr>
+    <tr><td>5 결과</td><td><b>워터젯</b></td><td>축은 도는데 물을 못 민다. 배가 안 나간다</td><td>회전을 <b>물줄기</b>로 바꾼다</td><td><code>1000</code></td></tr>
+  </table>
+  <p style="margin-top:14px"><b>길 바깥에서 돕는 둘</b></p>
+  <table>
+    <tr><th>부품</th><th>이게 없으면</th><th>하는 일</th><th>카드</th></tr>
+    <tr><td><b>유압</b></td><td>물은 나가지만 <b>직진만</b> 한다. 돌지도, 뒤로 가거나 멈추지도 못한다</td><td>노즐·버킷을 밀어 <b>방향</b>을 바꾼다</td><td><code>0700</code></td></tr>
+    <tr><td><b>조종권</b></td><td>여러 곳이 동시에 명령해 배가 엉킨다</td><td><b>한 곳만</b> 명령하게 한다</td><td><code>0400</code> <code>0500</code></td></tr>
+  </table>
+
+  <h2>2. 한 문장으로, 그리고 카드 읽는 순서</h2>
+  <p class="say" style="margin-top:0">엔진이 힘을 만들고, 변속기가 그 힘을 잇거나 끊고, 축이 뒤로 전하고, 베어링이 반동을 배에 넘기고, 워터젯이 물을 뿜는다. 유압은 옆에서 <b>방향</b>을, 조종권은 위에서 <b>명령</b>을 맡는다.</p>
+  <ol>
+    <li><b>결과 먼저</b>: <code>1000</code> 워터젯 가능이 <b>예</b>인가?</li>
+    <li><b>아니요</b>면 길을 왼쪽부터 따라가 <b>어디서 끊겼는지</b> 찾는다 — 엔진(<code>0300</code>·<code>0800</code>·<code>1100</code>) → 변속기(<code>0900</code>) → 유압(<code>0700</code>). 조종권(<code>0500</code>)도 본다.</li>
+    <li><b>베어링</b>(<code>0600</code>)은 <code>1000</code> 조건에 없어서 따로 본다. 당장 멈추게 하지는 않지만, 기름이 나쁘면 곧 기계가 상한다.</li>
+    <li><b>알람</b>(<code>1200</code>)은 "일어난 일" 목록으로 따로 본다(<a href="08-alarm.html">08 알람</a>).</li>
+  </ol>
+
+  <h2>다시 보기 — 일을 고르면 맡은 부품에 불이 들어온다</h2>
   <div class="card">
     <div class="fig">
     <svg width="100%" viewBox="0 0 680 300" role="img" aria-labelledby="t1 d1">
@@ -85,7 +134,7 @@
   </div>
   <p class="note">설명을 돕기 위한 단순한 그림이다. 부품의 위치와 크기는 그림용이다.</p>
 
-  <h2>1. 한 부품, 한 가지 일</h2>
+  <h2>3. 한 부품, 한 가지 일</h2>
   <table>
     <tr><th>일</th><th>맡은 부품</th><th>한 줄</th><th>비유</th><th>카드</th></tr>
     <tr><td><b>힘 만들기</b></td><td>엔진</td><td>얼마나 세게</td><td>소방차 펌프의 모터</td><td><code>0300</code> <code>0800</code> <code>1100</code></td></tr>
@@ -97,7 +146,7 @@
   </table>
   <p>힘은 <b>엔진 → 변속기 → 축 → 워터젯</b>으로 한 줄로 흐른다. 유압은 이 줄에 끼어 있지 않다. 줄 끝에서 나오는 물줄기의 <b>방향만</b> 옆에서 바꾼다.</p>
 
-  <h2>2. 기름이 세 군데 있다 — 하는 일이 다 다르다</h2>
+  <h2>4. 기름이 세 군데 있다 — 하는 일이 다 다르다</h2>
   <div class="card">
     <div class="fig">
     <svg width="100%" viewBox="0 0 680 300" role="img" aria-labelledby="t2 d2">
@@ -123,7 +172,7 @@
   </table>
   <p>"기름 = 유압"이 아니다. 우리 화면에서 <b>유압</b>이라고 부르는 것은 <code>0700</code> 하나, 방향을 바꾸는 근육뿐이다.</p>
 
-  <h2>3. 자주 헷갈리는 질문</h2>
+  <h2>5. 자주 헷갈리는 질문</h2>
   <div class="qa">
     <div><span class="q">유압이 엔진 힘을 나눠 주나? 버킷에 힘을 안 싣게 하나?</span><br><span class="a"><b>아니요.</b> 유압은 노즐과 버킷의 <b>위치만</b> 옮긴다. 물줄기의 세기는 늘 엔진이 정한다. → <a href="07-hydraulic.html">07 유압</a></span></div>
     <div><span class="q">엔진과 워터젯 사이에서 유압이 일하나?</span><br><span class="a"><b>아니요, 거기는 변속기다.</b> 변속기 안에서도 기름 압력으로 원판을 누르지만, 그건 변속기 몫이고 <code>0700</code> 유압과 다른 장치다. → <a href="05-transmission.html">05 변속기</a></span></div>
@@ -133,7 +182,7 @@
     <div><span class="q">알람 카드에 마지막 알람만 보이면 충분하나?</span><br><span class="a"><b>아니요.</b> 알람은 "지금 상태"가 아니라 "일어난 일"이라 목록이어야 한다. → <a href="08-alarm.html">08 알람</a></span></div>
   </div>
 
-  <h2>4. 화면 배치로 이어지면</h2>
+  <h2>6. 화면 배치로 이어지면</h2>
   <p>위 그림이 그대로 배 그림 관제 화면의 밑그림이다(<code>UI_PLAN.md</code>). 역할마다 부품이 한 자리에 있으니, 그 자리에 상태 색을 칠하면 된다. 힘의 줄(엔진 → 변속기 → 베어링 → 워터젯)은 왼쪽에서 오른쪽으로 한 번에 읽히고, 유압은 그 끝 옆에, 명령(조종권)은 위에 둔다.</p>
 
   <div class="check"><b>확인할 것</b> — 문서에 없어서 그림에서 정한 것.
@@ -144,7 +193,7 @@
     </ul>
   </div>
 
-  <h2>5. 원래 자료와 연결하면</h2>
+  <h2>7. 원래 자료와 연결하면</h2>
   <ul>
     <li>부품별 자세한 그림: <a href="03-waterjet.html">03 워터젯</a> · <a href="04-engine.html">04 엔진</a> · <a href="05-transmission.html">05 변속기</a> · <a href="06-thrust-bearing.html">06 베어링</a> · <a href="07-hydraulic.html">07 유압</a> · <a href="02-control-authority.html">02 조종권</a></li>
     <li>힘이 끊기면 어떻게 되나: <a href="01-power-chain.html">01 동력 사슬</a></li>
@@ -158,10 +207,12 @@
   const DEFS = '<defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1L9 5L1 9z" fill="context-stroke"/></marker></defs>';
   const drop = (x, y) => '<path d="M' + x + ' ' + (y - 9) + ' C' + (x + 7) + ' ' + (y - 1) + ' ' + (x + 6) + ' ' + (y + 6) + ' ' + x + ' ' + (y + 6) + ' C' + (x - 6) + ' ' + (y + 6) + ' ' + (x - 7) + ' ' + (y - 1) + ' ' + x + ' ' + (y - 9) + 'Z" fill="var(--oil)" stroke="var(--obj-line)" stroke-width=".8"/>';
 
-  // 배 옆모습. on = 밝게 할 부품 이름들(없으면 전부 보통). 좌표는 그림용.
-  function boat(on, extra) {
+  // 배 옆모습. on = 밝게 할 부품 이름들(없으면 전부 보통), gone = 뺀 부품 하나. 좌표는 그림용.
+  function boat(on, extra, gone) {
     const lit = (k) => !on || on.includes(k);
     const box = (k, x, y, w, h, label, ly) => {
+      if (k === gone) return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="6" fill="none" stroke="var(--bad)" stroke-width="1.5" stroke-dasharray="5 4"/>' +
+        txt(x + w / 2, ly || (y + h / 2 + 5), '✕', { size: 16, bold: true, fill: 'var(--bad)' });
       const L = lit(k), hi = on && L;
       return '<g opacity="' + (L ? 1 : .3) + '"><rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="6" fill="' + (hi ? 'var(--chip-on)' : 'var(--obj)') + '" stroke="' + (hi ? 'var(--accent)' : 'var(--obj-line)') + '" stroke-width="' + (hi ? 2.5 : 1) + '"/>' +
         txt(x + w / 2, ly || (y + h / 2 + 5), label, { size: 12, bold: true, fill: hi ? 'var(--accent)' : 'var(--text)' }) + '</g>';
@@ -178,22 +229,63 @@
     s += box('backup', 214, 92, 58, 26, '백업');
     // 힘의 줄: 엔진 → 변속기 → 축 → 베어링 → 워터젯
     const chainLit = lit('engine') || lit('gear') || lit('bearing') || lit('jet');
-    s += '<line x1="340" y1="168" x2="600" y2="168" stroke="var(--steel)" stroke-width="6" opacity="' + (chainLit ? 1 : .3) + '"/>';
+    const shaftEnd = gone === 'shaft' ? 430 : gone === 'jet' ? 560 : 600;
+    s += '<line x1="340" y1="168" x2="' + shaftEnd + '" y2="168" stroke="var(--steel)" stroke-width="6" opacity="' + (chainLit ? 1 : .3) + '"/>';
+    if (gone === 'shaft') s += '<line x1="434" y1="168" x2="520" y2="168" stroke="var(--bad)" stroke-width="1.5" stroke-dasharray="5 4"/>' + txt(492, 164, '✕', { size: 14, bold: true, fill: 'var(--bad)' });
     s += box('engine', 250, 140, 90, 56, '엔진');
     s += box('gear', 360, 148, 62, 40, '변속기');
     s += box('bearing', 450, 152, 30, 32, '베어링', 146);
     // 워터젯: 흡입관 · 몸통 · 노즐 · 버킷
-    const J = lit('jet');
-    s += '<g opacity="' + (J ? 1 : .3) + '"><path d="M486 216 Q520 214 530 190" fill="none" stroke="var(--obj-line)" stroke-width="10" stroke-linecap="round" opacity=".55"/></g>';
+    const J = lit('jet') && gone !== 'jet';
+    s += '<g opacity="' + (J ? 1 : gone === 'jet' ? 0 : .3) + '"><path d="M486 216 Q520 214 530 190" fill="none" stroke="var(--obj-line)" stroke-width="10" stroke-linecap="round" opacity=".55"/></g>';
     s += box('jet', 520, 150, 80, 38, '워터젯');
     const D = lit('nozzle');
-    s += '<g opacity="' + (D ? 1 : .3) + '"><path d="M600 156 L632 160 L632 176 L600 180 Z" fill="' + (on && D ? 'var(--chip-on)' : 'var(--obj)') + '" stroke="' + (on && D ? 'var(--accent)' : 'var(--obj-line)') + '" stroke-width="' + (on && D ? 2.5 : 1) + '"/>' +
+    if (gone !== 'jet') s += '<g opacity="' + (D ? 1 : .3) + '"><path d="M600 156 L632 160 L632 176 L600 180 Z" fill="' + (on && D ? 'var(--chip-on)' : 'var(--obj)') + '" stroke="' + (on && D ? 'var(--accent)' : 'var(--obj-line)') + '" stroke-width="' + (on && D ? 2.5 : 1) + '"/>' +
       '<path d="M640 138 Q654 150 648 162" fill="none" stroke="' + (on && D ? 'var(--accent)' : 'var(--obj-line)') + '" stroke-width="4" stroke-linecap="round"/>' +
       txt(588, 208, '노즐', { size: 10, fill: 'var(--muted)' }) + txt(652, 132, '버킷', { size: 10, fill: 'var(--muted)' }) + '</g>';
     s += box('hyd', 500, 120, 60, 24, '유압');
-    s += '<g opacity="' + (lit('hyd') ? 1 : .3) + '"><path d="M560 128 Q600 128 614 156" fill="none" stroke="var(--oil)" stroke-width="2.5"/><path d="M560 134 Q630 120 642 140" fill="none" stroke="var(--oil)" stroke-width="2.5"/></g>';
-    return '<g data-on="' + (on || []).join(',') + (extra ? 'x' + extra.length : '') + '">' + s + (extra || '') + '</g>';
+    if (gone !== 'hyd' && gone !== 'jet') s += '<g opacity="' + (lit('hyd') ? 1 : .3) + '"><path d="M560 128 Q600 128 614 156" fill="none" stroke="var(--oil)" stroke-width="2.5"/><path d="M560 134 Q630 120 642 140" fill="none" stroke="var(--oil)" stroke-width="2.5"/></g>';
+    return '<g data-on="' + (on || []).join(',') + (gone || '') + (extra ? 'x' + extra.length : '') + '">' + s + (extra || '') + '</g>';
   }
+
+  // ── 하나씩 빼 보기 ──
+  const rot = (x) => '<path d="M' + x + ' 214 a10 10 0 1 1 14 0" fill="none" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#ar)"/>';
+  const OUT = {
+    none: ['ok', '다 있음 → 엔진 힘이 물줄기가 되어 배가 앞으로 간다', '엔진이 돌리고(①) → 변속기가 잇고(②) → 축이 전하고(③) → 워터젯이 물을 뿜고(⑤) → 그 반동을 베어링이 배 몸통에 넘긴다(④). 그래서 배가 <b>앞(왼쪽)으로</b> 간다. 하나씩 빼 보자.'],
+    engine: ['bad', '엔진이 없으면 → 힘이 없다. 아무것도 안 돈다', '<b>엔진</b>을 빼면 힘의 출발점이 없다. 축도 날개도 안 돌고 물도 없다. 모든 것의 <b>시작</b>이다.'],
+    gear: ['bad', '변속기가 없으면 → 엔진이 돌면 워터젯도 무조건 돈다', '<b>변속기</b>를 빼면 엔진과 워터젯이 늘 붙어 있다. 엔진은 시동을 건 뒤 계속 돌아야 하니, 물도 <b>계속</b> 나간다 → 배를 <b>세울 수 없다</b>. 그래서 "끊는 장치"가 필요하다(자동차의 N).'],
+    shaft: ['bad', '축이 없으면 → 회전이 뒤로 못 간다. 워터젯이 멈춘다', '<b>축</b>을 빼면 엔진은 도는데 그 회전이 뒤쪽 워터젯까지 <b>못 간다</b>. 엔진과 워터젯이 떨어져 있어서 긴 막대가 필요하다.'],
+    bearing: ['bad', '베어링이 없으면 → 반동이 앞쪽 기계를 들이받는다. 배는 안 나간다', '<b>베어링</b>을 빼면 물을 민 반동이 축을 앞으로 밀어 <b>변속기·엔진을 들이받는다</b>. 그 힘이 배 몸통에 안 가니 배는 안 나가고 기계만 상한다. 베어링이 반동을 <b>배에 넘겨 줘야</b> 배가 나간다.'],
+    jet: ['bad', '워터젯이 없으면 → 축은 도는데 물을 못 민다. 배가 안 나간다', '<b>워터젯</b>을 빼면 회전은 끝까지 오는데 그걸 <b>물줄기로 바꿀 곳</b>이 없다. 헛도는 막대일 뿐, 배는 안 나간다. 워터젯이 <b>결과</b>다.'],
+    hyd: ['warn', '유압이 없으면 → 배는 나가지만 직진만. 돌기·후진·멈춤 불가', '<b>유압</b>을 빼도 힘의 길은 그대로라 배는 <b>나간다</b>. 하지만 노즐·버킷이 굳어 <b>방향을 못 바꾼다</b> — 돌지도, 뒤로 가거나 멈추지도 못한다. 유압은 길 <b>바깥</b>에서 방향만 맡는다.'],
+  };
+  let gone = 'none';
+  function drawRemove() {
+    document.querySelectorAll('[data-x]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.x === gone));
+    const g = gone;
+    const engineOn = g !== 'engine';
+    const reach = engineOn && g !== 'shaft';
+    const water = reach && g !== 'jet';
+    const moves = water && g !== 'bearing';
+    let x = '';
+    if (engineOn) x += rot(288);
+    if (reach) x += rot(430);
+    if (water) x += '<path class="run" d="M478 238 Q520 230 532 192" fill="none" stroke="var(--water)" stroke-width="3" stroke-dasharray="6 6"/>' +
+      '<line class="run" x1="634" y1="168" x2="676" y2="168" stroke="var(--water)" stroke-width="5" stroke-dasharray="8 4"/>';
+    if (moves) x += '<line x1="170" y1="240" x2="70" y2="240" stroke="var(--ok)" stroke-width="4" marker-end="url(#ar)"/>' + txt(120, 260, '배가 앞으로', { size: 13, bold: true, fill: 'var(--ok)' });
+    if (g === 'gear') x += txt(391, 136, '늘 붙어 있음', { size: 12, bold: true, fill: 'var(--bad)' });
+    if (g === 'shaft') x += txt(476, 108, '회전이 안 감', { size: 12, bold: true, fill: 'var(--bad)' });
+    if (g === 'bearing') x += '<line x1="470" y1="168" x2="430" y2="168" stroke="var(--bad)" stroke-width="5" marker-end="url(#ar)"/>' +
+      txt(410, 140, '쾅!', { size: 18, bold: true, fill: 'var(--bad)' }) + txt(410, 108, '반동이 앞쪽을 들이받음', { size: 12, bold: true, fill: 'var(--bad)' });
+    if (g === 'jet') x += txt(560, 208, '헛돌기만', { size: 12, bold: true, fill: 'var(--bad)' });
+    if (g === 'hyd') x += txt(620, 112, '방향 고정', { size: 12, bold: true, fill: 'var(--warn, var(--accent2))' });
+    const [kind, line] = OUT[g];
+    x += txt(340, 286, line, { size: 14, bold: true, fill: kind === 'ok' ? 'var(--ok)' : kind === 'warn' ? 'var(--accent2)' : 'var(--bad)' });
+    $('remove').innerHTML = boat(null, x + '<!--' + g + '-->', g === 'none' ? null : g);
+    $('say0').innerHTML = OUT[g][2];
+  }
+  document.querySelectorAll('[data-x]').forEach((b) => b.addEventListener('click', () => { gone = b.dataset.x; drawRemove(); }));
+  drawRemove();
 
   // ── 일 고르기 ──
   const ROLES = {
