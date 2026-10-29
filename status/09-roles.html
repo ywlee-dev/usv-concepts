@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>부품 역할 정리</title>
+<style>
+  :root {
+    --bg: #fafaf8; --card: #ffffff; --text: #1f1f1d; --muted: #6b6a65; --line: #d8d6ce;
+    --link: #185FA5; --en: #185FA5; --accent: #D85A30; --accent2: #BA7517; --ok: #1D9E75; --bad: #C8402F;
+    --obj: #dfe8f3; --obj-hi: #f4f8fc; --obj-line: #5f5e5a; --floor: #f1efe8; --chip-on: #fbe9e2;
+    --steel: #8a8984; --water: #3b8fd6; --sea: #d6e8f7; --oil: #d9a21b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1c1c1a; --card: #262624; --text: #ecebe6; --muted: #a8a69e; --line: #44443f;
+      --link: #85B7EB; --en: #9cc6f0; --obj: #34465a; --obj-hi: #4a5f76; --obj-line: #b4b2a9; --floor: #302f2b; --chip-on: #4a2c22;
+      --steel: #9d9c96; --bad: #E8705F; --water: #6cb0ec; --sea: #1f3346; --oil: #e2b23c; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.7 "Pretendard", "Malgun Gothic", system-ui, sans-serif; }
+  main { max-width: 820px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 4px; }
+  h2 { font-size: 18px; font-weight: 600; margin: 32px 0 8px; }
+  .lead { color: var(--muted); margin: 0 0 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+  .buttons .cap { font-size: 15px; color: var(--muted); margin-right: 4px; }
+  button { font: inherit; font-size: 14px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); cursor: pointer; }
+  button:hover { border-color: var(--muted); }
+  button[aria-pressed="true"] { border-color: var(--accent); background: var(--chip-on); font-weight: 600; }
+  .say { margin: 14px 0 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--bg); border-radius: 0 8px 8px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  svg text { font-family: inherit; }
+  .note { font-size: 14px; color: var(--muted); }
+  .check { border: 1px dashed var(--accent2); border-radius: 8px; padding: 10px 12px; font-size: 15px; }
+  .check b:first-child { color: var(--accent2); }
+  main ul { padding-left: 20px; }
+  a { color: var(--link); }
+  code { font-size: 14px; }
+  .qa { display: grid; gap: 10px; }
+  .qa div { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+  .qa .q { font-weight: 600; }
+  .qa .a { color: var(--text); }
+  .qa .a b:first-child { color: var(--ok); }
+  .run { animation: run .6s linear infinite; }
+  @keyframes run { to { stroke-dashoffset: -24; } }
+  .fig { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .fig-hint { display: none; }
+  @media (max-width: 600px) {
+    .fig svg { min-width: 560px; }
+    .fig-hint { display: block; font-size: 13px; color: var(--muted); text-align: center; margin: 4px 0 0; }
+    table { font-size: 14px; }
+    th, td { padding: 6px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="index.html">← 개념 그림 목록</a> · <a href="00-big-picture.html">00 큰 그림</a> · 이전: <a href="08-alarm.html">08 알람</a></p>
+  <h1>누가 무슨 일을 하나 — 부품 역할 정리</h1>
+  <p class="lead">부품을 하나씩 공부하다 보면 역할이 섞인다. "유압이 힘을 나눠 주나?", "기름이 다 유압인가?" — 이 페이지는 <b>부품마다 맡은 일 한 가지</b>를 한 장에 놓고 비교한다.</p>
+
+  <h2>먼저 한 장으로 — 일을 고르면 맡은 부품에 불이 들어온다</h2>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 300" role="img" aria-labelledby="t1 d1">
+      <title id="t1">배 옆모습과 부품 역할</title>
+      <desc id="d1">왼쪽이 뱃머리, 오른쪽이 배 뒤. 조타실, 백업, 엔진, 변속기, 베어링, 워터젯, 유압, 노즐과 버킷이 있다. 일을 고르면 그 일을 맡은 부품만 밝아진다.</desc>
+      <g id="roles"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">일 고르기</span>
+      <button data-r="all">전부</button>
+      <button data-r="power">힘 만들기</button>
+      <button data-r="link">잇고 끊기</button>
+      <button data-r="push">반동 받기</button>
+      <button data-r="water">물 뿜기</button>
+      <button data-r="dir">방향 바꾸기</button>
+      <button data-r="cmd">명령하기</button>
+    </div>
+    <div class="say" id="say1"></div>
+  </div>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. 부품의 위치와 크기는 그림용이다.</p>
+
+  <h2>1. 한 부품, 한 가지 일</h2>
+  <table>
+    <tr><th>일</th><th>맡은 부품</th><th>한 줄</th><th>비유</th><th>카드</th></tr>
+    <tr><td><b>힘 만들기</b></td><td>엔진</td><td>얼마나 세게</td><td>소방차 펌프의 모터</td><td><code>0300</code> <code>0800</code> <code>1100</code></td></tr>
+    <tr><td><b>잇고 끊기</b></td><td>변속기</td><td>힘을 워터젯에 보낼지 말지</td><td>자전거 체인 걸기·빼기</td><td><code>0900</code></td></tr>
+    <tr><td><b>반동 받기</b></td><td>스러스트 베어링</td><td>물을 민 반동을 배 몸통에 전함</td><td>회전의자 받침, 볼펜 끝 구슬</td><td><code>0600</code></td></tr>
+    <tr><td><b>물 뿜기</b></td><td>워터젯 (날개)</td><td>회전을 물줄기로 바꿈</td><td>헤어드라이어 팬</td><td><code>1000</code></td></tr>
+    <tr><td><b>방향 바꾸기</b></td><td>유압 → 노즐·버킷</td><td>물줄기를 어디로 보낼지</td><td>소방관의 팔</td><td><code>0700</code></td></tr>
+    <tr><td><b>명령하기</b></td><td>우리 관제 · 조타실 · 백업</td><td>누가 시키나 (조종권)</td><td>운전석 핸들</td><td><code>0400</code> <code>0500</code></td></tr>
+  </table>
+  <p>힘은 <b>엔진 → 변속기 → 축 → 워터젯</b>으로 한 줄로 흐른다. 유압은 이 줄에 끼어 있지 않다. 줄 끝에서 나오는 물줄기의 <b>방향만</b> 옆에서 바꾼다.</p>
+
+  <h2>2. 기름이 세 군데 있다 — 하는 일이 다 다르다</h2>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 300" role="img" aria-labelledby="t2 d2">
+      <title id="t2">배 안의 기름 세 군데</title>
+      <desc id="d2">변속기 기름, 베어링 기름, 유압 기름. 고르면 그 기름이 있는 곳만 밝아지고 하는 일이 적힌다.</desc>
+      <g id="oils"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">기름 고르기</span>
+      <button data-o="all">셋 다</button>
+      <button data-o="gear">변속기 기름</button>
+      <button data-o="bearing">베어링 기름</button>
+      <button data-o="hyd">유압 기름</button>
+    </div>
+    <div class="say" id="say2"></div>
+  </div>
+  <table style="margin-top:12px">
+    <tr><th>어디 기름</th><th>하는 일</th><th>비유</th><th>카드</th></tr>
+    <tr><td>변속기</td><td>원판을 꽉 <b>눌러 붙임</b> (확인할 것)</td><td>손바닥 두 개를 맞대고 누르기</td><td><code>0900</code></td></tr>
+    <tr><td>베어링</td><td>미끄럽게 하고 <b>식힘</b></td><td>컴퓨터 팬·자전거 체인 기름</td><td><code>0600</code></td></tr>
+    <tr><td>유압</td><td>노즐·버킷을 <b>밂</b></td><td>굴착기 팔, 주사기 두 개</td><td><code>0700</code></td></tr>
+  </table>
+  <p>"기름 = 유압"이 아니다. 우리 화면에서 <b>유압</b>이라고 부르는 것은 <code>0700</code> 하나, 방향을 바꾸는 근육뿐이다.</p>
+
+  <h2>3. 자주 헷갈리는 질문</h2>
+  <div class="qa">
+    <div><span class="q">유압이 엔진 힘을 나눠 주나? 버킷에 힘을 안 싣게 하나?</span><br><span class="a"><b>아니요.</b> 유압은 노즐과 버킷의 <b>위치만</b> 옮긴다. 물줄기의 세기는 늘 엔진이 정한다. → <a href="07-hydraulic.html">07 유압</a></span></div>
+    <div><span class="q">엔진과 워터젯 사이에서 유압이 일하나?</span><br><span class="a"><b>아니요, 거기는 변속기다.</b> 변속기 안에서도 기름 압력으로 원판을 누르지만, 그건 변속기 몫이고 <code>0700</code> 유압과 다른 장치다. → <a href="05-transmission.html">05 변속기</a></span></div>
+    <div><span class="q">베어링 구슬이 축을 돌리나?</span><br><span class="a"><b>아니요.</b> 엔진이 축을 돌리고, 구슬은 그 사이에서 <b>따라 구른다</b>. 덕분에 축이 부드럽게 돌고, 미는 힘은 배 몸통으로 간다. → <a href="06-thrust-bearing.html">06 베어링</a></span></div>
+    <div><span class="q">워터젯은 배에 실은 물을 쏘나?</span><br><span class="a"><b>아니요.</b> 배 바닥 흡입구로 <b>바닷물을 빨아</b> 뒤로 민다. 그 반동으로 배가 나간다. → <a href="03-waterjet.html">03 워터젯</a></span></div>
+    <div><span class="q">뒤로 갈 때 날개를 거꾸로 돌리나?</span><br><span class="a"><b>아니요.</b> 날개는 그대로 두고 <b>버킷을 내려</b> 물줄기를 앞으로 꺾는다. 변속기 R(날개 거꾸로)은 흡입구 청소용으로 쓰기도 한다(확인할 것). → <a href="05-transmission.html">05 변속기</a></span></div>
+    <div><span class="q">알람 카드에 마지막 알람만 보이면 충분하나?</span><br><span class="a"><b>아니요.</b> 알람은 "지금 상태"가 아니라 "일어난 일"이라 목록이어야 한다. → <a href="08-alarm.html">08 알람</a></span></div>
+  </div>
+
+  <h2>4. 화면 배치로 이어지면</h2>
+  <p>위 그림이 그대로 배 그림 관제 화면의 밑그림이다(<code>UI_PLAN.md</code>). 역할마다 부품이 한 자리에 있으니, 그 자리에 상태 색을 칠하면 된다. 힘의 줄(엔진 → 변속기 → 베어링 → 워터젯)은 왼쪽에서 오른쪽으로 한 번에 읽히고, 유압은 그 끝 옆에, 명령(조종권)은 위에 둔다.</p>
+
+  <div class="check"><b>확인할 것</b> — 문서에 없어서 그림에서 정한 것.
+    <ul>
+      <li>이 배의 변속기가 기름 압력으로 원판을 누르는지는 문서에 없다(배 변속기에서 흔한 방식).</li>
+      <li>유압 장치·엔진·변속기의 실제 위치와 크기, 엔진이 몇 대인지는 모른다. 그림은 엔진 한 대로 그렸다.</li>
+      <li>변속기 R을 흡입구 청소(백플러시)에 쓰는지는 모른다. NCM 알람 목록에 "10 백플러시 작동 중"은 있다.</li>
+    </ul>
+  </div>
+
+  <h2>5. 원래 자료와 연결하면</h2>
+  <ul>
+    <li>부품별 자세한 그림: <a href="03-waterjet.html">03 워터젯</a> · <a href="04-engine.html">04 엔진</a> · <a href="05-transmission.html">05 변속기</a> · <a href="06-thrust-bearing.html">06 베어링</a> · <a href="07-hydraulic.html">07 유압</a> · <a href="02-control-authority.html">02 조종권</a></li>
+    <li>힘이 끊기면 어떻게 되나: <a href="01-power-chain.html">01 동력 사슬</a></li>
+    <li><code>STATUS_VALUES.md</code> — 카드별 칸과 값.</li>
+  </ul>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const txt = (x, y, t, o) => '<text x="' + x + '" y="' + y + '" font-size="' + ((o && o.size) || 12) + '" fill="' + ((o && o.fill) || 'var(--text)') + '"' +
+    ' text-anchor="' + ((o && o.anchor) || 'middle') + '"' + ((o && o.bold) ? ' font-weight="600"' : '') + '>' + t + '</text>';
+  const DEFS = '<defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1L9 5L1 9z" fill="context-stroke"/></marker></defs>';
+  const drop = (x, y) => '<path d="M' + x + ' ' + (y - 9) + ' C' + (x + 7) + ' ' + (y - 1) + ' ' + (x + 6) + ' ' + (y + 6) + ' ' + x + ' ' + (y + 6) + ' C' + (x - 6) + ' ' + (y + 6) + ' ' + (x - 7) + ' ' + (y - 1) + ' ' + x + ' ' + (y - 9) + 'Z" fill="var(--oil)" stroke="var(--obj-line)" stroke-width=".8"/>';
+
+  // 배 옆모습. on = 밝게 할 부품 이름들(없으면 전부 보통). 좌표는 그림용.
+  function boat(on, extra) {
+    const lit = (k) => !on || on.includes(k);
+    const box = (k, x, y, w, h, label, ly) => {
+      const L = lit(k), hi = on && L;
+      return '<g opacity="' + (L ? 1 : .3) + '"><rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="6" fill="' + (hi ? 'var(--chip-on)' : 'var(--obj)') + '" stroke="' + (hi ? 'var(--accent)' : 'var(--obj-line)') + '" stroke-width="' + (hi ? 2.5 : 1) + '"/>' +
+        txt(x + w / 2, ly || (y + h / 2 + 5), label, { size: 12, bold: true, fill: hi ? 'var(--accent)' : 'var(--text)' }) + '</g>';
+    };
+    let s = DEFS;
+    s += '<rect x="0" y="198" width="680" height="102" fill="var(--sea)"/>';
+    s += '<path d="M30 118 H600 V216 H96 Q52 216 30 150 Z" fill="var(--obj-hi)" stroke="var(--obj-line)" stroke-width="1.5"/>';
+    s += '<line x1="0" y1="198" x2="680" y2="198" stroke="var(--water)" stroke-width="1.5" opacity=".7"/>';
+    // 명령: 육지 관제 · 안테나 · 조타실 · 백업
+    s += box('land', 440, 10, 128, 32, '육지 관제 (우리)');
+    s += '<g opacity="' + (lit('land') ? 1 : .3) + '"><line x1="180" y1="58" x2="180" y2="26" stroke="var(--obj-line)" stroke-width="2"/><circle cx="180" cy="24" r="4" fill="var(--obj-line)"/>' +
+      '<path d="M190 24 Q300 4 436 24" fill="none" stroke="var(--muted)" stroke-dasharray="5 4"/></g>';
+    s += box('cabin', 90, 58, 110, 60, '조타실');
+    s += box('backup', 214, 92, 58, 26, '백업');
+    // 힘의 줄: 엔진 → 변속기 → 축 → 베어링 → 워터젯
+    const chainLit = lit('engine') || lit('gear') || lit('bearing') || lit('jet');
+    s += '<line x1="340" y1="168" x2="600" y2="168" stroke="var(--steel)" stroke-width="6" opacity="' + (chainLit ? 1 : .3) + '"/>';
+    s += box('engine', 250, 140, 90, 56, '엔진');
+    s += box('gear', 360, 148, 62, 40, '변속기');
+    s += box('bearing', 450, 152, 30, 32, '베어링', 146);
+    // 워터젯: 흡입관 · 몸통 · 노즐 · 버킷
+    const J = lit('jet');
+    s += '<g opacity="' + (J ? 1 : .3) + '"><path d="M486 216 Q520 214 530 190" fill="none" stroke="var(--obj-line)" stroke-width="10" stroke-linecap="round" opacity=".55"/></g>';
+    s += box('jet', 520, 150, 80, 38, '워터젯');
+    const D = lit('nozzle');
+    s += '<g opacity="' + (D ? 1 : .3) + '"><path d="M600 156 L632 160 L632 176 L600 180 Z" fill="' + (on && D ? 'var(--chip-on)' : 'var(--obj)') + '" stroke="' + (on && D ? 'var(--accent)' : 'var(--obj-line)') + '" stroke-width="' + (on && D ? 2.5 : 1) + '"/>' +
+      '<path d="M640 138 Q654 150 648 162" fill="none" stroke="' + (on && D ? 'var(--accent)' : 'var(--obj-line)') + '" stroke-width="4" stroke-linecap="round"/>' +
+      txt(588, 208, '노즐', { size: 10, fill: 'var(--muted)' }) + txt(652, 132, '버킷', { size: 10, fill: 'var(--muted)' }) + '</g>';
+    s += box('hyd', 500, 120, 60, 24, '유압');
+    s += '<g opacity="' + (lit('hyd') ? 1 : .3) + '"><path d="M560 128 Q600 128 614 156" fill="none" stroke="var(--oil)" stroke-width="2.5"/><path d="M560 134 Q630 120 642 140" fill="none" stroke="var(--oil)" stroke-width="2.5"/></g>';
+    return '<g data-on="' + (on || []).join(',') + (extra ? 'x' + extra.length : '') + '">' + s + (extra || '') + '</g>';
+  }
+
+  // ── 일 고르기 ──
+  const ROLES = {
+    all: [null, '', '부품이 일곱 가지쯤 보인다. 위의 버튼으로 <b>일을 하나</b> 고르면, 그 일을 맡은 부품만 밝아진다.'],
+    power: [['engine'], '힘 만들기 = 엔진', '<b>엔진</b>이 연료를 태워 축을 돌린다. 배를 미는 힘은 <b>전부 여기서</b> 나온다. 스로틀을 올리면 세진다. (04 엔진)'],
+    link: [['gear'], '잇고 끊기 = 변속기', '<b>변속기</b>는 엔진의 회전을 워터젯까지 <b>보낼지(F) 끊을지(N)</b>만 정한다. 힘을 만들지도, 방향을 바꾸지도 않는다. (05 변속기)'],
+    push: [['bearing'], '반동 받기 = 베어링', '물을 뒤로 밀면 그 반동이 축을 앞으로 민다. <b>베어링</b>이 그 힘을 받아 <b>배 몸통</b>에 전한다 — 그래서 배가 앞으로 간다. 축은 그 안에서 부드럽게 돈다. (06 베어링)'],
+    water: [['jet', 'nozzle'], '물 뿜기 = 워터젯', '<b>워터젯</b> 날개가 배 바닥으로 바닷물을 빨아 노즐로 세게 뿜는다. 엔진의 회전이 여기서 <b>물줄기</b>가 된다. (03 워터젯)'],
+    dir: [['hyd', 'nozzle'], '방향 바꾸기 = 유압 → 노즐·버킷', '<b>유압</b>은 힘의 줄에 끼어 있지 않다. 옆에서 기름 압력으로 <b>노즐을 좌우로, 버킷을 위아래로</b> 밀어 물줄기가 나가는 방향만 바꾼다. 세기는 그대로다. (07 유압)'],
+    cmd: [['land', 'cabin', 'backup'], '명령하기 = 우리 관제 · 조타실 · 백업', '누가 시키나. <b>우리 관제</b>(원격), <b>조타실</b>(배 위 사람, 로컬), <b>백업</b>(비상용) 중 <b>한 곳만</b> 조종권을 쥔다. (02 조종권)'],
+  };
+  let role = 'all';
+  function drawRoles() {
+    document.querySelectorAll('[data-r]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.r === role));
+    const [on, title] = ROLES[role];
+    let x = '';
+    if (role === 'power' || role === 'link') x += '<path d="M' + (role === 'power' ? 300 : 392) + ' 214 a10 10 0 1 1 14 0" fill="none" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#ar)"/>';
+    if (role === 'link') x += '<line x1="342" y1="160" x2="356" y2="160" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar)"/><line x1="426" y1="160" x2="446" y2="160" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar)"/>';
+    if (role === 'push') x += '<line x1="448" y1="168" x2="408" y2="130" stroke="var(--accent)" stroke-width="3" marker-end="url(#ar)"/>' + txt(400, 112, '반동 → 배 몸통', { size: 12, bold: true, fill: 'var(--accent)' });
+    if (role === 'water') x += '<path class="run" d="M478 236 Q520 228 532 192" fill="none" stroke="var(--water)" stroke-width="3" stroke-dasharray="6 6"/>' +
+      '<line class="run" x1="634" y1="168" x2="676" y2="168" stroke="var(--water)" stroke-width="5" stroke-dasharray="8 4"/>' + txt(470, 252, '바닷물 빨기', { size: 11, fill: 'var(--water)', bold: true });
+    if (role === 'dir') x += '<path d="M622 146 L622 138 M622 190 L622 198" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar)"/>' +
+      '<path d="M666 140 L666 126 M666 160 L666 174" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar)"/>' + txt(560, 110, '좌우 · 위아래로 밂', { size: 12, bold: true, fill: 'var(--accent)' });
+    if (role === 'cmd') x += '<path d="M150 118 Q200 140 248 160" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#ar)"/>' + txt(196, 152, '명령', { size: 11, bold: true, fill: 'var(--accent)' });
+    if (title) x += txt(340, 280, title, { size: 16, bold: true, fill: 'var(--accent)' });
+    $('roles').innerHTML = boat(on, x + '<!--' + role + '-->');
+    $('say1').innerHTML = ROLES[role][2];
+  }
+  document.querySelectorAll('[data-r]').forEach((b) => b.addEventListener('click', () => { role = b.dataset.r; drawRoles(); }));
+  drawRoles();
+
+  // ── 기름 세 군데 ──
+  const OILS = {
+    gear: [391, 136, '변속기 기름 — 원판을 눌러 붙임 (0900)', '<b>변속기 기름</b>은 원판 두 장을 꽉 눌러 엔진 회전을 잇는다. 손바닥 두 개를 맞대고 세게 누르면 같이 도는 것과 같다.'],
+    bearing: [465, 126, '베어링 기름 — 미끄럽게, 식히기 (0600)', '<b>베어링 기름</b>은 구슬과 축 사이를 미끄럽게 하고 열을 식힌다. 컴퓨터 팬이 CPU를 식히는 것처럼, 오일 온도·양을 <code>0600</code>으로 본다.'],
+    hyd: [530, 106, '유압 기름 — 노즐·버킷을 밂 (0700)', '<b>유압 기름</b>은 펌프가 눌러서 피스톤을 민다. 굴착기 팔처럼 <b>근육</b> 역할. 우리 화면에서 "유압"은 이것 하나다.'],
+  };
+  let oil = 'all';
+  function drawOils() {
+    document.querySelectorAll('[data-o]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.o === oil));
+    const keys = oil === 'all' ? Object.keys(OILS) : [oil];
+    const on = keys.map((k) => ({ gear: 'gear', bearing: 'bearing', hyd: 'hyd' }[k]));
+    let x = '';
+    keys.forEach((k, i) => {
+      const [dx, dy, label] = OILS[k];
+      x += drop(dx, dy);
+      x += txt(340, oil === 'all' ? 240 + i * 20 : 270, label, { size: oil === 'all' ? 13 : 15, bold: true, fill: 'var(--accent2)' });
+    });
+    $('oils').innerHTML = boat(on, x + '<!--' + oil + '-->');
+    $('say2').innerHTML = oil === 'all' ? '기름이 <b>세 군데</b> 있다. 모두 "기름"이지만 하는 일이 다르다. 하나씩 눌러 보자.' : OILS[oil][3];
+  }
+  document.querySelectorAll('[data-o]').forEach((b) => b.addEventListener('click', () => { oil = b.dataset.o; drawOils(); }));
+  drawOils();
+</script>
+</body>
+</html>
