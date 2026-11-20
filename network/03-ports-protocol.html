@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>구멍 · 신호 · 약속 — COM · USB · 이더넷</title>
+<style>
+  :root {
+    --bg: #fafaf8; --card: #ffffff; --text: #1f1f1d; --muted: #6b6a65; --line: #d8d6ce;
+    --link: #185FA5; --accent: #D85A30; --accent2: #BA7517; --ok: #1D9E75; --bad: #d63b3b; --chip-on: #fbe9e2;
+    --sea: #eef3f7; --room: #f4f1e8; --hi: #fff3c4; --metal: #b8b4a8; --gold: #d4a52a;
+    --eth: #2f6fb0; --usb: #7b4bb3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1c1c1a; --card: #262624; --text: #ecebe6; --muted: #a8a69e; --line: #44443f;
+      --link: #85B7EB; --chip-on: #4a2c22; --ok: #4cc79e; --bad: #ef6b6b; --sea: #22303b; --room: #302f2b; --hi: #4a4224; --metal: #6d6a62;
+      --eth: #7fb0e0; --usb: #b394e0; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.7 "Pretendard", "Malgun Gothic", system-ui, sans-serif; }
+  main { max-width: 820px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 4px; }
+  h2 { font-size: 19px; font-weight: 600; margin: 40px 0 6px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .lead { color: var(--muted); margin: 0 0 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+  .buttons .cap { font-size: 15px; color: var(--muted); margin-right: 4px; min-width: 7.5em; }
+  button { font: inherit; font-size: 14px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); cursor: pointer; }
+  button:hover { border-color: var(--muted); }
+  button[aria-pressed="true"] { border-color: var(--accent); background: var(--chip-on); font-weight: 600; }
+  .say { margin: 14px 0 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--bg); border-radius: 0 8px 8px 0; min-height: 3.4em; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; margin-top: 12px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  th:first-child, td:first-child { white-space: nowrap; }
+  .note { font-size: 14px; color: var(--muted); }
+  .check { border: 1px dashed var(--accent2); border-radius: 8px; padding: 10px 12px; font-size: 15px; }
+  .check > b:first-child { color: var(--accent2); }
+  .check ul { margin: 6px 0 0; padding-left: 1.3em; }
+  a { color: var(--link); }
+  code { font-size: 14px; }
+  .l1 { color: var(--accent2); font-weight: 700; } .l2 { color: var(--usb); font-weight: 700; } .l3 { color: var(--ok); font-weight: 700; }
+  svg text { font-family: inherit; }
+  svg .t { font-size: 12px; font-weight: 700; fill: var(--text); }
+  svg .s { font-size: 11px; fill: var(--muted); }
+  svg .m { font-size: 11px; fill: var(--text); font-family: Consolas, "Cascadia Mono", monospace; }
+  .seat > rect:first-child { fill: var(--room); stroke: var(--line); stroke-width: 1; }
+  .seat.on > rect:first-child { fill: var(--hi); stroke: var(--accent); stroke-width: 2.5; }
+  .wire { fill: none; stroke-width: 3; }
+  .wire.dim { opacity: .3; }
+  .fig { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .fig-hint { display: none; }
+  @media (max-width: 600px) {
+    .fig svg { min-width: 560px; }
+    .fig-hint { display: block; font-size: 13px; color: var(--muted); text-align: center; margin: 4px 0 0; }
+    .buttons .cap { min-width: 0; width: 100%; }
+    table { font-size: 14px; } th, td { padding: 6px; }
+  }
+  .ok { color: var(--ok); font-weight: 700; }
+</style>
+</head>
+<body>
+<main>
+  <p class="note" style="border:1px dashed var(--line);border-radius:8px;padding:6px 10px">공개용 사본 — 외부 IP · 도메인 · 외부 포트 번호는 예시 값(203.0.113.x · example.co.kr · 28080)으로 바꿔 두었다.</p>
+  <p class="note"><a href="index.html">← 네트워크 목록</a> · 이전: <a href="02-network-gear.html">← 모뎀 · 라우터 · 스위치</a> · 다음: <a href="04-usv-system.html">무인선 전체 구성도 →</a></p>
+  <h1>구멍 · 신호 · 약속 — COM · USB · 이더넷</h1>
+  <p class="lead">"구멍마다 쓸 수 있는 프로토콜이 다른가?" — <b>반만 맞다.</b> 통신은 세 층으로 나눠 보면 풀린다.
+    <span class="l1">① 구멍</span>(커넥터 모양), <span class="l2">② 신호</span>(선 위로 실어 나르는 방식), <span class="l3">③ 약속</span>(주고받는 말 = 프로토콜). 구멍은 ①② 를 정하고, ③ 은 그 위에 따로 얹힌다.</p>
+
+  <h2 style="border-top:0;margin-top:8px;padding-top:0">0. 장비 뒷면 — 구멍이 왜 이렇게 많나</h2>
+  <p>장비 뒤를 보면 구멍이 잔뜩이다. 그런데 <b>흔한 통신 구멍은 셋</b>(랜 포트 · COM · USB)이고, 배 · 차의 모터 같은 장비엔 <b>CAN</b> 이 하나 더 있다. 나머지는 전기 · 화면용이다. 장비를 바꿔 가며 구멍을 하나씩 눌러 보세요. <b>⚙ 모터 제어기</b>에서는 <b>COM 과 똑같이 생긴 CAN 구멍</b>을 볼 수 있다.</p>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 300" role="img" aria-labelledby="th dh">
+      <title id="th">장비 뒷면의 구멍 지도 — 전원, 화면, USB, 랜 포트, COM, CAN</title>
+      <desc id="dh">고른 장비(서버 · PC, 네트워크 스위치, GPS · AIS 수신기, 모터 제어기)의 뒷면 그림. 모터 제어기에는 COM 과 똑같이 생긴 D자 9핀 CAN 구멍이 COM 옆에 있고, 동그란 M12 · 나사 단자대 CAN 구멍도 있다. 구멍마다 이름이 붙어 있고, 통신 구멍(랜 포트 · COM · USB · CAN)과 통신이 아닌 구멍(전원 · 화면)이 다른 색 테두리로 구분된다. 고른 구멍은 주황으로 표시된다.</desc>
+      <rect x="0" y="0" width="680" height="300" rx="12" fill="var(--sea)"/>
+      <g id="panel0"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">장비</span>
+      <button id="hv1" aria-pressed="true">🖥 서버 · 산업용 PC</button>
+      <button id="hv2" aria-pressed="false">🔀 네트워크 스위치</button>
+      <button id="hv3" aria-pressed="false">📡 GPS · AIS 수신기</button>
+      <button id="hv4" aria-pressed="false">⚙ 모터 제어기 (CAN)</button>
+    </div>
+    <div class="buttons"><span class="cap">구멍</span>
+      <button id="hh0" aria-pressed="true">전체</button>
+      <button id="hhPow" aria-pressed="false">⚡ 전원</button>
+      <button id="hhHdmi" aria-pressed="false">🖵 화면 (HDMI)</button>
+      <button id="hhUsb" aria-pressed="false">USB</button>
+      <button id="hhLan" aria-pressed="false">랜 포트</button>
+      <button id="hhCom" aria-pressed="false">COM</button>
+      <button id="hhCan" aria-pressed="false">CAN</button>
+    </div>
+    <p class="say" id="sayH"></p>
+  </div>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. 구멍 개수 · 자리는 흔한 모양 하나로 그렸다(장비마다 다르다). 집 · 사무실 PC · 노트북 뒤엔 보통 COM 이 없다 — 이 그림은 서버 · 산업용 PC 기준. GPS · AIS 수신기 중엔 랜 포트가 있는 제품도 있다. 모터 제어기는 CAN 구멍 모양을 보여 주려는 그림용 장비 — 우리 배 어느 장비가 CAN 을 쓰는지는 확인 전.</p>
+
+  <h2>0+. CAN 단자의 H · L · G — 두 선의 "차이"로 말한다</h2>
+  <p>CAN 단자대의 <b>H · L · G</b> 는 선 세 가닥의 이름이다. <b>H = CAN_High</b>(높은 쪽), <b>L = CAN_Low</b>(낮은 쪽), <b>G = GND · Ground</b>(0V 기준, 접지). 받는 쪽은 H 와 L 을 따로 보지 않고 <b>둘의 차이</b>만 본다 — 그래서 모터 잡음이 많은 배 · 차에서도 잘 들린다. 보기와 잡음을 바꿔 보세요.</p>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 330" role="img" aria-labelledby="thl dhl">
+      <title id="thl">CAN 의 H · L · G — 쉴 때는 H 와 L 이 같고, 말할 때는 벌어진다. 받는 쪽은 차이만 본다</title>
+      <desc id="dhl">왼쪽에 H(CAN_High), L(CAN_Low), G(GND) 세 선의 이름표가 있고, 오른쪽에 시간에 따른 전압 그래프가 있다. 1 일 때 H 와 L 이 모두 2.5V, 0 일 때 H 3.5V · L 1.5V 로 벌어진다. G 는 0V 기준선이다. 잡음을 켜면 H 와 L 이 똑같이 흔들리고, 차이 보기에서는 흔들려도 H − L 차이가 그대로라 같은 값 1 0 1 1 0 0 1 을 읽는다.</desc>
+      <rect x="0" y="0" width="680" height="330" rx="12" fill="var(--sea)"/>
+      <g id="hlgFig"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">보기</span>
+      <button id="gEach" aria-pressed="true">H · L 각각</button>
+      <button id="gDiff" aria-pressed="false">차이 (H − L) — 받는 쪽 눈</button>
+    </div>
+    <div class="buttons"><span class="cap">잡음</span>
+      <button id="gQuiet" aria-pressed="true">잡음 없음</button>
+      <button id="gNoise" aria-pressed="false">⚡ 모터 잡음 끼어듦</button>
+    </div>
+    <p class="say" id="sayG"></p>
+  </div>
+  <table>
+    <tr><th>단자</th><th>풀네임 · 읽기</th><th>하는 일</th><th>회사 그림</th></tr>
+    <tr><td><b>H</b></td><td>CAN_High (캔 하이)</td><td>말할 때 <b>올라가는</b> 선</td><td>높은 목소리</td></tr>
+    <tr><td><b>L</b></td><td>CAN_Low (캔 로우)</td><td>말할 때 <b>내려가는</b> 선</td><td>낮은 목소리</td></tr>
+    <tr><td><b>G</b></td><td>GND · Ground (그라운드, 접지)</td><td>0V 기준 — 데이터는 안 나름</td><td>둘이 서 있는 바닥판</td></tr>
+  </table>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. 2.5V · 3.5V · 1.5V 는 흔한 고속 CAN 의 대략 값, 비트 순서 · 잡음 모양은 그림용. 무전기에 빗대면 — 두 사람이 한 목소리로 높게 · 낮게 말하고, 듣는 쪽은 높낮이 <b>차이</b>만 들어서 주변이 시끄러워도 알아듣는다.</p>
+
+  <h2>1. 셋 다 "통신" — 그런데 "네트워크"는 랜 포트뿐</h2>
+  <p>랜 포트 · COM · USB 는 모두 <b>데이터를 주고받는 구멍(통신)</b>이다. 다른 점은 <b>길의 모양</b> — COM · USB 는 <b>두 자리만 잇는 직통 인터폰</b>, 랜 포트는 <b>번호로 누구든 부르는 사내 전화망(네트워크)</b>. 장비를 하나 더 붙여 보면 차이가 보인다.</p>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 310" role="img" aria-labelledby="tc dc">
+      <title id="tc">직결(COM · USB) 과 네트워크(랜 포트) — 장비를 하나 더 붙일 때</title>
+      <desc id="dc">직결: GPS 와 AIS 가 PC 의 COM1 · COM2 에 각자 선 하나로 붙고, 하나 더 붙이려면 구멍이 하나 더 필요하다. 172 는 그 센서와 직접 말할 수 없다. 네트워크: 스위치에 PC · 172 · 레이더 · NAS · 해도 서버가 꽂혀 번호로 서로 부른다. 하나 더 붙이려면 스위치에 꽂고 번호만 정하면 된다.</desc>
+      <rect x="0" y="0" width="680" height="310" rx="12" fill="var(--sea)"/>
+      <g id="commFig"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">길 모양</span>
+      <button id="cDirect" aria-pressed="true">🔌 직결 (COM · USB)</button>
+      <button id="cNet" aria-pressed="false">🌐 네트워크 (랜 포트)</button>
+    </div>
+    <div class="buttons"><span class="cap">장비 하나 더</span>
+      <button id="cKeep" aria-pressed="true">지금 그대로</button>
+      <button id="cAdd" aria-pressed="false">➕ 하나 더 붙이기</button>
+    </div>
+    <p class="say" id="sayC"></p>
+  </div>
+  <table>
+    <tr><th></th><th>🔌 직결 (COM · USB)</th><th>🌐 네트워크 (랜 포트)</th></tr>
+    <tr><td>회사 그림</td><td>두 자리만 잇는 <b>직통 인터폰</b></td><td>내선번호로 누구든 부르는 <b>사내 전화망</b></td></tr>
+    <tr><td>통신?</td><td class="ok">✓ 데이터를 주고받는다</td><td class="ok">✓ 데이터를 주고받는다</td></tr>
+    <tr><td>상대</td><td>선 하나에 <b>하나</b></td><td>스위치로 <b>여럿</b></td></tr>
+    <tr><td>주소</td><td>없음 — 선이 곧 상대</td><td>있음 — IP + 창구 번호</td></tr>
+    <tr><td>하나 더 붙이려면</td><td>구멍(COM)이 하나 더 필요</td><td>스위치에 꽂고 번호만 정함</td></tr>
+  </table>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. IP 끝자리(.49 · .60 · .80 · .40)는 그림용, .172 · .73 은 실제 값.</p>
+
+  <h2>1+. 회사 전화로 보기 — 종이컵 · 무전기 · 내선 · 대표전화</h2>
+  <p>통신 방식을 <b>회사 전화</b>로 바꿔 보면 한 장에 들어온다. 아래 줄 두 버튼이 <b>바깥 손님 전화가 대표번호 → 교환원 → 내선</b>으로 이어지는 길, 그리고 <b>군산 172 가 우리 회사 해도 서버까지 가는 길</b>이다.</p>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 330" role="img" aria-labelledby="tt dt">
+      <title id="tt">회사 전화로 본 통신 — 종이컵 전화, 무전기, 내선 전화, 대표전화에서 내선으로</title>
+      <desc id="dt">종이컵 전화(COM · USB 직통), 무전기 채널(CAN 방송), 내선 전화(랜 + 스위치), 대표전화 → 교환원 → 내선(인터넷 → 모뎀 → 공유기 포트포워딩 → 스위치 → 해도 서버), 군산 172 에서 우리 회사 해도 서버까지 가는 길을 버튼으로 바꿔 본다.</desc>
+      <rect x="0" y="0" width="680" height="330" rx="12" fill="var(--sea)"/>
+      <g id="telFig"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">회사 전화</span>
+      <button id="tCup" aria-pressed="true">🥤 종이컵 (COM · USB)</button>
+      <button id="tCan" aria-pressed="false">📻 무전기 (CAN)</button>
+      <button id="tExt" aria-pressed="false">☎ 내선 (랜 + 스위치)</button>
+    </div>
+    <div class="buttons"><span class="cap">바깥과 이으면</span>
+      <button id="tIn" aria-pressed="false">📞 대표전화 → 내선</button>
+      <button id="tTrip" aria-pressed="false">🚢 군산 172 → 우리 해도 서버</button>
+    </div>
+    <p class="say" id="sayT"></p>
+  </div>
+  <table>
+    <tr><th>통신 방식</th><th>회사 전화</th><th>상대</th><th>주소</th></tr>
+    <tr><td>COM · USB</td><td>🥤 종이컵 전화</td><td>선 하나에 하나</td><td>없음 — 선이 곧 상대</td></tr>
+    <tr><td>CAN</td><td>📻 무전기 채널</td><td>다 같이 들음</td><td>없음 — 대신 말머리(ID)</td></tr>
+    <tr><td>랜 + 스위치</td><td>☎ 내선 전화</td><td>번호로 콕 집어</td><td>내선번호 = 내부 IP (192.168.0.x)</td></tr>
+    <tr><td>공유기 + 모뎀</td><td>📞 대표전화 · 외부 회선</td><td>바깥 누구든</td><td>대표번호 = 외부 IP 하나 + 안내표(포트포워딩)</td></tr>
+  </table>
+  <ul>
+    <li><b>안에서 바깥으로</b> 거는 건 설정이 없어도 된다 — 교환원(공유기)이 내선번호를 대표번호로 바꿔 내보내고, 답이 오면 기억해 둔 내선으로 돌려준다.</li>
+    <li><b>바깥에서 안으로</b> 걸려 오는 건 <b>안내표(포트포워딩)</b>에 적힌 번호만 통한다. 우리 회사 안내표: 28080 → 내선 .73 의 2350 창구.</li>
+    <li><b>외부 회선(모뎀 · 공유기)이 없는 곳</b>은 내선끼리만 통한다 = 폐쇄망.</li>
+  </ul>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. 203.0.113.24 · 28080 은 공개용 예시 값, 192.168.0.73:2350 · .172 는 실제 값, 그 밖의 IP 끝자리 · CAN ID · 값은 그림용.</p>
+  <div class="check"><b>확인할 것</b>
+    <ul>
+      <li>우리 배에서 CAN 을 쓰는 장비(엔진 · 추진기 · 배터리 등)가 있는지는 자료에 없다.</li>
+      <li>군산 현장에 바깥으로 나가는 회선(공유기 · 모뎀)이 있는지 — 없으면 🚢 그림의 ① 길이 없어서 우리 해도 서버에 못 간다.</li>
+    </ul>
+  </div>
+
+  <h2>1++. 번호(IP)는 언제 필요할까 — "고를 일"이 있을 때</h2>
+  <p>COM · CAN 은 보내면 <b>선에 연결된 쪽으로 그냥 다 간다</b>. 연결된 게 하나든 여럿이든 <b>누구한테 보낼지 고를 일이 없으니 번호가 필요 없다</b>. 랜은 여럿 중 <b>한 명만 콕 집어</b> 보내니까 번호(IP)가 필요하다. 셋을 바꿔 보세요.</p>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 280" role="img" aria-labelledby="tn dn">
+      <title id="tn">번호가 필요한 때 — 연결된 쪽 전부에게 가면 필요 없고, 여럿 중 하나를 고르면 필요하다</title>
+      <desc id="dn">COM: 보내는 쪽과 PC 하나가 선으로 이어져 그 하나에게 간다. CAN: 한 줄에 여럿이 붙어 모두에게 간다. 두 경우 모두 고를 일이 없어 번호가 필요 없다. 랜: 스위치가 받는 사람 번호(.73)를 보고 해도 서버 한 대에만 보내고 나머지에는 가지 않는다. 그래서 번호가 필요하다.</desc>
+      <rect x="0" y="0" width="680" height="280" rx="12" fill="var(--sea)"/>
+      <g id="numFig"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">보내 보기</span>
+      <button id="nCom" aria-pressed="true">🥤 COM — 연결된 게 하나</button>
+      <button id="nCan" aria-pressed="false">📻 CAN — 연결된 게 여럿</button>
+      <button id="nLan" aria-pressed="false">🌐 랜 — 여럿 중 하나만</button>
+    </div>
+    <p class="say" id="sayN"></p>
+  </div>
+  <table>
+    <tr><th></th><th>보내면 어디로?</th><th>고를 일</th><th>번호</th></tr>
+    <tr><td>🥤 COM · USB</td><td>연결된 <b>하나</b>에게</td><td>없음</td><td>필요 없음</td></tr>
+    <tr><td>📻 CAN</td><td>연결된 <b>모두</b>에게</td><td>없음 (듣는 쪽이 말머리로 골라 들음)</td><td>필요 없음</td></tr>
+    <tr><td>🌐 랜</td><td>여럿 중 <b>고른 한 명</b>에게만</td><td>있음</td><td class="ok">필요 (IP)</td></tr>
+  </table>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. .73 · .172 는 실제 값, .49 · 장비 이름은 그림용.</p>
+
+  <h2>2. 파싱 — 길과 상관없이 "말"에 맞춰 푼다</h2>
+  <p>도착한 데이터는 그냥 <b>글자 줄</b>이다. 프로그램이 그 글자를 <b>약속(말)대로 잘라 읽는 것</b>이 <b>파싱</b>. 장비마다 보내는 말이 달라서 <b>푸는 법(파서)도 다르다</b>. 그런데 <b>길(COM이냐 랜이냐)</b>은 푸는 법과 상관없다. 데이터와 길을 바꿔 보세요.</p>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 360" role="img" aria-labelledby="tp dp">
+      <title id="tp">파싱 — 도착한 글자를 약속대로 잘라 읽기</title>
+      <desc id="dp">위에 어느 길로 왔는지, 그 아래 도착한 글자를 쉼표로 자른 칸들이 번호와 함께 있다. 가운데 파서(프로그램)가 칸 번호로 읽고, 아래에 결과 값들이 같은 색으로 나온다. AIS · 레이더 문장은 COM 으로 오든 랜(HTTP)으로 오든 같은 글자, 같은 결과다. GPS 는 센서 서버가 미리 풀어 JSON 으로 주면 말이 달라져 읽는 법도 달라진다.</desc>
+      <rect x="0" y="0" width="680" height="360" rx="12" fill="var(--sea)"/>
+      <g id="parseFig"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">데이터</span>
+      <button id="dAis" aria-pressed="true">📡 AIS 문장</button>
+      <button id="dRad" aria-pressed="false">🎯 레이더 문장</button>
+      <button id="dGps" aria-pressed="false">📍 GPS</button>
+    </div>
+    <div class="buttons"><span class="cap">어느 길로</span>
+      <button id="pCOM" aria-pressed="true">🔌 COM 선으로 옴</button>
+      <button id="pHTTP" aria-pressed="false">🌐 랜(HTTP)으로 옴</button>
+    </div>
+    <p class="say" id="sayP"></p>
+  </div>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. 문장 속 값과 결과 값(MMSI · 위도 · 경도 등)은 그림용이다. 레이더 문장 칸 번호(1 번호 · 2 거리 · 3 방위 · 5 속력 · 6 침로 · 8 CPA · 9 TCPA · 12 상태)는 <code>radar-decoder.js</code> 가 읽는 자리 그대로.</p>
+  <ul>
+    <li><b>구멍 · 길</b>은 "<b>어떻게 닿나</b>"를 정한다 — 직결이냐 네트워크냐.</li>
+    <li><b>파싱</b>은 "<b>무슨 말이냐</b>"에 맞춰 달라진다 — NMEA 문장이냐, JSON 이냐.</li>
+    <li>둘은 <b>따로</b> 정해진다. 같은 AIS 문장이 COM 으로 오든 랜으로 오든 지도 관제는 <b>같은 파서</b>(<code>ais-parser.js</code> · <code>ais-decoder.js</code>)로 푼다.</li>
+  </ul>
+
+  <h2>3. 통신 구멍 하나를 골라 세 층으로</h2>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 300" role="img" aria-labelledby="t1 d1">
+      <title id="t1">고른 구멍의 모양과 세 층 — 구멍, 신호, 약속</title>
+      <desc id="d1">왼쪽에 고른 구멍(DB9 시리얼, USB, RJ45 랜 포트)의 모양과 선 위로 데이터가 가는 모습. 오른쪽에 세 층 상자: 구멍, 신호, 약속과 우리 시스템의 예.</desc>
+      <rect x="0" y="0" width="680" height="300" rx="12" fill="var(--sea)"/>
+      <!-- 왼쪽: 구멍 그림 -->
+      <rect x="10" y="10" width="244" height="280" rx="10" fill="var(--card)" stroke="var(--line)"/>
+      <g id="conn"></g>
+      <text id="cName" x="132" y="196" text-anchor="middle" class="t" font-size="14"></text>
+      <text id="cSub" x="132" y="214" text-anchor="middle" class="s"></text>
+      <g id="bits"></g>
+      <text id="bitsCap" x="132" y="278" text-anchor="middle" class="s"></text>
+
+      <!-- 오른쪽: 세 층 -->
+      <g id="layers"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">구멍 고르기</span>
+      <button id="pCom" aria-pressed="true">COM (시리얼)</button>
+      <button id="pUsb" aria-pressed="false">USB</button>
+      <button id="pEth" aria-pressed="false">이더넷 (랜 포트)</button>
+    </div>
+    <p class="say" id="say"></p>
+  </div>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. 구멍 모양은 흔한 것 하나씩만 그렸다(시리얼은 단자대 · RJ45 모양도 있다).</p>
+
+  <h2>4. 세 층 — 회사 그림으로</h2>
+  <table>
+    <tr><th>층</th><th>회사 그림</th><th>예</th></tr>
+    <tr><td class="l1">① 구멍 (커넥터)</td><td>벽의 <b>전화 잭 모양</b></td><td>DB9(COM) · USB-A/C · RJ45(랜 포트)</td></tr>
+    <tr><td class="l2">② 신호 (물리 규격)</td><td>목소리를 실어 나르는 방식 — <b>유선 전화</b>냐 <b>무전기</b>냐</td><td>RS-232 · RS-422/485(시리얼) · USB · 이더넷</td></tr>
+    <tr><td class="l3">③ 약속 (프로토콜)</td><td>통화할 때 쓰는 <b>말과 서식</b> — 한국어, 보고서 양식</td><td>NMEA 0183($GPGGA · !AIVDM) · TCP/IP · HTTP · Modbus</td></tr>
+  </table>
+  <ul>
+    <li><b>구멍 → 신호는 거의 짝이 정해져 있다.</b> RJ45 랜 포트면 이더넷, DB9 이면 시리얼(RS-232 등).</li>
+    <li><b>약속은 위에 따로 얹힌다.</b> 같은 NMEA 문장이 시리얼로도, 이더넷(UDP · HTTP 안)으로도 간다 — 편지 내용은 그대로, 봉투와 우편 수단만 바뀐다(아래 5절).</li>
+    <li>그래서 "구멍마다 프로토콜이 다르다"는 반만 맞다: 구멍이 정하는 건 ①② 까지. ③ 은 장비끼리 정한 약속.</li>
+  </ul>
+
+  <h2 id="ais2">5. AIS 문장 하나가 172 까지 — 구멍을 갈아타는 길</h2>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 236" role="img" aria-labelledby="t2 d2">
+      <title id="t2">AIS 수신기의 문장이 시리얼로 PC 에, 이더넷으로 172 에 가는 길</title>
+      <desc id="d2">왼쪽부터 AIS 수신기, PC(센서 서버), 스위치, 172 지도 관제. 수신기와 PC 는 시리얼 선, PC 와 스위치와 172 는 이더넷 선. 아래 상자는 지금 단계에서 문장이 어떤 봉투에 담겨 있는지 보여 준다.</desc>
+      <rect x="0" y="0" width="680" height="236" rx="12" fill="var(--sea)"/>
+      <path id="w1" class="wire" stroke="var(--usb)" d="M120 70 H220"/>
+      <path id="w2" class="wire" stroke="var(--eth)" d="M380 70 H440"/>
+      <path id="w3" class="wire" stroke="var(--eth)" d="M510 70 H560"/>
+      <text x="170" y="90" text-anchor="middle" class="s">시리얼 RS-232/422</text>
+      <text x="474" y="104" text-anchor="middle" class="s">이더넷</text>
+      <g class="seat" id="bAis"><rect x="10" y="40" width="110" height="60" rx="8"/><text x="20" y="64" class="t">📡 AIS 수신기</text><text x="20" y="84" class="s">COM 구멍</text></g>
+      <g class="seat" id="bPc"><rect x="220" y="40" width="160" height="60" rx="8"/><text x="230" y="64" class="t">PC · 센서 서버</text><text x="230" y="84" class="s">COM 구멍 + 랜 포트</text></g>
+      <g class="seat" id="bSw"><rect x="440" y="50" width="70" height="40" rx="8"/><text x="452" y="75" class="t">스위치</text></g>
+      <g class="seat" id="b172"><rect x="560" y="40" width="110" height="60" rx="8"/><text x="570" y="64" class="t">172 지도 관제</text><text x="570" y="84" class="s">랜 포트</text></g>
+      <g id="env"></g>
+      <!-- 봉투 상자 -->
+      <rect x="10" y="118" width="660" height="108" rx="8" fill="var(--card)" stroke="var(--line)"/>
+      <text id="eT" x="22" y="140" class="t"></text>
+      <text id="e1" x="22" y="164" class="m"></text>
+      <text id="e2" x="22" y="184" class="m"></text>
+      <text id="e3" x="22" y="204" class="m"></text>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">단계</span>
+      <button id="s1" aria-pressed="true">① 수신기 → PC</button>
+      <button id="s2" aria-pressed="false">② PC 가 모아 둠</button>
+      <button id="s3" aria-pressed="false">③ 172 가 물어봄</button>
+      <button id="s4" aria-pressed="false">④ 172 가 풀어 그림</button>
+    </div>
+    <p class="say" id="say2"></p>
+  </div>
+  <p class="note">AIS 문장 내용과 센서 서버 주소는 그림용이다. 172 가 묻는 주소 모양(<code>/latestais</code>, 9000번)과 받은 JSON 의 <code>ais_raw_data</code> 칸은 지도 관제 코드에 있다.</p>
+
+  <h2>6. "포트"라는 말이 두 가지다</h2>
+  <table>
+    <tr><th></th><th>물리 포트 = 구멍</th><th>포트 번호 = 창구 번호</th></tr>
+    <tr><td>무엇</td><td>장비에 뚫린 <b>진짜 구멍</b> — 랜 포트, COM 포트, USB 포트</td><td>한 IP 안에서 프로그램을 가르는 <b>번호</b> — 9000, 2350, 9501</td></tr>
+    <tr><td>회사 그림</td><td>벽의 전화 잭</td><td>안내 데스크의 창구 번호 (<a href="01-domain-portforward.html">01</a> 포트포워딩)</td></tr>
+    <tr><td>층</td><td class="l1">① 구멍</td><td class="l3">③ 약속 (TCP · UDP 안)</td></tr>
+  </table>
+  <ul>
+    <li>"<b>COM3</b>"은 윈도우가 시리얼 구멍에 붙인 이름이다. USB-시리얼 변환기를 꽂으면 USB 구멍인데도 <b>COM 포트가 새로 생긴다</b> — 구멍(USB)과 신호(시리얼)가 다른 층이라 가능한 일.</li>
+    <li>시리얼은 양쪽이 <b>속도(보율, 예: 4800 · 38400)</b>를 똑같이 맞춰야 글자가 안 깨진다. 이더넷은 장비끼리 알아서 맞춘다.</li>
+  </ul>
+
+  <h2>7. 우리 시스템에서는</h2>
+  <table>
+    <tr><th>어디</th><th class="l1">구멍</th><th class="l2">신호</th><th class="l3">약속</th></tr>
+    <tr><td>GPS · AIS · Compass → PC</td><td>COM · USB</td><td>시리얼 (구성도의 UART · USB 보라 선)</td><td>NMEA 0183</td></tr>
+    <tr><td>172 → 센서 서버</td><td>랜 포트</td><td>이더넷</td><td>HTTP :9000 <code>/currentgps</code> · <code>/latestais</code> · <code>/latestradar</code></td></tr>
+    <tr><td>172 → 해도 서버</td><td>랜 포트</td><td>이더넷</td><td>HTTP :2350 (출장 땐 example.co.kr:28080)</td></tr>
+    <tr><td>운항 관제 ↔ 지도 관제</td><td>랜 포트</td><td>이더넷</td><td>TCP :9501</td></tr>
+  </table>
+
+  <h2>8. 몸으로 해 보기</h2>
+  <ul>
+    <li>편지 한 통을 생각한다. <span class="l3">내용(약속)</span>은 그대로인데, 동네에선 <span class="l2">자전거 배달(시리얼)</span>, 도시 사이엔 <span class="l2">트럭(이더넷)</span>으로 간다. 트럭에 실을 땐 <b>주소가 적힌 상자(IP · HTTP)</b>에 한 번 더 넣는다. 받는 쪽은 상자를 뜯어 같은 편지를 읽는다.</li>
+  </ul>
+
+  <div class="check"><b>확인할 것</b>
+    <ul>
+      <li>코드에 있는 것: 172 가 센서 서버에 HTTP 로 <code>/currentgps</code> · <code>/latestais</code> · <code>/latestradar</code> 를 묻고(<code>src/pump/own-ship-api.js</code> · <code>ais-api.js</code> · <code>radar-api.js</code>), AIS 는 받은 JSON 의 <code>ais_raw_data</code> 문장(<code>!AIVDM…</code>)을 직접 푼다(<code>ais-parser.js</code> · <code>ais-decoder.js</code>).</li>
+      <li>구성도에서 읽은 것: GPS · AIS · Compass 는 PC 에 UART · USB 로 붙는다.</li>
+      <li>짐작: 센서 서버가 그 PC 안에 있는지, 시리얼 보율 · RS-232/422 중 무엇인지는 장비 자료를 봐야 한다.</li>
+    </ul>
+  </div>
+
+  <h2>9. 원래 자료와 연결하면</h2>
+  <ul class="note">
+    <li>장비 이름(모뎀 · 라우터 · 스위치 · WAN · LAN)은 <a href="02-network-gear.html">02</a>, 배 전체 선 종류는 <a href="04-usv-system.html">04</a>.</li>
+    <li>설정 <code>SENSOR_SERVER_IP</code> · <code>SENSOR_SERVER_PORT</code>(9000) · <code>ENC_SERVER_URL</code> · <code>TCP_SERVER_PORT</code>(9501).</li>
+  </ul>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  // 구멍 그림 (중심 132, 130 · 그림용)
+  const CONN = {
+    pCom: `<path d="M62 92 H202 L188 160 H76 Z" fill="var(--metal)" stroke="var(--text)" stroke-width="2"/>
+      <path d="M74 102 H190 L180 150 H84 Z" fill="var(--card)" stroke="var(--text)"/>
+      ${[0, 1, 2, 3, 4].map((i) => `<circle cx="${96 + i * 18}" cy="116" r="4" fill="var(--gold)"/>`).join('')}
+      ${[0, 1, 2, 3].map((i) => `<circle cx="${105 + i * 18}" cy="136" r="4" fill="var(--gold)"/>`).join('')}
+      <circle cx="44" cy="126" r="7" fill="none" stroke="var(--text)" stroke-width="2"/><circle cx="220" cy="126" r="7" fill="none" stroke="var(--text)" stroke-width="2"/>`,
+    pUsb: `<rect x="72" y="100" width="120" height="52" rx="4" fill="var(--metal)" stroke="var(--text)" stroke-width="2"/>
+      <rect x="82" y="110" width="100" height="32" rx="2" fill="var(--card)" stroke="var(--text)"/>
+      <rect x="82" y="110" width="100" height="14" fill="var(--text)" opacity=".75"/>
+      ${[0, 1, 2, 3].map((i) => `<rect x="${94 + i * 22}" y="126" width="12" height="8" fill="var(--gold)"/>`).join('')}`,
+    pEth: `<rect x="82" y="86" width="100" height="84" rx="4" fill="var(--metal)" stroke="var(--text)" stroke-width="2"/>
+      <path d="M94 98 H170 V146 H152 V158 H112 V146 H94 Z" fill="var(--card)" stroke="var(--text)"/>
+      ${[0, 1, 2, 3, 4, 5, 6, 7].map((i) => `<rect x="${102 + i * 8}" y="100" width="4" height="14" fill="var(--gold)"/>`).join('')}
+      <circle cx="96" cy="164" r="3" fill="var(--ok)"/><circle cx="168" cy="164" r="3" fill="var(--accent2)"/>`,
+  };
+  const P = {
+    pCom: { name: 'DB9 — COM 포트', sub: '9핀 · PC 뒤 · 장비 단자',
+      bits: 'serial', bitsCap: '한 비트씩 한 줄로 (직렬 = 시리얼)',
+      L: [['① 구멍', 'DB9 (9핀) · 단자대도 많다', '윈도우 이름: COM1 · COM3 …'],
+          ['② 신호', 'RS-232 (1 대 1, 짧게)', 'RS-422/485 (길게 · 여러 대) · 보율 맞추기'],
+          ['③ 약속', 'NMEA 0183 ($GPGGA · !AIVDM)', 'Modbus RTU 등 — 장비끼리 정함']],
+      say: '<b>COM (시리얼)</b> — 글자를 <b>한 비트씩 한 줄로</b> 보낸다. 오래되고 단순해서 GPS · AIS · Compass 같은 센서가 많이 쓴다. 양쪽이 속도(보율)를 똑같이 맞춰야 하고, 주소가 없어 <b>선 하나 = 상대 하나</b>(RS-485 는 여러 대). 우리 배: 센서 → PC (구성도 보라 선 UART).' },
+    pUsb: { name: 'USB-A', sub: '꽂으면 알아서 잡힘 (플러그 앤 플레이)',
+      bits: 'pkt', bitsCap: '작은 묶음(패킷)으로',
+      L: [['① 구멍', 'USB-A · USB-C', '컴퓨터 ↔ 장비 하나'],
+          ['② 신호', 'USB', '안에 "가짜 COM 포트"가 생기기도'],
+          ['③ 약속', '장비마다 다름', 'USB-시리얼이면 그대로 NMEA']],
+      say: '<b>USB</b> — 컴퓨터에 장비를 꽂는 구멍. 안을 흐르는 약속은 장비마다 다르다. <b>USB-시리얼 변환기</b>(또는 센서 안에 든 변환 칩)를 꽂으면 윈도우 장치 관리자에 <b>COM 포트가 새로 생기고</b>, 프로그램 눈에는 시리얼과 똑같다 — 구멍은 USB, 신호 · 약속은 시리얼 · NMEA.' },
+    pEth: { name: 'RJ45 — 랜 포트', sub: '8핀 · 랜선 · 스위치 · 라우터',
+      bits: 'ip', bitsCap: '주소 붙은 묶음 → 스위치가 배달',
+      L: [['① 구멍', 'RJ45 (8핀 랜 포트)', '스위치 · 라우터 LAN 구멍'],
+          ['② 신호', '이더넷 (100 m 까지)', '스위치로 여러 대가 한 망'],
+          ['③ 약속', 'IP → TCP · UDP → HTTP 등', '주소(IP) + 창구 번호(포트)']],
+      say: '<b>이더넷 (랜 포트)</b> — 묶음마다 <b>주소(IP)와 창구 번호(포트 번호)</b>가 붙어서 스위치 하나에 여러 장비가 같이 이야기한다. 그 위에 TCP · UDP, 또 그 위에 HTTP 같은 약속을 겹겹이 얹는다. 우리: 172 ↔ 센서 서버 HTTP :9000, 해도 HTTP :2350, 관제 TCP :9501.' },
+  };
+  const LCOL = ['var(--accent2)', 'var(--usb)', 'var(--ok)'];
+  let port = 'pCom';
+  function draw() {
+    for (const k in P) $(k).setAttribute('aria-pressed', port === k);
+    const p = P[port];
+    $('conn').innerHTML = CONN[port];
+    $('cName').textContent = p.name; $('cSub').textContent = p.sub; $('bitsCap').textContent = p.bitsCap;
+    let b = '<line x1="24" y1="248" x2="240" y2="248" stroke="var(--line)" stroke-width="2"/>';
+    if (p.bits === 'serial') '10110010'.split('').forEach((c, i) => { b += `<text x="${40 + i * 24}" y="254" text-anchor="middle" class="m" font-weight="700">${c}</text>`; });
+    else if (p.bits === 'pkt') [0, 1, 2].forEach((i) => { b += `<rect x="${40 + i * 62}" y="238" width="48" height="20" rx="3" fill="var(--usb)" opacity=".7"/>`; });
+    else [0, 1, 2].forEach((i) => { b += `<rect x="${32 + i * 70}" y="236" width="60" height="24" rx="3" fill="var(--eth)" opacity=".75"/><text x="${62 + i * 70}" y="252" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">IP · ${['9000', '2350', '9501'][i]}</text>`; });
+    $('bits').innerHTML = b;
+    let L = '';
+    p.L.forEach(([h, a, c], i) => {
+      const y = 14 + i * 94;
+      L += `<rect x="270" y="${y}" width="400" height="84" rx="10" fill="var(--card)" stroke="${LCOL[i]}" stroke-width="2"/>`;
+      L += `<text x="286" y="${y + 30}" font-size="14" font-weight="700" fill="${LCOL[i]}">${h}</text>`;
+      L += `<text x="376" y="${y + 32}" class="t" font-size="13">${a}</text>`;
+      L += `<text x="376" y="${y + 56}" class="s">${c}</text>`;
+    });
+    $('layers').innerHTML = L;
+    $('say').innerHTML = p.say;
+  }
+  for (const k in P) $(k).addEventListener('click', () => { port = k; draw(); });
+  draw();
+
+  // 2절: AIS 문장의 길 (문장 내용은 그림용)
+  const NMEA = '!AIVDM,1,1,,A,13aEOK?P00PD2wVMdLDRhgvL289?,0*26';
+  const ST = {
+    s1: { on: ['bAis', 'bPc'], w: ['w1'], env: [170, 40], t: '봉투 없음 — 시리얼 선 위의 맨 문장 (NMEA 0183)',
+      l: [NMEA, '', '선: 시리얼 · 한 비트씩 · 보율 38400 (그림용)'],
+      say: 'AIS 수신기가 받은 배 정보를 <b>NMEA 문장</b>으로 만들어 <b>시리얼 선</b>(COM 구멍)으로 PC 에 보낸다. 주소도 창구 번호도 없다 — 선 하나에 상대 하나.' },
+    s2: { on: ['bPc'], w: [], env: [300, 40], t: 'PC(센서 서버)가 문장을 그대로 모아 둔다',
+      l: ['{ "ais_raw_data": "' + NMEA.slice(0, 22) + '…", … }', '', '내용(약속)은 그대로 — 꺼내 줄 상자에 담아 둘 뿐'],
+      say: '센서 서버가 들어온 문장을 <b>바꾸지 않고</b> 모아 둔다. 172 가 물어보면 JSON 상자의 <code>ais_raw_data</code> 칸에 넣어 줄 준비.' },
+    s3: { on: ['bPc', 'bSw', 'b172'], w: ['w2', 'w3'], env: [474, 40], t: '이더넷 위 · IP + 창구 번호 + HTTP 상자',
+      l: ['GET http://192.168.0.○○:9000/latestais?T1=0&T2=3', '← { "ais_raw_data": "' + NMEA.slice(0, 22) + '…" }', '선: 이더넷 · 스위치가 IP 보고 배달'],
+      say: '172 지도 관제가 <b>랜 포트</b>로 센서 서버에 HTTP 로 묻는다(<code>SENSOR_SERVER_IP</code> : 9000). 같은 문장이 이번엔 <b>IP 주소와 창구 번호가 붙은 상자</b>에 실려 간다. 편지는 그대로, 봉투만 바뀌었다.' },
+    s4: { on: ['b172'], w: [], env: [615, 40], t: '172 가 상자를 뜯어 문장을 푼다',
+      l: [NMEA.slice(0, 40) + '…', '→ MMSI · 위도 · 경도 · SOG · COG …', '→ 지도에 배 삼각형 (ais-decoder.js)'],
+      say: '172 가 JSON 상자에서 <b>처음 그 NMEA 문장</b>을 꺼내 직접 푼다 → 배 위치 · 속력 · 침로를 지도에 그린다. 구멍과 신호는 두 번 바뀌었지만 <b>약속(NMEA)은 끝까지 같았다</b>.' },
+  };
+  let st = 's1';
+  function draw2() {
+    for (const k in ST) $(k).setAttribute('aria-pressed', st === k);
+    const s = ST[st];
+    for (const id of ['bAis', 'bPc', 'bSw', 'b172']) $(id).classList.toggle('on', s.on.includes(id));
+    for (const id of ['w1', 'w2', 'w3']) $(id).classList.toggle('dim', !s.w.includes(id));
+    const [x, y] = s.env;
+    $('env').innerHTML = `<g transform="translate(${x - 14} ${y - 26})"><rect width="28" height="18" rx="2" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><path d="M0 0 L14 10 L28 0" fill="none" stroke="var(--accent)" stroke-width="2"/></g>`;
+    $('eT').textContent = s.t;
+    $('e1').textContent = s.l[0]; $('e2').textContent = s.l[1]; $('e3').textContent = s.l[2];
+    $('say2').innerHTML = s.say;
+  }
+  for (const k in ST) $(k).addEventListener('click', () => { st = k; draw2(); });
+  draw2();
+  // 0절: 장비 뒷면 구멍 지도 (좌표 · 개수는 그림용)
+  (() => {
+    const HI = 'var(--accent)', COMM = 'var(--ok)', NON = 'var(--muted)';
+    let dev = 'hv1', hole = 'hh0';
+    const KIND = { hhPow: 'non', hhHdmi: 'non', hhUsb: 'comm', hhLan: 'comm', hhCom: 'comm', hhCan: 'comm' };
+    // 구멍 모양
+    const SH = {
+      hhPow: (x, y) => `<rect x="${x}" y="${y}" width="46" height="34" rx="4" fill="var(--text)"/><rect x="${x + 10}" y="${y + 9}" width="5" height="12" fill="var(--metal)"/><rect x="${x + 21}" y="${y + 9}" width="5" height="12" fill="var(--metal)"/><rect x="${x + 32}" y="${y + 9}" width="5" height="12" fill="var(--metal)"/>`,
+      hhPowDc: (x, y) => `<circle cx="${x + 16}" cy="${y + 16}" r="14" fill="var(--text)"/><circle cx="${x + 16}" cy="${y + 16}" r="5" fill="var(--metal)"/>`,
+      hhHdmi: (x, y) => `<path d="M${x} ${y} H${x + 44} V${y + 10} L${x + 38} ${y + 16} H${x + 6} L${x} ${y + 10} Z" fill="var(--text)"/><rect x="${x + 6}" y="${y + 4}" width="32" height="5" fill="var(--gold)"/>`,
+      hhUsb: (x, y) => `<rect x="${x}" y="${y}" width="28" height="13" rx="1" fill="var(--text)"/><rect x="${x + 4}" y="${y + 3}" width="20" height="4" fill="#3b6fd4"/>`,
+      hhLan: (x, y) => `<rect x="${x}" y="${y}" width="34" height="30" rx="2" fill="var(--text)"/><path d="M${x + 5} ${y + 5} H${x + 29} V${y + 20} H${x + 23} V${y + 25} H${x + 11} V${y + 20} H${x + 5} Z" fill="var(--card)"/>${[0, 1, 2, 3, 4, 5].map((i) => `<rect x="${x + 8 + i * 3.4}" y="${y + 6}" width="1.6" height="5" fill="var(--gold)"/>`).join('')}<circle cx="${x + 6}" cy="${y - 5}" r="3" fill="var(--ok)"/><circle cx="${x + 28}" cy="${y - 5}" r="3" fill="var(--accent2)"/>`,
+      hhCom: (x, y) => `<path d="M${x} ${y} H${x + 70} L${x + 62} ${y + 30} H${x + 8} Z" fill="var(--metal)" stroke="var(--text)" stroke-width="2"/>${[0, 1, 2, 3, 4].map((i) => `<circle cx="${x + 15 + i * 10}" cy="${y + 10}" r="2.6" fill="var(--gold)"/>`).join('')}${[0, 1, 2, 3].map((i) => `<circle cx="${x + 20 + i * 10}" cy="${y + 21}" r="2.6" fill="var(--gold)"/>`).join('')}`,
+      canM12: (x, y) => `<circle cx="${x + 17}" cy="${y + 16}" r="16" fill="var(--metal)" stroke="var(--text)" stroke-width="2"/><circle cx="${x + 17}" cy="${y + 16}" r="11" fill="var(--card)" stroke="var(--text)"/>${[[0, -6], [6, -2], [4, 5], [-4, 5], [-6, -2]].map(([dx, dy]) => `<circle cx="${x + 17 + dx}" cy="${y + 16 + dy}" r="1.8" fill="var(--gold)"/>`).join('')}<circle cx="${x + 17}" cy="${y + 16}" r="1.8" fill="var(--gold)"/>`,
+      canTerm: (x, y) => `<rect x="${x}" y="${y}" width="80" height="32" rx="3" fill="#2f7a4f" stroke="var(--text)" stroke-width="2"/>${['H', 'L', 'G'].map((t, i) => `<circle cx="${x + 14 + i * 26}" cy="${y + 12}" r="6" fill="var(--metal)" stroke="var(--text)"/><path d="M${x + 10 + i * 26} ${y + 12} h8" stroke="var(--text)" stroke-width="1.5"/><text x="${x + 14 + i * 26}" y="${y + 29}" text-anchor="middle" font-size="8" font-weight="700" fill="#fff">${t}</text>`).join('')}`,
+      ant: (x, y) => `<circle cx="${x + 16}" cy="${y + 16}" r="15" fill="var(--metal)" stroke="var(--text)" stroke-width="2"/><circle cx="${x + 16}" cy="${y + 16}" r="4" fill="var(--gold)"/>`,
+    };
+    // 장비별 구멍 자리: [종류, x, y, 그릴 모양, 이름표]
+    const DEV = {
+      hv1: { name: '🖥 서버 · 산업용 PC 뒷면 (일반 PC 엔 보통 COM 없음)', x: 30, w: 620, holes: [
+        ['hhPow', 52, 88, 'hhPow', '전원'], ['hhHdmi', 130, 96, 'hhHdmi', '화면 (HDMI)'],
+        ['hhUsb', 206, 86, 'hhUsb', ''], ['hhUsb', 206, 106, 'hhUsb', 'USB'], ['hhUsb', 242, 86, 'hhUsb', ''], ['hhUsb', 242, 106, 'hhUsb', ''],
+        ['hhLan', 306, 90, 'hhLan', ''], ['hhLan', 352, 90, 'hhLan', '랜 포트 ×2'], ['hhCom', 420, 90, 'hhCom', 'COM (시리얼)'] ], fan: true },
+      hv2: { name: '🔀 네트워크 스위치 (앞면)', x: 30, w: 620, holes: [
+        ['hhPow', 52, 88, 'hhPow', '전원'],
+        ...[0, 1, 2, 3, 4, 5, 6, 7].map((i) => ['hhLan', 150 + i * 56, 90, 'hhLan', i === 3 ? '랜 포트 ×8 — 이것뿐' : '']) ] },
+      hv3: { name: '📡 GPS · AIS 수신기 뒷면', x: 140, w: 400, holes: [
+        ['hhPow', 170, 90, 'hhPowDc', '전원 (DC)'], ['ant', 260, 90, 'ant', '안테나'], ['hhCom', 360, 90, 'hhCom', 'COM (시리얼)'] ] },
+      hv4: { name: '⚙ 모터 제어기 뒷면 (CAN 장비 예 · 그림용)', x: 30, w: 620, twin: true, holes: [
+        ['hhPow', 56, 90, 'hhPowDc', '전원 (DC)'], ['hhCom', 130, 90, 'hhCom', 'COM (RS-232)'], ['hhCan', 240, 90, 'hhCom', 'CAN (D자 9핀)'],
+        ['hhCan', 372, 90, 'canM12', 'CAN (M12)'], ['hhCan', 458, 90, 'canTerm', 'CAN 단자대'] ] },
+    };
+    const INFO = {
+      hhPow: { t: '⚡ 전원', d: '<b>전기를 받는 구멍.</b> 통신과는 상관없다. 서버 · 스위치는 콘센트 선(AC), 배 장비 · 센서는 배터리 직류(DC) 단자가 많다.' },
+      hhHdmi: { t: '🖵 화면 (HDMI)', d: '<b>모니터로 화면을 보내는 구멍</b> — 사람 눈에 보여 주는 용도. 기계끼리 데이터를 주고받는 통신 구멍이 <b>아니다</b>. VGA · DP 도 같은 일.' },
+      hhUsb: { t: 'USB', d: '<b>통신 구멍 ①</b> — 키보드 · 마우스 · USB 메모리 · 카메라를 꽂는다. <b>컴퓨터 ↔ 장비 하나</b>. <b>USB-시리얼 변환기</b>를 꽂으면 윈도우에 <b>COM 포트가 새로 생겨서</b>, COM 구멍 없는 PC 에 센서를 붙일 수 있다. 구성도의 "UART · USB" 선이 이것.' },
+      hhLan: { t: '랜 포트 (RJ45)', d: '<b>통신 구멍 ②</b> — 네트워크 구멍. 스위치 · 공유기에 꽂아 <b>여러 대</b>가 IP 주소로 서로 부른다. 서버엔 <b>2개 이상</b>인 경우가 많다 — 망을 둘로 나누거나(예: 배 안 망 / 관리용 망), 하나가 끊겨도 쓰려고. 172 · 센서 서버 · 해도 서버가 이 구멍으로 이야기한다.' },
+      hhCan: { t: 'CAN', d: '<b>통신 구멍 ④</b> — 선 두 가닥(CAN_H · CAN_L)에 여럿이 붙어 <b>모두에게 방송</b>하는 구멍(1+절 📻 무전기). <b>정해진 모양이 없다</b> — D자 9핀(DB9, 보통 7번 = CAN_H · 2번 = CAN_L), 동그란 M12 5핀(배 센서의 NMEA 2000), 나사 단자대(H · L · G). <b>D자 9핀은 COM 과 모양이 똑같지만 속(핀 쓰임 · 신호)이 다르다</b> — 옆 이름표(CAN / RS-232)로 구별하고, 서로 바꿔 꽂으면 통신이 안 되고 장비가 상할 수도 있다. 일반 PC 엔 없어서 <b>USB-CAN 변환기</b>를 쓴다. 줄 양 끝엔 120Ω 저항(끝 막음)을 단다.' },
+      hhCom: { t: 'COM (시리얼)', d: '<b>통신 구멍 ③</b> — 오래되고 단순한 통신 구멍(DB9, 9핀). <b>선 하나에 상대 하나</b>, 주소가 없다. 양쪽이 <b>속도(보율)</b>를 맞춰야 한다. GPS · AIS · Compass 같은 센서가 많이 쓴다. <b>요즘 집 · 사무실 PC · 노트북엔 거의 없다</b>(메인보드 안쪽 핀만 있기도). 서버 · <b>산업용 PC</b>(배 · 공장용)엔 지금도 많이 달려 나온다. 일반 PC 에 센서를 붙일 땐 <b>USB-시리얼 변환기</b> → 윈도우에 COM3 같은 포트가 새로 생긴다.' },
+    };
+    const MISS = {
+      hv1: { hhCan: '서버 · PC 엔 보통 CAN 이 없다 — <b>USB-CAN 변환기</b>를 꽂는다. 뒤의 D자 9핀은 COM 이지 CAN 이 아니다(모양만 같다).' },
+      hv4: { hhHdmi: '제어기엔 화면 구멍이 없다.', hhUsb: '이 제어기엔 USB 가 없다(그림용).', hhLan: '이 제어기는 <b>랜 포트가 없다 — CAN 으로 말한다.</b> 172 같은 랜 장비와 이으려면 CAN → 랜 게이트웨이 같은 <b>전달 장비</b>가 받아서 넘겨줘야 한다.' },
+      hv2: { hhCan: '스위치엔 CAN 이 없다 — 랜 포트뿐.', hhHdmi: '스위치엔 화면 구멍이 없다 — 사람이 보는 장비가 아니라 <b>복도</b>라서.', hhUsb: '이 스위치엔 USB 가 없다 — 랜 포트로만 일한다.', hhCom: '스위치엔 COM 이 없다 — <b>랜 포트만 잔뜩</b>. 복도는 랜선만 받는다. (설정용 콘솔 구멍이 따로 있는 큰 스위치도 있다)' },
+      hv3: { hhHdmi: '수신기엔 화면 구멍이 없다.', hhUsb: '이 수신기엔 USB 가 없다(그림용 — 있는 제품도 있다).', hhCan: '이 수신기엔 CAN 이 없다(그림용). 배 센서 중 <b>NMEA 2000</b> 제품은 동그란 M12 CAN 구멍을 쓴다.', hhLan: '이 수신기는 <b>랜 포트가 없다 — COM 으로만 말한다.</b> 그래서 PC(센서 서버)가 COM 으로 받아서 랜으로 넘겨준다. (<a href="#ais2">5절</a>의 AIS 문장 길)' },
+    };
+    function drawH() {
+      for (const k of ['hv1', 'hv2', 'hv3', 'hv4']) $(k).setAttribute('aria-pressed', dev === k);
+      for (const k of ['hh0', 'hhPow', 'hhHdmi', 'hhUsb', 'hhLan', 'hhCom', 'hhCan']) $(k).setAttribute('aria-pressed', hole === k);
+      const D = DEV[dev];
+      let g = `<text x="${D.x}" y="30" class="t" font-size="14">${D.name}</text>`;
+      g += `<rect x="${D.x}" y="42" width="${D.w}" height="140" rx="10" fill="var(--room)" stroke="var(--text)" stroke-width="2"/>`;
+      if (D.fan) { g += `<circle cx="580" cy="112" r="40" fill="none" stroke="var(--line)" stroke-width="2"/>` + [0, 1, 2, 3].map((i) => `<circle cx="580" cy="112" r="${10 + i * 8}" fill="none" stroke="var(--line)"/>`).join('') + `<text x="580" y="170" text-anchor="middle" class="s">팬 (바람)</text>`; }
+      const has = new Set(D.holes.map((h) => h[0]));
+      if (D.twin) {
+        g += `<path d="M140 76 V70 H300 V76" fill="none" stroke="var(--accent2)" stroke-width="2"/>`;
+        g += `<text x="220" y="62" text-anchor="middle" font-size="12" font-weight="700" fill="var(--accent2)">모양 똑같음 — 이름표로 구별!</text>`;
+      }
+      D.holes.forEach(([k, x, y, shape, label]) => {
+        const sel = hole === k, kind = KIND[k] || 'non';
+        const col = sel ? HI : kind === 'comm' ? COMM : NON;
+        const w = shape === 'hhCom' ? 70 : shape === 'canTerm' ? 80 : shape === 'hhPow' ? 46 : shape === 'hhHdmi' ? 44 : shape === 'hhUsb' ? 28 : 34;
+        const h = shape === 'hhUsb' ? 13 : shape === 'hhHdmi' ? 16 : 32;
+        const dim = hole !== 'hh0' && !sel ? ' opacity=".35"' : '';
+        g += `<g${dim}><rect x="${x - 5}" y="${y - (shape === 'hhLan' ? 12 : 5)}" width="${w + 10}" height="${h + (shape === 'hhLan' ? 17 : 10)}" rx="6" fill="none" stroke="${col}" stroke-width="${sel ? 3.5 : 2}"${kind === 'comm' || sel ? '' : ' stroke-dasharray="4 3"'}/>${SH[shape](x, y)}</g>`;
+        if (label) g += `<text x="${x + w / 2}" y="160" text-anchor="middle" class="t"${dim} fill="${sel ? HI : 'var(--text)'}">${label}</text>`;
+      });
+      // 아래 설명 띠
+      if (hole === 'hh0') {
+        g += `<rect x="30" y="200" width="620" height="84" rx="10" fill="var(--card)" stroke="var(--line)"/>`;
+        g += `<rect x="46" y="216" width="26" height="16" rx="4" fill="none" stroke="${COMM}" stroke-width="2"/><text x="80" y="229" class="t">초록 테두리 = 통신 구멍</text><text x="80" y="247" class="s">랜 포트 · COM · USB · CAN — 기계끼리 데이터를 주고받는다</text>`;
+        g += `<rect x="370" y="216" width="26" height="16" rx="4" fill="none" stroke="${NON}" stroke-width="2" stroke-dasharray="4 3"/><text x="404" y="229" class="t">회색 점선 = 통신 아님</text><text x="404" y="247" class="s">전원 · 화면(HDMI) · 안테나</text>`;
+        const cnt = D.holes.filter((h) => KIND[h[0]] === 'comm').length;
+        g += `<text x="340" y="272" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text)">이 장비의 통신 구멍: ${['hhLan', 'hhCom', 'hhUsb', 'hhCan'].filter((k) => has.has(k)).map((k) => INFO[k].t.split(' ')[0]).join(' · ') || '없음'} (${cnt}개)</text>`;
+      } else {
+        const ok = has.has(hole), kind = KIND[hole];
+        g += `<rect x="30" y="200" width="620" height="84" rx="10" fill="var(--card)" stroke="${ok ? HI : 'var(--bad)'}" stroke-width="2"/>`;
+        g += `<text x="48" y="226" font-size="15" font-weight="700" fill="${ok ? HI : 'var(--bad)'}">${INFO[hole].t} ${ok ? '' : '— 이 장비엔 없음'}</text>`;
+        g += `<text x="48" y="252" class="t" fill="${kind === 'comm' ? COMM : NON}">${kind === 'comm' ? '✓ 통신 구멍 — 데이터를 주고받는다' : '✕ 통신 구멍 아님 — 전기 · 화면용'}</text>`;
+        g += `<text x="48" y="272" class="s">자세한 설명은 아래 글</text>`;
+      }
+      $('panel0').innerHTML = g;
+      let say;
+      if (hole === 'hh0') say = dev === 'hv1' ? '서버 · 산업용 PC 뒷면엔 구멍이 많지만 <b>통신 구멍은 셋</b> — <b>랜 포트</b>(네트워크), <b>COM</b>(시리얼), <b>USB</b>. 전원 · 화면은 통신과 상관없다. 구멍을 하나씩 눌러 보세요.'
+        : dev === 'hv2' ? '스위치는 <b>복도</b>라서 <b>랜 포트만 잔뜩</b> 있다. COM · USB · 화면이 없다 — 랜선을 이어 주는 일만 한다.'
+        : dev === 'hv4' ? '모터 · 추진기 제어기 같은 장비엔 <b>CAN</b> 구멍이 붙는다. 왼쪽 두 <b>D자 9핀</b>을 보세요 — 하나는 <b>COM</b>, 하나는 <b>CAN</b>. <b>모양이 똑같아서 이름표로만 구별</b>한다. CAN 은 동그란 M12 나 나사 단자대(H · L · G)로 나오기도 한다. COM 을 누른 다음 CAN 을 눌러 보세요.'
+        : 'GPS · AIS 수신기는 <b>COM 하나로만</b> 말한다(이 그림에서). 랜 포트가 없어서 172 가 바로 부를 수 없다 → PC 가 COM 으로 받아 랜으로 넘겨준다.';
+      else say = has.has(hole) ? INFO[hole].d : (MISS[dev] && MISS[dev][hole]) || '이 장비엔 이 구멍이 없다.';
+      $('sayH').innerHTML = say;
+    }
+    for (const k of ['hv1', 'hv2', 'hv3', 'hv4']) $(k).addEventListener('click', () => { dev = k; drawH(); });
+    for (const k of ['hh0', 'hhPow', 'hhHdmi', 'hhUsb', 'hhLan', 'hhCom', 'hhCan']) $(k).addEventListener('click', () => { hole = k; drawH(); });
+    drawH();
+  })();
+  // 1절 직결 vs 네트워크 · 2절 파싱 (좌표 · 값은 그림용)
+  (() => {
+    const HI = 'var(--accent)';
+    const dbox = (x, y, w, h, t, sub, col) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="var(--room)" stroke="${col || 'var(--line)'}" stroke-width="${col ? 2.5 : 1}"/><text x="${x + w / 2}" y="${y + (sub ? h / 2 - 2 : h / 2 + 4)}" text-anchor="middle" class="t">${t}</text>${sub ? `<text x="${x + w / 2}" y="${y + h / 2 + 13}" text-anchor="middle" class="s">${sub}</text>` : ''}`;
+    const line = (d, c, w, dash) => `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w || 2.5}"${dash ? ` stroke-dasharray="${dash}"` : ''} stroke-linecap="round"/>`;
+    const lab = (x, y, t, c, anchor) => `<text x="${x}" y="${y}" text-anchor="${anchor || 'middle'}" font-size="11" font-weight="700" fill="${c}" style="paint-order:stroke;stroke:var(--sea);stroke-width:4px">${t}</text>`;
+
+    // ── 1절 ──
+    let cm = 'cDirect', add = false;
+    function drawC() {
+      $('cDirect').setAttribute('aria-pressed', cm === 'cDirect'); $('cNet').setAttribute('aria-pressed', cm === 'cNet');
+      $('cKeep').setAttribute('aria-pressed', !add); $('cAdd').setAttribute('aria-pressed', add);
+      let g = '';
+      if (cm === 'cDirect') {
+        g += `<rect x="280" y="54" width="160" height="150" rx="8" fill="var(--card)" stroke="var(--text)" stroke-width="2"/><text x="360" y="76" text-anchor="middle" class="t">PC (센서 서버)</text>`;
+        const portC = (y, t, nw) => `<rect x="272" y="${y - 7}" width="16" height="14" rx="2" fill="${nw ? HI : 'var(--metal)'}" stroke="var(--text)"/><text x="294" y="${y + 4}" class="s" font-weight="700">${t}</text>`;
+        g += dbox(30, 76, 120, 40, '📍 GPS', 'COM 구멍') + dbox(30, 128, 120, 40, '📡 AIS', 'COM 구멍');
+        g += line('M150 96 C 210 96, 220 100, 272 100', 'var(--usb)', 3) + line('M150 148 C 210 148, 220 140, 272 140', 'var(--usb)', 3);
+        g += portC(100, 'COM1') + portC(140, 'COM2');
+        if (add) {
+          g += dbox(30, 182, 120, 40, '🧭 Compass', '새 센서', HI) + line('M150 202 C 210 202, 220 180, 272 180', HI, 3, '6 4');
+          g += portC(180, 'COM3 ← USB 변환기', true);
+        }
+        g += dbox(520, 106, 120, 46, '172 지도 관제', '랜 포트');
+        g += line('M440 129 H520', 'var(--line)', 2) + `<text x="480" y="135" text-anchor="middle" font-size="20" font-weight="700" fill="var(--bad)">✕</text>`;
+        g += lab(480, 104, 'GPS 와 직접은 못 말함', 'var(--bad)') + lab(480, 168, 'COM 선은 PC 까지만', 'var(--muted)');
+        g += lab(210, 70, '선 하나 = 상대 하나', 'var(--usb)');
+        // 아래 띠
+        g += `<rect x="20" y="236" width="640" height="64" rx="10" fill="var(--card)" stroke="var(--line)"/>`;
+        g += `<text x="36" y="260" class="t" fill="var(--ok)">✓ 통신 — 데이터를 주고받는다</text>`;
+        g += `<text x="36" y="284" class="t">${add ? '➕ 하나 더 붙이려면 → PC 에 구멍이 하나 더 필요 (COM3, 없으면 USB 변환기)' : '주소 없음 · 상대 하나 · 172 처럼 다른 기계는 이 센서와 직접 말할 수 없다'}</text>`;
+      } else {
+        g += `<rect x="150" y="128" width="380" height="32" rx="6" fill="var(--room)" stroke="var(--eth)" stroke-width="2"/><text x="340" y="149" text-anchor="middle" class="t">스위치 = 복도</text>`;
+        const top = [['PC', '.49', 160], ['172', '.172', 290], ['레이더', '.60', 420]];
+        const bot = [['NAS', '.80', 180], ['해도 서버', '.73', 320]];
+        top.forEach(([t, ip, x]) => { g += line(`M${x + 50} 96 V128`, 'var(--eth)', 2.5) + dbox(x, 50, 100, 46, t, `192.168.0${ip}`); });
+        bot.forEach(([t, ip, x]) => { g += line(`M${x + 50} 160 V184`, 'var(--eth)', 2.5) + dbox(x, 184, 100, 42, t, `192.168.0${ip}`, t === '해도 서버' ? HI : null); });
+        if (add) { g += line('M520 160 V184', HI, 3, '6 4') + dbox(470, 184, 100, 42, '📷 카메라', '192.168.0.40', HI); }
+        // 172 → 해도 서버 예
+        g += line('M340 96 V122 M352 128 V160 M370 166 V184', HI, 3.5);
+        g += lab(395, 118, '172 → .73 : 2350', HI, 'start');
+        g += `<rect x="20" y="236" width="640" height="64" rx="10" fill="var(--card)" stroke="var(--line)"/>`;
+        g += `<text x="36" y="260" class="t" fill="var(--ok)">✓ 통신 + 네트워크 — 여럿이 번호(IP)로 서로 부른다</text>`;
+        g += `<text x="36" y="284" class="t">${add ? '➕ 하나 더 붙이려면 → 스위치 빈 구멍에 꽂고 번호(.40)만 정하면 끝 — 누구와도 바로 말한다' : '172 는 스위치를 지나 해도 서버 · PC · 레이더 누구와도 번호로 말한다'}</text>`;
+      }
+      $('commFig').innerHTML = g;
+      $('sayC').innerHTML = cm === 'cDirect'
+        ? (add ? '<b>직결</b>에 센서를 하나 더 붙이려면 PC 에 <b>구멍이 하나 더</b> 있어야 한다(COM3). COM 이 모자라면 <b>USB-시리얼 변환기</b>로 하나 더 만든다. 선 하나 = 상대 하나라서 장비가 늘면 구멍 · 선도 그만큼 는다.'
+               : '<b>직결 (COM · USB)</b> — GPS · AIS 가 PC 에 <b>각자 선 하나</b>로 붙는다. 주소가 없어 선이 곧 상대. <b>통신은 맞지만 네트워크는 아니다</b>. 그래서 172 는 이 센서와 직접 말하지 못하고, PC(센서 서버)가 받아서 랜으로 넘겨준다.')
+        : (add ? '<b>네트워크</b>에 카메라를 하나 더 붙이려면 스위치 빈 구멍에 꽂고 <b>번호(IP)만 정하면 끝</b>. 바로 누구와도 말한다 — 복도에 자리 하나 더 낸 것.'
+               : '<b>네트워크 (랜 포트)</b> — 모두 스위치에 꽂고 각자 <b>번호(IP)</b>를 가진다. 172 가 <b>192.168.0.73 의 2350번 창구</b>(해도 서버)를 부르듯, 번호만 알면 누구와도 말한다.');
+    }
+    $('cDirect').addEventListener('click', () => { cm = 'cDirect'; drawC(); });
+    $('cNet').addEventListener('click', () => { cm = 'cNet'; drawC(); });
+    $('cKeep').addEventListener('click', () => { add = false; drawC(); });
+    $('cAdd').addEventListener('click', () => { add = true; drawC(); });
+    drawC();
+
+    // ── 2절 파싱 ──
+    const PAL = ['#d85a30', '#2f6fb0', '#1d9e75', '#ba7517', '#7b4bb3', '#c0392b', '#0e7c86', '#8a6d3b'];
+    const DATA = {
+      dAis: {
+        name: 'AIS', parser: 'ais-parser.js · ais-decoder.js',
+        how: '① 쉼표로 자른다 → ② 5번 칸(암호처럼 줄인 글자)을 한 번 더 푼다',
+        chips: ['!AIVDM', '1', '1', '', 'A', '13aEOK?P00PD2wVMdLDRhgvL289?', '0*26'],
+        color: { 5: 0, 4: 1 },
+        res: [['MMSI (배 번호)', '440123456', 0], ['위도', '35.07° N', 0], ['경도', '129.09° E', 0], ['SOG 속력', '8.2 kn', 0], ['COG 침로', '135°', 0], ['채널', 'A', 1]],
+        http: '{ "ais_raw_data": "…", … }',
+      },
+      dRad: {
+        name: '레이더', parser: 'radar-decoder.js',
+        how: '쉼표로 자르고 → 칸 번호로 읽는다 (1 번호 · 2 거리 · 3 방위 …)',
+        chips: ['$RATTM', '07', '1.25', '045.0', 'T', '12.3', '180.0', 'T', '0.30', '5.2', 'N', '', 'T', '', '083015', 'A*hh'],
+        color: { 1: 0, 2: 1, 3: 2, 5: 3, 6: 4, 8: 5, 9: 6, 12: 7 },
+        res: [['1 표적 번호', '07', 0], ['2 거리', '1.25 NM', 1], ['3 방위', '045°', 2], ['5 속력', '12.3 kn', 3], ['6 침로', '180°', 4], ['8 CPA', '0.30 NM', 5], ['9 TCPA', '5.2 분', 6], ['12 상태', 'T 추적 중', 7]],
+        http: '{ …, "$RATTM,07,…" , … }',
+      },
+      dGps: {
+        name: 'GPS',
+        com: { parser: '(PC 쪽 프로그램)', how: 'NMEA 문장 — 쉼표로 자르고 칸 번호로 읽는다', chips: ['$GPGGA', '083015', '3504.80', 'N', '12904.92', 'E', '1', '08'], color: { 1: 0, 2: 1, 3: 1, 4: 2, 5: 2, 7: 3 },
+          res: [['시각 (UTC)', '08:30:15', 0], ['위도', '35°04.80′ N', 1], ['경도', '129°04.92′ E', 2], ['위성 수', '8 개', 3]] },
+        http: { parser: 'own-ship-data.js', how: 'JSON — 이미 풀린 값. 칸 이름으로 읽기만 한다', json: ['{ "data": [', '    …,', '    { 위도: 35.080, 경도: 129.082, 속력: 3.1, … }', '] }'],
+          res: [['위도', '35.080', 1], ['경도', '129.082', 2], ['속력', '3.1 kn', 3]] },
+      },
+    };
+    let dk = 'dAis', pk = 'pCOM';
+    function chipsRow(chips, color, y) {
+      const cw = (s) => Math.max(18, s.length * 7.4 + 12);
+      const gap = 4, ws = chips.map(cw), total = ws.reduce((a, b) => a + b, 0) + gap * (chips.length - 1);
+      let x = (680 - total) / 2, g = '';
+      chips.forEach((c, i) => {
+        const ci = color[i], col = ci !== undefined ? PAL[ci] : null;
+        g += `<rect x="${x}" y="${y}" width="${ws[i]}" height="28" rx="4" fill="${col ? col : 'var(--card)'}" fill-opacity="${col ? 0.18 : 1}" stroke="${col || 'var(--line)'}" stroke-width="${col ? 2 : 1}"/>`;
+        g += `<text x="${x + ws[i] / 2}" y="${y + 19}" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="${col ? 700 : 400}" fill="var(--text)">${c || '∅'}</text>`;
+        g += `<text x="${x + ws[i] / 2}" y="${y - 5}" text-anchor="middle" class="s">${i}</text>`;
+        x += ws[i] + gap;
+      });
+      return { g, total };
+    }
+    function drawP() {
+      for (const k of ['dAis', 'dRad', 'dGps']) $(k).setAttribute('aria-pressed', dk === k);
+      for (const k of ['pCOM', 'pHTTP']) $(k).setAttribute('aria-pressed', pk === k);
+      const D = DATA[dk];
+      const isGps = dk === 'dGps', http = pk === 'pHTTP';
+      const V = isGps ? (http ? D.http : D.com) : D;
+      let g = '';
+      // 길 머리표
+      g += `<rect x="20" y="12" width="640" height="30" rx="8" fill="${http ? 'var(--eth)' : 'var(--usb)'}" fill-opacity=".15" stroke="${http ? 'var(--eth)' : 'var(--usb)'}"/>`;
+      g += `<text x="34" y="32" font-size="13" font-weight="700" fill="var(--text)">${http ? '🌐 랜(HTTP)으로 도착' : '🔌 COM 선으로 도착'} — ${isGps ? (http ? '센서 서버가 미리 풀어 둔 JSON' : 'GPS 수신기가 보낸 NMEA 문장') : (http ? 'HTTP 상자(JSON) 안에 담겨 옴 → 상자에서 꺼내면' : '선 위로 맨 글자 그대로')}</text>`;
+      // 도착한 글자
+      if (isGps && http) {
+        g += `<rect x="150" y="54" width="380" height="84" rx="6" fill="var(--card)" stroke="var(--eth)" stroke-width="2"/>`;
+        V.json.forEach((l, i) => { g += `<text x="164" y="${76 + i * 18}" font-family="Consolas, monospace" font-size="12" fill="var(--text)"${i === 2 ? ' font-weight="700"' : ''}>${l}</text>`; });
+      } else {
+        if (http) g += `<rect x="16" y="52" width="648" height="78" rx="8" fill="none" stroke="var(--eth)" stroke-width="2" stroke-dasharray="6 4"/><text x="28" y="68" class="s" fill="var(--eth)" font-weight="700">HTTP 상자 ${D.http}</text>`;
+        g += chipsRow(V.chips, V.color, 90).g;
+        g += `<text x="340" y="${http ? 140 : 140}" text-anchor="middle" class="s">↑ 쉼표(,)로 자른 칸 · 위 숫자 = 칸 번호</text>`;
+      }
+      // 파서
+      g += `<path d="M340 148 V162" stroke="var(--text)" stroke-width="2"/><rect x="100" y="162" width="480" height="44" rx="8" fill="var(--hi)" stroke="${HI}" stroke-width="2"/>`;
+      g += `<text x="340" y="180" text-anchor="middle" class="t">⚙ 파서 = ${V.how}</text><text x="340" y="197" text-anchor="middle" class="s">${V.parser}</text>`;
+      g += `<path d="M340 206 V220" stroke="var(--text)" stroke-width="2"/>`;
+      // 결과
+      const n = V.res.length, perRow = 4, cw = 150, gap = 10;
+      V.res.forEach(([k, v, ci], i) => {
+        const row = Math.floor(i / perRow), col = i % perRow, cnt = Math.min(perRow, n - row * perRow);
+        const x0 = (680 - (cnt * cw + (cnt - 1) * gap)) / 2, x = x0 + col * (cw + gap), y = 226 + row * 62;
+        g += `<rect x="${x}" y="${y}" width="${cw}" height="52" rx="6" fill="var(--card)" stroke="${PAL[ci]}" stroke-width="2.5"/>`;
+        g += `<text x="${x + 10}" y="${y + 20}" class="s" font-weight="700" fill="${PAL[ci]}">${k}</text><text x="${x + 10}" y="${y + 41}" font-size="15" font-weight="700" fill="var(--text)">${v}</text>`;
+      });
+      $('parseFig').innerHTML = g;
+      let s;
+      if (dk === 'dAis') s = http ? '<b>랜(HTTP)</b>으로 오면 AIS 문장이 JSON 상자의 <code>ais_raw_data</code> 칸에 담겨 온다. 상자에서 꺼내면 <b>COM 으로 올 때와 똑같은 글자</b> → <b>같은 파서</b>, <b>같은 결과</b>. 길이 바뀌어도 말은 그대로.' : '<b>COM 선</b>으로 AIS 문장(NMEA)이 맨 글자로 온다. 파서가 <b>쉼표로 잘라</b> 칸을 나누고, <b>5번 칸</b>(암호처럼 줄인 글자)을 한 번 더 풀어 MMSI · 위치 · 속력 · 침로를 꺼낸다. <b>랜(HTTP)</b> 버튼을 눌러 결과가 바뀌는지 보세요.';
+      else if (dk === 'dRad') s = http ? '<b>랜(HTTP)</b>으로 와도 레이더 문장 글자는 같다 → <b>같은 파서</b>(<code>radar-decoder.js</code>), <b>같은 결과</b>.' : '<b>레이더 문장(RATTM)</b> — 쉼표로 자르면 칸마다 뜻이 정해져 있다: <b>1 번호 · 2 거리 · 3 방위 · 5 속력 · 6 침로 · 8 CPA · 9 TCPA · 12 상태</b>. 칸과 결과가 <b>같은 색</b>. 이게 파싱 — "약속된 자리에서 값을 꺼내기".';
+      else s = http ? '<b>GPS 를 랜(HTTP)으로</b> 받을 땐 센서 서버가 <b>이미 풀어 JSON</b> 으로 준다 — <b>말(형식)이 달라졌으니 읽는 법도 다르다</b>: 쉼표 자르기 대신 <b>칸 이름</b>으로 읽기만. 파싱은 <b>길이 아니라 말</b>을 따라간다.' : '<b>GPS 수신기</b>가 COM 으로 보내는 건 <b>NMEA 문장</b>($GPGGA) — 쉼표로 자르고 칸 번호로 읽는다(위도 · 경도 · 위성 수). <b>랜(HTTP)</b> 버튼을 눌러 보세요 — 이번엔 말이 바뀌어서 읽는 법도 바뀐다.';
+      $('sayP').innerHTML = s;
+    }
+    for (const k of ['dAis', 'dRad', 'dGps']) $(k).addEventListener('click', () => { dk = k; drawP(); });
+    for (const k of ['pCOM', 'pHTTP']) $(k).addEventListener('click', () => { pk = k; drawP(); });
+    drawP();
+  })();
+  // 1+절 회사 전화 (좌표 · 그림용)
+  (() => {
+    const HI = 'var(--accent)';
+    const box = (x, y, w, h, t, sub, col, dash) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="7" fill="var(--room)" stroke="${col || 'var(--line)'}" stroke-width="${col ? 2.5 : 1}"${dash ? ' stroke-dasharray="6 4"' : ''}/><text x="${x + w / 2}" y="${y + (sub ? h / 2 - 3 : h / 2 + 4)}" text-anchor="middle" class="t">${t}</text>${sub ? `<text x="${x + w / 2}" y="${y + h / 2 + 13}" text-anchor="middle" class="s">${sub}</text>` : ''}`;
+    const line = (d, c, w, dash) => `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w || 2.5}"${dash ? ` stroke-dasharray="${dash}"` : ''} stroke-linecap="round"/>`;
+    const lab = (x, y, t, c, anchor, size) => `<text x="${x}" y="${y}" text-anchor="${anchor || 'middle'}" font-size="${size || 11}" font-weight="700" fill="${c}" style="paint-order:stroke;stroke:var(--sea);stroke-width:4px">${t}</text>`;
+    // 가로 화살표 (x1 → x2)
+    const arr = (x1, x2, y, c) => { const d = x2 > x1 ? 1 : -1; return line(`M${x1} ${y} H${x2 - d * 6}`, c, 3) + `<path d="M${x2} ${y} l${-d * 8} -5 v10 Z" fill="${c}"/>`; };
+    const num = (x, y, n) => `<circle cx="${x}" cy="${y}" r="9" fill="${HI}"/><text x="${x}" y="${y + 4}" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">${n}</text>`;
+    const band = (lines) => {
+      const h = lines.length * 22 + 10, y0 = 330 - 12 - h;
+      return `<rect x="12" y="${y0}" width="656" height="${h}" rx="10" fill="var(--card)" stroke="var(--line)"/>` +
+        lines.map((t, i) => `<text x="28" y="${y0 + 21 + i * 22}" class="t">${t}</text>`).join('');
+    };
+    const cup = (x, y, rot) => `<path d="M${x - 9} ${y - 12} H${x + 9} L${x + 6} ${y + 12} H${x - 6} Z" fill="var(--card)" stroke="var(--text)" stroke-width="1.5" transform="rotate(${rot} ${x} ${y})"/>`;
+
+    let tm = 'tCup';
+    const IDS = ['tCup', 'tCan', 'tExt', 'tIn', 'tTrip'];
+    const SAY = {
+      tCup: '<b>🥤 종이컵 전화 = COM · USB 직통</b> — 컵 두 개를 실로 이은 것. 상대가 정해져 있어 "누구세요?"(주소)가 없다. 세 번째가 끼려면 <b>컵과 실을 하나 더</b> 달아야 한다 — PC 에 COM3 을 하나 더 다는 것과 같다.',
+      tCan: '<b>📻 무전기 채널 = CAN</b> — 선 두 가닥(CAN_H · CAN_L)에 모두 붙어 있다. 받는 사람 주소 없이 <b>말머리(ID)</b>를 붙여 <b>모두에게 방송</b>하고, 필요한 장비만 골라 듣는다. 동시에 말하면 <b>ID 가 작은 쪽이 먼저</b>. 차 · 배의 엔진 · 모터처럼 짧고 급한 신호에 쓴다.',
+      tExt: '<b>☎ 내선 전화 = 랜 + 스위치</b> — 사무실 안 전화마다 <b>내선번호(내부 IP)</b>가 있고, 스위치(사내 전화선)로 번호를 눌러 콕 집어 부른다. 172 가 "내선 73번, 2350 창구 주세요" 하면 해도 서버가 받는다. <b>외부 회선이 없어도</b> 내선끼리는 된다 — 이게 폐쇄망.',
+      tIn: '<b>📞 대표전화 → 내선</b> — 바깥 손님은 내선번호를 모른다. <b>대표번호(외부 IP 203.0.113.24)</b>로 걸고 "28080 번이요" 한다. 교환원(공유기)이 <b>안내표(포트포워딩)</b>를 보고 <b>내선 .73 의 2350 창구</b>로 돌려준다. 안내표에 없는 번호는 끊는다.',
+      tTrip: '<b>🚢 군산 172 → 우리 해도 서버</b> — ① 군산 교환원(공유기)이 172 의 내선번호를 <b>군산 대표번호로 바꿔</b> 바깥에 건다(설정 필요 없음). ② 인터넷을 지나 ③ 우리 대표번호 :28080 으로 들어오면 ④ 우리 교환원이 안내표대로 <b>.73 : 2350</b> 에 이어 준다. 답은 같은 길을 거꾸로. 군산에 외부 회선이 없으면 ① 에서 막힌다.',
+    };
+    function drawT() {
+      IDS.forEach((id) => $(id).setAttribute('aria-pressed', id === tm));
+      let g = '';
+      if (tm === 'tCup') {
+        g += lab(340, 34, '🥤 종이컵 전화 = COM · USB 직통', 'var(--usb)', 'middle', 13);
+        g += box(40, 70, 140, 56, '📍 GPS', 'COM 구멍') + box(500, 70, 140, 140, 'PC (센서 서버)', 'COM1 · COM3 …');
+        g += line('M208 98 C 300 130, 380 130, 472 98', 'var(--usb)', 2.5);
+        g += cup(196, 98, 90) + cup(484, 98, -90);
+        g += lab(340, 112, '실 하나 = 상대 하나 (주소 없음)', 'var(--usb)');
+        g += box(40, 160, 140, 50, '🧭 Compass', '하나 더?', HI, true);
+        g += line('M208 185 C 300 205, 380 200, 472 185', HI, 2.5, '6 4');
+        g += cup(196, 185, 90) + cup(484, 185, -90);
+        g += lab(340, 214, '컵 · 실을 하나 더 → COM3', HI);
+        g += band(['주소가 없다 — 실이 곧 상대. 둘만 이야기한다.', '하나 더 붙이려면 컵 · 실(구멍 · 선)도 하나 더 필요하다.']);
+      } else if (tm === 'tCan') {
+        g += lab(340, 30, '📻 무전기 채널 = CAN (모두 한 줄에 붙어 방송)', 'var(--accent2)', 'middle', 13);
+        const devs = [['⚙ 엔진', '말하는 쪽', 110, 56, HI], ['📟 계기판', 'ID 100 → 내 거 ✓', 450, 56, 'var(--ok)'], ['🔋 배터리', 'ID 100 → 무시', 180, 186, null], ['🌀 모터', 'ID 100 → 무시', 400, 186, null]];
+        devs.forEach(([t, s, x, y, c]) => {
+          g += line(y < 150 ? `M${x + 60} ${y + 48} V146` : `M${x + 60} 160 V${y}`, 'var(--accent2)', 2);
+        });
+        g += line('M90 146 H640', 'var(--accent2)', 3) + line('M90 160 H640', 'var(--accent2)', 3);
+        g += lab(84, 150, 'CAN_H', 'var(--accent2)', 'end') + lab(84, 166, 'CAN_L', 'var(--accent2)', 'end');
+        devs.forEach(([t, s, x, y, c]) => { g += box(x, y, 120, 48, t, s, c); });
+        g += `<rect x="262" y="62" width="150" height="34" rx="17" fill="var(--card)" stroke="${HI}" stroke-width="2"/><text x="337" y="84" text-anchor="middle" class="m" font-weight="700">[ID 100] 1500 rpm</text>`;
+        g += line('M230 80 H262', HI, 2) + line('M412 80 H450', 'var(--ok)', 2, '4 3');
+        g += band(['받는 사람 주소 없음 → 말머리(ID)를 붙여 모두에게 방송, 필요한 장비만 골라 듣는다.', '동시에 말하면 ID 가 작은 쪽이 먼저 — 급한 말이 이긴다.']);
+      } else if (tm === 'tExt') {
+        g += lab(340, 30, '☎ 내선 전화 = 랜 + 스위치 (사무실 안)', 'var(--eth)', 'middle', 13);
+        g += `<rect x="60" y="126" width="560" height="32" rx="6" fill="var(--room)" stroke="var(--eth)" stroke-width="2"/><text x="480" y="147" text-anchor="middle" class="t">🔀 스위치 = 사내 전화선</text>`;
+        const top = [['172 지도 관제', '내선 .172', 80, HI], ['PC 센서 서버', '내선 .49', 280, null], ['레이더', '내선 .60', 480, null]];
+        top.forEach(([t, s, x, c]) => { g += line(`M${x + 60} 98 V126`, 'var(--eth)', 2.5) + box(x, 50, 120, 48, t, s, c); });
+        g += line('M340 158 V186', 'var(--eth)', 2.5) + box(260, 186, 160, 48, '🗺 해도 서버', '내선 .73 · 2350 창구', HI);
+        g += line('M140 98 V142 H330 M340 142 V184', HI, 3.5);
+        g += lab(160, 118, '"내선 73번, 2350 창구 주세요"', HI, 'start');
+        g += lab(540, 214, '외부 회선 없음', 'var(--muted)');
+        g += band(['내선번호(내부 IP)만 알면 사무실 안 누구와도 통화한다.', '바깥 회선(공유기 · 모뎀)이 없어도 내선끼리는 된다 = 폐쇄망.']);
+      } else if (tm === 'tIn') {
+        g += lab(340, 30, '📞 바깥 손님이 example.co.kr : 28080 으로 전화', HI, 'middle', 13);
+        const N = [['🏠 바깥 손님', '집 · 다른 회사', '전화 거는 손님'], ['☁ 인터넷', '통신사 망', '전화국'], ['📦 모뎀', '벽 속 단자함', '외부 회선'],
+          ['📶 공유기', '203.0.113.24', '대표번호+교환원'], ['🔀 스위치', '사무실 안', '사내 전화선'], ['🗺 해도 서버', '.73 : 2350', '내선 73 · 창구']];
+        N.forEach(([t, s, role], i) => {
+          const x = 12 + i * 112;
+          g += box(x, 64, 96, 56, t, s, i === 3 || i === 5 ? HI : null);
+          g += lab(x + 48, 140, role, 'var(--muted)');
+          if (i < 5) g += arr(x + 98, x + 110, 92, HI);
+        });
+        g += num(116, 52, 1) + num(340, 52, 2) + num(564, 52, 3);
+        // 안내표
+        g += line('M396 120 V158', HI, 2, '4 3');
+        g += `<rect x="276" y="158" width="240" height="70" rx="8" fill="var(--card)" stroke="${HI}" stroke-width="2"/>`;
+        g += `<text x="396" y="178" text-anchor="middle" class="t">📋 교환원 안내표 (포트포워딩)</text>`;
+        g += `<text x="396" y="199" text-anchor="middle" class="m">28080 번 → 내선 .73 의 2350</text>`;
+        g += `<text x="396" y="218" text-anchor="middle" class="s">표에 없는 번호 → 끊음</text>`;
+        g += band(['① 손님은 대표번호(외부 IP)로 건다 — 이름(example.co.kr)은 DNS 가 번호로 바꿔 준다.', '② 외부 회선(모뎀)을 지나 교환원(공유기)에게 → ③ 안내표대로 내선 .73 의 2350 으로.']);
+      } else {
+        // 군산 → 인터넷 → 우리 회사 (U 자)
+        g += `<rect x="6" y="14" width="456" height="96" rx="10" fill="none" stroke="var(--muted)" stroke-dasharray="5 4"/>` + lab(16, 30, '🚢 군산 현장', 'var(--text)', 'start', 12);
+        g += `<rect x="6" y="118" width="456" height="96" rx="10" fill="none" stroke="var(--muted)" stroke-dasharray="5 4"/>` + lab(16, 134, '🏢 우리 회사', 'var(--text)', 'start', 12);
+        const T = [['172 지도 관제', '내선 .172'], ['🔀 스위치', '사내 전화선'], ['📶 공유기', '교환원'], ['📦 모뎀', '외부 회선']];
+        const B = [['🗺 해도 서버', '.73 : 2350'], ['🔀 스위치', '사내 전화선'], ['📶 공유기', '교환원+안내표'], ['📦 모뎀', '외부 회선']];
+        T.forEach(([t, s], i) => { const x = 12 + i * 112; g += box(x, 46, 96, 52, t, s, i === 0 || i === 2 ? HI : null); if (i < 3) g += arr(x + 98, x + 110, 72, HI); });
+        B.forEach(([t, s], i) => { const x = 12 + i * 112; g += box(x, 150, 96, 52, t, s, i === 0 || i === 2 ? HI : null); if (i < 3) g += arr(x + 110, x + 98, 176, HI); });
+        g += `<rect x="490" y="46" width="178" height="156" rx="14" fill="var(--card)" stroke="var(--line)"/>`;
+        g += `<text x="579" y="104" text-anchor="middle" class="t">☁ 인터넷</text><text x="579" y="124" text-anchor="middle" class="s">example.co.kr</text><text x="579" y="140" text-anchor="middle" class="s">→ 203.0.113.24 : 28080</text>`;
+        g += arr(446, 488, 72, HI) + arr(488, 446, 176, HI);
+        g += num(284, 38, 1) + num(476, 56, 2) + num(476, 162, 3) + num(172, 142, 4);
+        g += band(['① 군산 교환원이 내선 .172 를 군산 대표번호로 바꿔 바깥에 건다 (설정 필요 없음).', '② 인터넷 → ③ 우리 대표번호 :28080 → ④ 안내표대로 .73 : 2350. 답은 거꾸로.', '⚠ 군산에 외부 회선(공유기 · 모뎀)이 없으면 ① 에서 막힌다.']);
+      }
+      $('telFig').innerHTML = g;
+      $('sayT').innerHTML = SAY[tm];
+    }
+    IDS.forEach((id) => $(id).addEventListener('click', () => { tm = id; drawT(); }));
+    drawT();
+  })();
+  // 1++절 번호는 언제 필요한가 (좌표 · 그림용)
+  (() => {
+    const HI = 'var(--accent)';
+    const box = (x, y, w, h, t, sub, col, dim) => `<g${dim ? ' opacity=".45"' : ''}><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="7" fill="var(--room)" stroke="${col || 'var(--line)'}" stroke-width="${col ? 2.5 : 1}"/><text x="${x + w / 2}" y="${y + (sub ? h / 2 - 3 : h / 2 + 4)}" text-anchor="middle" class="t">${t}</text>${sub ? `<text x="${x + w / 2}" y="${y + h / 2 + 13}" text-anchor="middle" class="s">${sub}</text>` : ''}</g>`;
+    const line = (d, c, w, extra) => `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w || 2.5}" stroke-linecap="round"${extra || ''}/>`;
+    const lab = (x, y, t, c, size) => `<text x="${x}" y="${y}" text-anchor="middle" font-size="${size || 11}" font-weight="700" fill="${c}" style="paint-order:stroke;stroke:var(--sea);stroke-width:4px">${t}</text>`;
+    const env = (x, y, c) => `<rect x="${x}" y="${y}" width="24" height="17" rx="2" fill="var(--card)" stroke="${c}" stroke-width="2"/><path d="M${x} ${y} L${x + 12} ${y + 9} L${x + 24} ${y}" fill="none" stroke="${c}" stroke-width="2"/>`;
+    const verdict = (t, c) => `<rect x="120" y="230" width="440" height="36" rx="18" fill="var(--card)" stroke="${c}" stroke-width="2.5"/><text x="340" y="253" text-anchor="middle" class="t" fill="${c}">${t}</text>`;
+    let nm = 'nCom';
+    const IDS = ['nCom', 'nCan', 'nLan'];
+    const SAY = {
+      nCom: '<b>🥤 COM</b> — 보내면 선 끝으로 그냥 간다. 선 끝엔 <b>PC 하나뿐</b>이라 고를 일이 없다 → <b>번호 필요 없음</b>.',
+      nCan: '<b>📻 CAN</b> — 보내면 한 줄에 붙은 <b>모두에게</b> 간다. 보내는 쪽은 고르지 않고, 듣는 쪽이 말머리(ID)를 보고 "내 거냐" 고른다 → <b>받는 사람 번호 필요 없음</b>.',
+      nLan: '<b>🌐 랜</b> — 스위치에 여럿이 붙어 있지만 <b>한 명에게만</b> 보낸다. 스위치가 봉투의 <b>받는 사람 번호(.73)</b>를 보고 그 자리로만 넘긴다 → <b>번호(IP) 필요</b>.',
+    };
+    function drawN() {
+      IDS.forEach((id) => $(id).setAttribute('aria-pressed', id === nm));
+      let g = '';
+      g += box(30, 104, 120, 56, '보내는 쪽', '✉ 하나 보냄');
+      if (nm === 'nCom') {
+        g += lab(340, 30, '🥤 COM — 선 끝에 하나', 'var(--usb)', 13);
+        g += line('M150 132 H470', 'var(--usb)', 3);
+        g += env(300, 112, 'var(--usb)') + lab(312, 160, '연결된 쪽으로 그냥 간다', 'var(--usb)');
+        g += box(470, 104, 160, 56, '🖥 PC', '✉ 받음', 'var(--ok)');
+        g += verdict('연결된 게 하나 → 고를 일 없음 → 번호 필요 없음', 'var(--ok)');
+      } else if (nm === 'nCan') {
+        g += lab(340, 30, '📻 CAN — 한 줄에 여럿, 모두에게', 'var(--accent2)', 13);
+        g += line('M150 132 H296', 'var(--accent2)', 3) + line('M296 56 V208', 'var(--accent2)', 3) + line('M306 56 V208', 'var(--accent2)', 3);
+        [['📟 계기판', 50], ['🌀 모터', 110], ['🔋 배터리', 170]].forEach(([t, y]) => {
+          g += line(`M306 ${y + 23} H470`, 'var(--accent2)', 2.5) + env(420, y + 14, 'var(--accent2)');
+          g += box(470, y, 160, 46, t, '✉ 받음', 'var(--ok)');
+        });
+        g += lab(220, 120, '한 줄로 다 감', 'var(--accent2)');
+        g += verdict('연결된 게 여럿 → 그래도 다 감 → 번호 필요 없음', 'var(--ok)');
+      } else {
+        g += lab(340, 30, '🌐 랜 — 여럿 중 한 명만 콕', HI, 13);
+        g += line('M150 132 H250', HI, 3) + env(186, 108, HI) + lab(198, 100, '받는 사람 .73', HI);
+        g += box(250, 92, 120, 80, '🔀 스위치', '번호 보고 골라 줌', 'var(--eth)');
+        const R = [['172 지도 관제', '.172 · 안 옴', 50, false], ['🗺 해도 서버', '.73 · ✉ 받음', 110, true], ['🖥 PC', '.49 · 안 옴', 170, false]];
+        R.forEach(([t, s, y, on]) => {
+          g += line(`M370 132 C 420 132, 420 ${y + 23}, 470 ${y + 23}`, on ? HI : 'var(--line)', on ? 3 : 2, on ? '' : ' stroke-dasharray="4 4"');
+          if (on) g += env(426, y + 14, HI);
+          g += box(470, y, 160, 46, t, s, on ? HI : null, !on);
+        });
+        g += verdict('여럿 중 한 명을 고름 → 번호(IP) 필요', HI);
+      }
+      $('numFig').innerHTML = g;
+      $('sayN').innerHTML = SAY[nm];
+    }
+    IDS.forEach((id) => $(id).addEventListener('click', () => { nm = id; drawN(); }));
+    drawN();
+  })();
+  // 0+절 CAN H · L · G (전압 · 비트 · 잡음은 그림용)
+  (() => {
+    const CH = 'var(--accent)', CL = 'var(--eth)', CG = 'var(--muted)';
+    const BITS = [1, 0, 1, 1, 0, 0, 1];
+    const X0 = 252, X1 = 628, BW = (X1 - X0) / BITS.length;
+    const vy = (v) => 262 - v * 44;
+    const lab = (x, y, t, c, anchor, size) => `<text x="${x}" y="${y}" text-anchor="${anchor || 'middle'}" font-size="${size || 11}" font-weight="700" fill="${c}" style="paint-order:stroke;stroke:var(--sea);stroke-width:4px">${t}</text>`;
+    let view = 'gEach', noise = false;
+    const nz = (x) => (noise ? 0.55 * Math.sin((x - X0) / 15) : 0);
+    const bitAt = (x) => BITS[Math.min(BITS.length - 1, Math.floor((x - X0) / BW))];
+    const hV = (x) => (bitAt(x) ? 2.5 : 3.5) + nz(x);
+    const lV = (x) => (bitAt(x) ? 2.5 : 1.5) + nz(x);
+    const trace = (f) => { let d = ''; for (let x = X0; x <= X1; x += 1) d += `${d ? ' L' : 'M'}${x} ${vy(f(x)).toFixed(1)}`; return d; };
+    const SAY = {
+      'gEach-0': '<b>H · L 각각</b> — 쉴 때(1)는 H 와 L 이 둘 다 <b>2.5V</b> 로 붙어 있고, 말할 때(0)는 H 는 <b>3.5V 로 올라가고</b> L 은 <b>1.5V 로 내려가</b> 벌어진다. G 는 맨 아래 <b>0V 기준선</b> — 데이터는 안 나르고 "여기가 0" 을 맞춰 주는 바닥판.',
+      'gEach-1': '<b>잡음이 끼면</b> H 와 L 이 <b>똑같이</b> 위아래로 흔들린다. 한 선만 보면 "지금 3V 인데 1 이야 0 이야?" 헷갈린다. 그런데 두 선이 <b>같이</b> 흔들린다는 게 핵심 — "차이" 보기를 눌러 보세요.',
+      'gDiff-0': '<b>받는 쪽 눈 = 차이(H − L)</b> — 차이가 <b>0V 면 1</b>, <b>2V 면 0</b>. 받는 쪽은 이 차이만 읽어서 <b>1 0 1 1 0 0 1</b> 을 얻는다.',
+      'gDiff-1': '<b>잡음이 껴도</b> 두 선이 똑같이 흔들리니 <b>H − L 차이는 그대로</b> — 똑같이 <b>1 0 1 1 0 0 1</b> 을 읽는다. 그래서 모터 · 엔진 잡음이 많은 배 · 차에서 CAN 을 쓴다.',
+    };
+    function drawG() {
+      $('gEach').setAttribute('aria-pressed', view === 'gEach'); $('gDiff').setAttribute('aria-pressed', view === 'gDiff');
+      $('gQuiet').setAttribute('aria-pressed', !noise); $('gNoise').setAttribute('aria-pressed', noise);
+      let g = '';
+      // 왼쪽 이름표
+      const card = (y, k, name, sub, c) => `<rect x="14" y="${y}" width="206" height="44" rx="8" fill="var(--card)" stroke="${c}" stroke-width="2"/><circle cx="36" cy="${y + 22}" r="13" fill="${c}"/><text x="36" y="${y + 27}" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">${k}</text><text x="58" y="${y + 19}" class="t">${name}</text><text x="58" y="${y + 35}" class="s">${sub}</text>`;
+      g += card(84, 'H', 'CAN_High (캔 하이)', '말할 때 올라가는 선', CH);
+      g += card(162, 'L', 'CAN_Low (캔 로우)', '말할 때 내려가는 선', CL);
+      g += card(236, 'G', 'GND · Ground (그라운드)', '0V 기준 = 바닥판', CG);
+      // 눈금
+      [[3.5, '3.5V'], [2.5, '2.5V'], [1.5, '1.5V'], [0, '0V']].forEach(([v, t]) => {
+        g += `<path d="M${X0} ${vy(v)} H${X1}" stroke="var(--line)" stroke-dasharray="3 4"/>` + `<text x="${X1 + 6}" y="${vy(v) + 4}" class="s">${t}</text>`;
+      });
+      // 비트 칸
+      BITS.forEach((b, i) => {
+        const cx = X0 + i * BW + BW / 2;
+        if (i) g += `<path d="M${X0 + i * BW} 50 V${vy(0)}" stroke="var(--line)" stroke-width="1" opacity=".6"/>`;
+        g += `<text x="${cx}" y="34" text-anchor="middle" font-size="15" font-weight="700" fill="var(--text)">${b}</text><text x="${cx}" y="57" text-anchor="middle" class="s">${b ? '쉼' : '말함'}</text>`;
+      });
+      // 이름표 → 선 잇기
+      g += `<path d="M220 106 L${X0} ${vy(hV(X0)).toFixed(1)}" stroke="${CH}" stroke-width="1.5" stroke-dasharray="3 3" fill="none"/>`;
+      g += `<path d="M220 184 L${X0} ${vy(lV(X0)).toFixed(1)}" stroke="${CL}" stroke-width="1.5" stroke-dasharray="3 3" fill="none"/>`;
+      g += `<path d="M220 258 L${X0} ${vy(0)}" stroke="${CG}" stroke-width="1.5" stroke-dasharray="3 3" fill="none"/>`;
+      // G
+      g += `<path d="M${X0} ${vy(0)} H${X1}" stroke="${CG}" stroke-width="3"/>`;
+      // 차이 칠하기
+      if (view === 'gDiff') {
+        let top = '', bot = [];
+        for (let x = X0; x <= X1; x += 1) { top += `${top ? ' L' : 'M'}${x} ${vy(hV(x)).toFixed(1)}`; bot.push(`${x} ${vy(lV(x)).toFixed(1)}`); }
+        g += `<path d="${top} L${bot.reverse().join(' L')} Z" fill="var(--accent2)" opacity=".35"/>`;
+        BITS.forEach((b, i) => {
+          const cx = X0 + i * BW + BW / 2, x = Math.round(cx);
+          const my = (vy(hV(x)) + vy(lV(x))) / 2;
+          g += lab(cx, b ? my - 14 : my + 4, b ? '차이 0' : '차이 2V', 'var(--accent2)', 'middle', 10);
+        });
+      }
+      const op = view === 'gDiff' ? ' opacity=".55"' : '';
+      g += `<path d="${trace(hV)}" fill="none" stroke="${CH}" stroke-width="3"${op}/>`;
+      g += `<path d="${trace(lV)}" fill="none" stroke="${CL}" stroke-width="3"${op}/>`;
+      // 아래 띠
+      const L = view === 'gDiff'
+        ? [noise ? '잡음이 껴도 H − L 차이는 그대로 → 읽은 값  1 0 1 1 0 0 1  ✓' : '받는 쪽은 H − L 차이만 본다: 0 이면 1, 2V 면 0 → 읽은 값  1 0 1 1 0 0 1',
+           noise ? '두 선이 똑같이 흔들리니 차이엔 잡음이 안 남는다 — 그래서 배 · 차에서 CAN.' : 'G 는 0V 기준 — 데이터는 H · L 두 선이 나른다.']
+        : [noise ? '잡음이 끼면 H · L 이 같이 흔들린다 — 한 선만 보면 헷갈린다.' : '쉴 때 H = L = 2.5V (1), 말할 때 H 3.5V · L 1.5V 로 벌어짐 (0).',
+           noise ? '그런데 "같이" 흔들린다 → 위의 "차이" 보기를 눌러 보세요.' : 'G 는 0V 기준선 — 데이터는 안 나르고 받침 역할.'];
+      g += `<rect x="232" y="276" width="436" height="46" rx="10" fill="var(--card)" stroke="var(--line)"/>`;
+      g += L.map((t, i) => `<text x="244" y="${294 + i * 19}" font-size="11" font-weight="700" fill="var(--text)">${t}</text>`).join('');
+      $('hlgFig').innerHTML = g;
+      $('sayG').innerHTML = SAY[`${view}-${noise ? 1 : 0}`];
+    }
+    $('gEach').addEventListener('click', () => { view = 'gEach'; drawG(); });
+    $('gDiff').addEventListener('click', () => { view = 'gDiff'; drawG(); });
+    $('gQuiet').addEventListener('click', () => { noise = false; drawG(); });
+    $('gNoise').addEventListener('click', () => { noise = true; drawG(); });
+    drawG();
+  })();
+</script>
+</body>
+</html>

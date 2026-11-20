@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>모뎀 · 라우터(공유기) · 스위치</title>
+<style>
+  :root {
+    --bg: #fafaf8; --card: #ffffff; --text: #1f1f1d; --muted: #6b6a65; --line: #d8d6ce;
+    --link: #185FA5; --accent: #D85A30; --accent2: #BA7517; --ok: #1D9E75; --bad: #d63b3b; --chip-on: #fbe9e2;
+    --sea: #eef3f7; --wall: #8a877e; --room: #f4f1e8; --hi: #fff3c4; --eth: #2f6fb0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1c1c1a; --card: #262624; --text: #ecebe6; --muted: #a8a69e; --line: #44443f;
+      --link: #85B7EB; --chip-on: #4a2c22; --ok: #4cc79e; --bad: #ef6b6b; --sea: #22303b; --wall: #77746c; --room: #302f2b; --hi: #4a4224; --eth: #7fb0e0; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.7 "Pretendard", "Malgun Gothic", system-ui, sans-serif; }
+  main { max-width: 820px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 4px; }
+  h2 { font-size: 19px; font-weight: 600; margin: 40px 0 6px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .lead { color: var(--muted); margin: 0 0 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+  .buttons .cap { font-size: 15px; color: var(--muted); margin-right: 4px; min-width: 7.5em; }
+  button { font: inherit; font-size: 14px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); cursor: pointer; }
+  button:hover { border-color: var(--muted); }
+  button[aria-pressed="true"] { border-color: var(--accent); background: var(--chip-on); font-weight: 600; }
+  .say { margin: 14px 0 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--bg); border-radius: 0 8px 8px 0; min-height: 3.4em; }
+  .ok { color: var(--ok); font-weight: 700; } .bad { color: var(--bad); font-weight: 700; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; margin-top: 12px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  th:first-child, td:first-child { white-space: nowrap; }
+  .note { font-size: 14px; color: var(--muted); }
+  .check { border: 1px dashed var(--accent2); border-radius: 8px; padding: 10px 12px; font-size: 15px; }
+  .check > b:first-child { color: var(--accent2); }
+  a { color: var(--link); }
+  code { font-size: 14px; }
+  svg text { font-family: inherit; }
+  svg .t { font-size: 12px; font-weight: 700; fill: var(--text); }
+  svg .s { font-size: 10px; fill: var(--muted); }
+  .seat > rect:first-child { fill: var(--room); stroke: var(--line); stroke-width: 1; }
+  .seat.on > rect:first-child { fill: var(--hi); stroke: var(--accent); stroke-width: 2.5; }
+  .seat.off > rect:first-child { fill: var(--card); stroke: var(--bad); stroke-width: 2; stroke-dasharray: 4 3; }
+  .seat.off text { fill: var(--muted); }
+  .seat.dim { opacity: .45; }
+  .wire { fill: none; stroke: var(--eth); stroke-width: 2.5; }
+  .wire.air { stroke-dasharray: 5 4; }
+  .wire.cut { stroke: var(--bad); stroke-dasharray: 3 5; opacity: .7; }
+  .halo { paint-order: stroke; stroke: var(--card); stroke-width: 4px; stroke-linejoin: round; }
+  .fig { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .fig-hint { display: none; }
+  @media (max-width: 600px) {
+    .fig svg { min-width: 560px; }
+    .fig-hint { display: block; font-size: 13px; color: var(--muted); text-align: center; margin: 4px 0 0; }
+    .buttons .cap { min-width: 0; width: 100%; }
+    table { font-size: 14px; } th, td { padding: 6px; }
+  }
+  .recap { border: 2px solid var(--accent); border-radius: 12px; background: var(--chip-on); padding: 12px 16px; margin: 16px 0 4px; }
+  .recap-h { margin: 0 0 4px; font-weight: 700; font-size: 17px; }
+  .recap ol { margin: 0; padding-left: 1.4em; } .recap li { margin: 4px 0; }
+  .wan { color: var(--accent2); font-weight: 700; } .lan { color: var(--eth); font-weight: 700; }
+</style>
+</head>
+<body>
+<main>
+  <p class="note" style="border:1px dashed var(--line);border-radius:8px;padding:6px 10px">공개용 사본 — 외부 IP · 도메인 · 외부 포트 번호는 예시 값(203.0.113.x · example.co.kr · 28080)으로 바꿔 두었다.</p>
+  <p class="note"><a href="index.html">← 네트워크 목록</a> · 이전: <a href="01-domain-portforward.html">← 도메인 · 포트포워딩</a> · 다음: <a href="03-ports-protocol.html">구멍 · 신호 · 약속 →</a></p>
+  <h1>모뎀 · 라우터(공유기) · 스위치 — 장비 이름</h1>
+  <p class="lead">배 한 척을 <b>회사 건물</b>로 보면 장비 셋의 자리가 나온다. <b>모뎀</b> = 바깥 길과 건물을 잇는 진입로, <b>라우터(공유기)</b> = 정문, <b>스위치</b> = 복도. 장비를 골라 보고, 하나씩 꺼 보세요.</p>
+
+  <h2 style="border-top:0;margin-top:8px;padding-top:0">0. 전봇대부터 내 PC 까지 — 우리 집으로 보기</h2>
+  <p>인터넷 선을 <b>전봇대부터</b> 따라가 본다. 번호 순서대로 눌러 보세요. 핵심: <b>모뎀은 벽 속 단자함에 숨어 있고</b>, 우리가 보는 건 벽의 네모 단자와 기사님이 주고 간 공유기뿐이다.</p>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 404" role="img" aria-labelledby="t0 d0">
+      <title id="t0">전봇대에서 벽 속 단자함의 모뎀, 벽 속 선, 벽의 네모 랜 단자, 공유기를 지나 PC · TV · 휴대폰까지</title>
+      <desc id="d0">우리 집: 전봇대의 광케이블이 현관 신발장 옆 벽 속 세대 단자함의 모뎀으로 들어간다. 모뎀에서 나온 선은 벽과 바닥 속을 지나 거실 벽의 네모 랜 단자로 나온다. 그 단자와 공유기의 WAN 구멍을 랜선으로 잇고, 공유기의 LAN 구멍에서 PC 와 셋톱박스(TV)로, 와이파이로 휴대폰으로 간다. 배: LTE 기지국 · 스타링크 위성 전파를 LTE 모뎀 · 스타링크 모뎀이 받아 이중화 라우터 WAN 으로, LAN 에서 스위치를 지나 장비로.</desc>
+      <rect x="0" y="0" width="680" height="404" rx="12" fill="var(--sea)"/>
+      <g id="pole"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">장면</span>
+      <button id="zHome" aria-pressed="true">🏠 우리 집</button>
+      <button id="zShip" aria-pressed="false">🚤 배</button>
+    </div>
+    <div class="buttons"><span class="cap">따라가기</span>
+      <button id="z0" aria-pressed="true">전체</button>
+      <button id="z1" aria-pressed="false">① 전봇대</button>
+      <button id="z2" aria-pressed="false">② 단자함 · 모뎀</button>
+      <button id="z3" aria-pressed="false">③ 벽 속 선</button>
+      <button id="z4" aria-pressed="false">④ 벽 네모 단자</button>
+      <button id="z5" aria-pressed="false">⑤ 공유기</button>
+      <button id="z6" aria-pressed="false">⑥ PC · TV · 폰</button>
+    </div>
+    <p class="say" id="say0"></p>
+  </div>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. 집마다 모뎀을 거실에 꺼내 두거나, 모뎀 · 공유기가 한 상자로 합쳐져 있기도 하다.</p>
+
+  <div class="recap">
+    <p class="recap-h">📌 한 번에 정리 — 집에서 꽂는 법</p>
+    <ol>
+      <li><b>벽에서 나온 랜선 → 공유기 <span class="wan">WAN</span> 구멍.</b> 벽 선은 벽 속을 지나 모뎀(단자함)에 이어져 있다 = "인터넷이 들어오는 선".</li>
+      <li><b>PC · TV(셋톱박스) → 공유기 <span class="lan">LAN</span> 구멍.</b> 휴대폰은 와이파이.</li>
+      <li><b>선은 다 같은 랜선이다.</b> <span class="wan">WAN</span> · <span class="lan">LAN</span> 은 선 종류가 아니라 <b>공유기 구멍 이름</b>. 같은 랜선도 WAN 구멍에 꽂으면 "바깥에서 오는 선", LAN 구멍에 꽂으면 "안으로 나눠 주는 선".</li>
+      <li>벽 선을 LAN 구멍에 잘못 꽂으면 공유기가 바깥 선이 없다고 여겨 인터넷이 안 된다. ipTIME 은 WAN 구멍이 <b>색이 다르거나 따로 떨어져</b> 있다.</li>
+      <li>PC 하나만 벽에 바로 꽂을 땐 구분 없음 — PC 랜 구멍은 하나뿐이다. WAN · LAN 구분은 공유기 같은 상자에만 있다.</li>
+      <li><b>벽 단자가 살아 있는 조건:</b> 단자함 안에서 그 방 선이 모뎀(또는 허브)에 꽂혀 있어야 한다. 허브가 있으면 어느 방 단자든 되고, 없으면 연결된 방 하나만 된다.</li>
+    </ol>
+  </div>
+
+  <table>
+    <tr><th>우리 집</th><th>배</th><th>하는 일</th></tr>
+    <tr><td>벽 속 단자함의 모뎀</td><td>LTE · 스타링크 모뎀</td><td>바깥 말(빛 · 전파) → 랜선 말</td></tr>
+    <tr><td>벽에서 나온 랜선 → 공유기 <span class="wan">WAN</span></td><td>모뎀의 랜선 → 이중화 라우터 <span class="wan">WAN</span></td><td>인터넷이 들어오는 선</td></tr>
+    <tr><td>공유기</td><td>이중화 라우터</td><td>정문 — 안 · 밖을 나눔</td></tr>
+    <tr><td>공유기 <span class="lan">LAN</span> 구멍 4개</td><td>스위치 (구멍 많음)</td><td>안쪽 장비에 나눠 줌</td></tr>
+    <tr><td>PC · TV · 휴대폰</td><td>PC · <b>Jetson 172</b> · 레이더</td><td><span class="lan">LAN</span> 쪽 장비</td></tr>
+  </table>
+  <p><b>그래서 172 는 <span class="lan">LAN</span> 쪽 장비다.</b> 172 가 바깥(인터넷 · example.co.kr 해도 서버)에 닿으려면 <b>스위치 → 라우터 → <span class="wan">WAN</span> → 모뎀</b>까지 길이 열려 있어야 한다. 군산에서 해도가 안 나오면 이 길을 거꾸로 확인한다 — 모뎀(LTE · 스타링크)이 살아 있나, 라우터가 인터넷을 열어 주나.</p>
+
+  <h2>0+. 모뎀으로 들어오는 건 — 전기(빛)에 실린 데이터</h2>
+  <p>바깥 선으로 들어오는 건 <b>전원 같은 전기가 아니다</b>. 선 위를 흐르는 <b>몸통은 전기 · 빛 신호</b>이고, 그 깜빡임이 뜻하는 <b>내용은 데이터(0 과 1)</b>다. 모뎀은 바깥 선의 <b>신호 모양만 랜 모양으로 바꿔 주는 번역기</b> — 데이터 내용은 그대로 둔다. 선 종류와 보기를 바꿔 보세요.</p>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 320" role="img" aria-labelledby="tsg dsg">
+      <title id="tsg">바깥 선의 신호와 랜 신호 — 모뎀은 신호 모양만 바꾸고 데이터는 그대로</title>
+      <desc id="dsg">왼쪽 통신사에서 바깥 선(광케이블의 빛 깜빡임, 전화선 · TV 선의 물결 신호, 또는 LTE · 위성 전파)이 모뎀으로 들어오고, 모뎀에서 랜 전기 신호(네모 펄스)로 바뀌어 공유기 · PC 로 간다. 위에는 두 신호에 실린 데이터 0 1 1 0 1 0 0 1 이 양쪽 모두 똑같다는 것이 보인다. 전원 보기를 고르면 콘센트에서 모뎀으로 가는 전원선이 따로 그려진다.</desc>
+      <rect x="0" y="0" width="680" height="320" rx="12" fill="var(--sea)"/>
+      <g id="sigFig"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">바깥 선</span>
+      <button id="lFiber" aria-pressed="true">💡 광케이블 (빛)</button>
+      <button id="lPhone" aria-pressed="false">☎ 전화선</button>
+      <button id="lCoax" aria-pressed="false">📺 TV 케이블</button>
+      <button id="lAir" aria-pressed="false">📡 전파 (배: LTE · 스타링크)</button>
+    </div>
+    <div class="buttons"><span class="cap">보기</span>
+      <button id="vBoth" aria-pressed="true">둘 다</button>
+      <button id="vSig" aria-pressed="false">⚡ 몸통 = 신호</button>
+      <button id="vData" aria-pressed="false">📄 내용 = 데이터</button>
+      <button id="vPow" aria-pressed="false">🔌 전원은?</button>
+    </div>
+    <p class="say" id="saySg"></p>
+  </div>
+  <table>
+    <tr><th></th><th>무엇</th><th>모뎀을 지나면</th></tr>
+    <tr><td>⚡ 신호 (몸통)</td><td>선 위를 실제로 흐르는 빛 깜빡임 · 전기 물결 · 전파</td><td><b>바뀐다</b> — 바깥 선 모양 → 랜 모양</td></tr>
+    <tr><td>📄 데이터 (내용)</td><td>그 깜빡임이 뜻하는 0 과 1 → 웹페이지 · 해도 이미지</td><td class="ok">그대로</td></tr>
+    <tr><td>🔌 전원</td><td>기계를 켜는 전기 — 콘센트에서 따로</td><td>상관없음</td></tr>
+  </table>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. 실제 신호는 훨씬 빠르고 복잡하게 실린다(0 · 1 을 그대로 깜빡이지 않는 방식도 많다). 03 페이지의 세 층으로 보면 신호 = ② 층, 데이터 = ③ 층.</p>
+
+  <h2>1. 장비 셋이 하는 일 — 꺼 보기</h2>
+
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 370" role="img" aria-labelledby="t1 d1">
+      <title id="t1">바깥 전파에서 모뎀, 라우터, 스위치를 지나 배 안 장비까지</title>
+      <desc id="d1">왼쪽 바깥에 LTE 기지국과 스타링크 위성. 배 안에 LTE 모뎀과 스타링크 모뎀이 있고, 둘 다 이중화 라우터(정문)에 꽂힌다. 라우터 뒤에 네트워크 스위치(복도)가 있고 스위치에 PC, Jetson, 레이더, NAS 가 꽂힌다. 오른쪽 위에 지금 되는 길 세 가지가 표시된다.</desc>
+      <rect x="0" y="0" width="680" height="370" rx="12" fill="var(--sea)"/>
+      <text x="14" y="22" class="s" font-size="12">바깥</text>
+
+      <!-- 바깥: LTE 기지국 -->
+      <g transform="translate(46 70)">
+        <path d="M0 -34 L-14 22 M0 -34 L14 22 M-9 0 H9 M-11 12 H11" stroke="var(--text)" stroke-width="2" fill="none"/>
+        <path d="M-12 -40 A16 16 0 0 0 -12 -26 M12 -40 A16 16 0 0 1 12 -26" stroke="var(--text)" stroke-width="1.5" fill="none"/>
+      </g>
+      <text x="16" y="112" class="t">LTE 기지국</text>
+      <text x="16" y="126" class="s">휴대폰 전파</text>
+      <!-- 바깥: 스타링크 위성 -->
+      <g transform="translate(46 186)">
+        <rect x="-6" y="-6" width="12" height="12" fill="var(--card)" stroke="var(--text)" stroke-width="2"/>
+        <rect x="-28" y="-4" width="18" height="8" fill="var(--eth)" opacity=".5" stroke="var(--text)"/>
+        <rect x="10" y="-4" width="18" height="8" fill="var(--eth)" opacity=".5" stroke="var(--text)"/>
+      </g>
+      <text x="16" y="214" class="t">스타링크 위성</text>
+      <text x="16" y="228" class="s">하늘의 인터넷</text>
+
+      <!-- 배 = 건물 -->
+      <rect x="150" y="14" width="520" height="346" rx="8" fill="var(--card)" stroke="var(--wall)" stroke-width="4"/>
+      <text x="166" y="36" class="t" font-size="13">🚤 배 안 (= 회사 건물)</text>
+
+      <!-- 선 -->
+      <path id="wL" class="wire air" d="M70 64 L166 92"/>
+      <path id="wS" class="wire air" d="M74 186 L166 172"/>
+      <path id="wLR" class="wire" d="M256 92 L300 116"/>
+      <path id="wSR" class="wire" d="M256 172 L300 148"/>
+      <path id="wRS" class="wire" d="M356 166 L356 210"/>
+      <path id="wBus" class="wire" d="M218 264 V248 H636 V264 M356 248 V246 M427 248 V264 M532 248 V264"/>
+
+      <!-- 모뎀 둘 -->
+      <g class="seat" id="mL"><rect x="166" y="72" width="90" height="40" rx="6"/>
+        <text x="176" y="90" class="t">LTE 모뎀</text><text x="176" y="104" class="s">전파 ↔ 랜선</text></g>
+      <g class="seat" id="mS"><rect x="166" y="152" width="90" height="40" rx="6"/>
+        <text x="176" y="170" class="t">스타링크 모뎀</text><text x="176" y="184" class="s">위성 ↔ 랜선</text></g>
+      <!-- 라우터 -->
+      <g class="seat" id="rt"><rect x="300" y="96" width="112" height="70" rx="8"/>
+        <text x="310" y="116" class="t">이중화 라우터</text>
+        <text x="310" y="132" class="s">= 정문 (공유기)</text>
+        <text x="310" y="150" class="s">WAN 밖 · LAN 안</text></g>
+      <g id="wanlan" style="display:none">
+        <rect x="292" y="110" width="16" height="12" rx="2" fill="var(--accent2)"/><rect x="292" y="142" width="16" height="12" rx="2" fill="var(--accent2)"/>
+        <text x="286" y="132" text-anchor="end" class="t" fill="var(--accent2)">WAN 구멍</text>
+        <text x="286" y="146" text-anchor="end" class="s">바깥 = 모뎀 쪽</text>
+        <rect x="346" y="160" width="20" height="12" rx="2" fill="var(--eth)"/>
+        <text x="372" y="190" class="t" fill="var(--eth)">LAN 구멍</text>
+        <text x="372" y="204" class="s">안 = 스위치 · 장비 쪽</text>
+      </g>
+      <!-- 스위치 -->
+      <g class="seat" id="sw"><rect x="196" y="210" width="460" height="36" rx="6"/>
+        <text x="206" y="232" class="t">네트워크 스위치 = 복도</text>
+        <g fill="var(--muted)"><rect x="420" y="222" width="10" height="10" rx="1"/><rect x="436" y="222" width="10" height="10" rx="1"/><rect x="452" y="222" width="10" height="10" rx="1"/><rect x="468" y="222" width="10" height="10" rx="1"/><rect x="484" y="222" width="10" height="10" rx="1"/><rect x="500" y="222" width="10" height="10" rx="1"/><rect x="516" y="222" width="10" height="10" rx="1"/><rect x="532" y="222" width="10" height="10" rx="1"/></g>
+        <text x="552" y="232" class="s">← 랜 포트(구멍)</text></g>
+      <!-- 장비들 -->
+      <g class="seat dev" id="dPC"><rect x="176" y="264" width="84" height="44" rx="6"/><text x="186" y="283" class="t">PC</text><text x="186" y="298" class="s">운항 제어 · 센서</text></g>
+      <g class="seat dev" id="d172"><rect x="270" y="264" width="100" height="44" rx="6"/><text x="280" y="283" class="t">Jetson 172</text><text x="280" y="298" class="s">지도 관제</text></g>
+      <g class="seat dev" id="dJ"><rect x="380" y="264" width="94" height="44" rx="6"/><text x="390" y="283" class="t">Jetson</text><text x="390" y="298" class="s">카메라 영상</text></g>
+      <g class="seat dev" id="dR"><rect x="484" y="264" width="94" height="44" rx="6"/><text x="494" y="283" class="t">레이더 서버</text><text x="494" y="298" class="s">표적</text></g>
+      <g class="seat dev" id="dN"><rect x="588" y="264" width="72" height="44" rx="6"/><text x="598" y="283" class="t">NAS</text><text x="598" y="298" class="s">저장</text></g>
+      <path class="wire" d="M218 248 V264 M320 248 V264 M636 248 V264"/>
+
+      <!-- ipTIME 한 대 묶음 -->
+      <g id="ipBox" style="display:none">
+        <rect x="290" y="86" width="132" height="168" rx="12" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="7 5"/>
+        <text x="430" y="104" class="t" fill="var(--accent)">ipTIME 공유기 한 대 =</text>
+        <text x="430" y="122" class="s">라우터 (정문)</text>
+        <text x="430" y="138" class="s">+ 작은 스위치 (뒤 랜 포트 4개)</text>
+        <text x="430" y="154" class="s">+ 와이파이</text>
+        <text x="430" y="172" class="s">모뎀은 보통 따로 (통신사 상자)</text>
+      </g>
+
+      <!-- 되는 길 표시판 -->
+      <g id="panel">
+        <rect x="440" y="44" width="220" height="146" rx="8" fill="var(--card)" stroke="var(--line)"/>
+        <text x="452" y="64" class="t">지금 되는 길 (172 에서)</text>
+        <text x="452" y="92" class="s" font-size="11">배 안 장비끼리</text><text id="st1" x="648" y="92" text-anchor="end" font-size="13" font-weight="700"></text>
+        <text x="452" y="114" class="s" font-size="11">육상 관제실 (VPN)</text><text id="st2" x="648" y="114" text-anchor="end" font-size="13" font-weight="700"></text>
+        <text x="452" y="136" class="s" font-size="11">일반 인터넷 (example)</text><text id="st3" x="648" y="136" text-anchor="end" font-size="13" font-weight="700"></text>
+        <text id="stN1" x="452" y="160" class="s"></text>
+        <text id="stN2" x="452" y="176" class="s"></text>
+      </g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">① 장비 고르기</span>
+      <button id="gAll" aria-pressed="true">전체</button>
+      <button id="gModem" aria-pressed="false">모뎀</button>
+      <button id="gRouter" aria-pressed="false">라우터 (공유기)</button>
+      <button id="gSwitch" aria-pressed="false">스위치</button>
+      <button id="gWan" aria-pressed="false">WAN · LAN</button>
+      <button id="gIp" aria-pressed="false">ipTIME 한 대 안에는?</button>
+    </div>
+    <div class="buttons"><span class="cap">② 꺼 보기</span>
+      <button id="fNone" aria-pressed="true">다 켜짐</button>
+      <button id="fLte" aria-pressed="false">LTE 끊김</button>
+      <button id="fBoth" aria-pressed="false">LTE · 스타링크 다 끊김</button>
+      <button id="fRouter" aria-pressed="false">라우터 꺼짐</button>
+      <button id="fSwitch" aria-pressed="false">스위치 꺼짐</button>
+    </div>
+    <p class="say" id="say"></p>
+  </div>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. 배 안 장비의 수와 자리는 그림용이다(실제 구성은 <a href="04-usv-system.html">03 구성도</a>).</p>
+
+  <h2>2. 무엇인가</h2>
+  <table>
+    <tr><th>이름</th><th>회사 그림</th><th>하는 일</th><th>모르는 것</th></tr>
+    <tr><td><b>모뎀</b></td><td>바깥 도로와 건물을 잇는 <b>진입로</b></td><td>바깥 길(LTE 전파 · 위성 · 전화선 · 광케이블)의 신호를 건물 안 <b>랜선 말</b>로 바꿔 준다</td><td>안쪽 자리를 나누지 않는다 — 장비 하나만 꽂힌다</td></tr>
+    <tr><td><b>라우터</b><br>(공유기)</td><td>건물 <b>정문</b> + 안내 데스크</td><td>바깥 번지(외부 IP) 하나를 안쪽 여러 자리가 <b>나눠 쓰게</b> 한다. 자리 번호 배정(DHCP), 안내 데스크(포트포워딩), 안 ↔ 밖 길 고르기</td><td>—</td></tr>
+    <tr><td><b>스위치</b></td><td>건물 안 <b>복도</b></td><td>같은 건물 장비끼리 선으로 <b>이어 주기만</b> 한다. 구멍(포트) 수만큼 꽂는다</td><td>바깥을 모른다 · 번호를 나눠 주지 않는다</td></tr>
+    <tr><td><b>WAN</b> · <b>LAN</b></td><td>건물 <b>밖</b> · 건물 <b>안</b></td><td>WAN = 넓은 망(인터넷 쪽), LAN = 근거리 망(안쪽 복도). 라우터 구멍도 WAN 1개 · LAN 여러 개로 나뉜다</td><td>장비 이름이 아니라 <b>구역 이름</b></td></tr>
+    <tr><td><b>랜선</b> · 이더넷</td><td>복도 <b>바닥 길</b></td><td>장비와 장비를 잇는 유선. "이더넷"은 그 방식 이름</td><td>—</td></tr>
+  </table>
+
+  <h2>3. 이름이 헷갈리는 까닭</h2>
+  <ul>
+    <li><b>공유기</b>는 "인터넷을 <b>나눠 쓰게</b> 해 주는 기계"라는 한국식 이름이다. 정식 이름은 <b>라우터</b>. ipTIME 이 대표적인 공유기 회사다.</li>
+    <li>집 · 사무실 공유기 한 대 안에는 <b>라우터 + 작은 스위치 + 와이파이</b>가 같이 들어 있다. 뒤의 노란 랜 포트 4개가 그 작은 스위치다. 그래서 "공유기"라고 하면 셋을 다 뜻하는 경우가 많다.</li>
+    <li><b>WAN · LAN</b> 은 장비가 아니라 <b>구역</b> 이름이다. 라우터 = WAN(밖)과 LAN(안)의 경계. 스위치 · 장비는 다 LAN 쪽. "랜선"은 LAN 에 쓰는 선이라 붙은 이름.</li>
+    <li><b>모뎀</b>은 보통 따로 있다 — 통신사가 준 상자, LTE 라우터 안의 유심 칸, 스타링크 접시와 상자.</li>
+    <li>배처럼 장비가 많으면 복도(스위치)를 <b>따로 큰 것</b>으로 둔다. 그래서 구성도에 라우터와 스위치가 따로 그려진다.</li>
+  </ul>
+
+  <h2>4. 꺼 보면 보이는 것</h2>
+  <table>
+    <tr><th>꺼진 것</th><th>배 안끼리</th><th>육상 관제실</th><th>왜</th></tr>
+    <tr><td>LTE 하나</td><td class="ok">됨</td><td class="ok">됨</td><td>이중화 — 스타링크로 돌아 나간다</td></tr>
+    <tr><td>LTE · 스타링크 둘 다</td><td class="ok">됨</td><td class="bad">안 됨</td><td>건물 밖으로 가는 진입로가 다 막혔다</td></tr>
+    <tr><td>라우터</td><td class="ok">됨</td><td class="bad">안 됨</td><td>정문이 닫혔다. 복도(스위치)는 살아 있어 안끼리는 된다</td></tr>
+    <tr><td>스위치</td><td class="bad">안 됨</td><td class="bad">안 됨</td><td>복도가 없어 어느 자리에서도 못 나간다</td></tr>
+  </table>
+  <p class="note">"배 안끼리 됨"은 장비들이 IP 를 고정해 두었을 때 이야기다. 라우터가 자리 번호를 나눠 주는(DHCP) 장비는 라우터가 오래 꺼져 있으면 번호를 다시 못 받는다(<a href="01-domain-portforward.html">01</a> 자리 배정 담당).</p>
+
+  <h2>5. 몸으로 해 보기</h2>
+  <ul>
+    <li>회사 건물을 걸어 본다: 바깥 도로 → <b>진입로(모뎀)</b> → <b>정문(라우터)</b> → <b>복도(스위치)</b> → 내 자리. 정문을 닫아도 복도 안에서는 옆 자리에 갈 수 있다. 복도가 무너지면 아무 데도 못 간다.</li>
+  </ul>
+
+  <div class="check"><b>확인할 것</b> — 배의 이중화 라우터 · 스위치 · LTE · 스타링크 모뎀은 시스템 구성도(2026-06 무인선 개발 진행 현황 자료 45쪽)에 있다. 라우터가 일반 인터넷까지 열어 주는지, 배 안 장비가 IP 를 고정해 두었는지(DHCP 를 쓰는지)는 구성도에 없다 — 그래서 표시판의 인터넷 칸은 <b>?</b> 로 둔다. 장비 그림 · 회사 비유는 이해를 돕기 위한 것이다.</div>
+
+  <h2>6. 원래 자료와 연결하면</h2>
+  <ul class="note">
+    <li>시스템 구성도: 무인선 개발 진행 현황 자료(2026-06) 45쪽 "전체 시스템 구성" — 다음 페이지 <a href="04-usv-system.html">04</a> 에서 그 그림을 회사 그림으로 다시 그린다.</li>
+    <li>지도 관제 설정 <code>SENSOR_SERVER_IP</code> · <code>ENC_SERVER_URL</code> — 배 안 자리 번호(내부 IP) 와 바깥 주소.</li>
+  </ul>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  let gear = 'gAll', fault = 'fNone';
+  const GEAR = {
+    gAll: { on: [], say: '' },
+    gModem: { on: ['mL', 'mS'], say: '<b>모뎀</b> = 진입로. 바깥 길의 신호(LTE 전파, 스타링크 위성)를 건물 안 <b>랜선 말</b>로 바꿔 준다. 우리 배엔 둘 — LTE 모뎀 · 스타링크 모뎀. 모뎀 혼자서는 장비 하나만 꽂을 수 있어 뒤에 라우터가 있어야 한다.' },
+    gRouter: { on: ['rt'], say: '<b>라우터</b> = 정문 + 안내 데스크. 바깥 번지(외부 IP) 하나를 배 안 여러 자리가 나눠 쓰게 하고, 자리 번호 배정(DHCP) · 포트포워딩 · 안 ↔ 밖 길 고르기를 한다. 집 · 사무실용 작은 라우터를 한국에선 <b>공유기</b>라 부른다(ipTIME). 우리 배 것은 바깥 선이 둘 꽂히는 <b>이중화</b> 라우터.' },
+    gSwitch: { on: ['sw'], say: '<b>스위치</b> = 복도. 배 안 장비끼리 선으로 <b>이어 주기만</b> 한다. 번지도 자리 번호도 모르고 나눠 주지도 않는다. 바깥으로 가는 손님은 복도 끝 정문(라우터)으로 보낸다. 구멍(랜 포트) 수만큼 장비를 꽂는다.' },
+    gWan: { on: ['rt', 'mL', 'mS', 'sw'], say: '<b>WAN</b>(<span lang="en">Wide Area Network</span>, 넓은 망) = <b>건물 밖</b> 세상, 곧 인터넷 쪽. <b>LAN</b>(<span lang="en">Local Area Network</span>, 근거리 망) = <b>건물 안</b> 복도. 라우터(정문)는 이 둘의 경계라서 구멍도 둘로 나뉜다 — <b>WAN 구멍</b>에는 모뎀(바깥), <b>LAN 구멍</b>에는 스위치 · 장비(안)를 꽂는다. ipTIME 뒤의 색 다른 구멍 하나가 WAN, 나란한 4개가 LAN.' },
+    gIp: { on: ['rt', 'sw'], say: '사무실의 <b>ipTIME 공유기 한 대</b> 안에는 라우터(정문) + 작은 스위치(뒤 노란 랜 포트 4개) + 와이파이가 같이 들어 있다. 그래서 "공유기"라고 하면 셋을 다 뜻한다. 배는 장비가 많아서 스위치를 따로 큰 것으로 둔다.' },
+  };
+  function state() {
+    const lte = !['fLte', 'fBoth'].includes(fault), star = fault !== 'fBoth';
+    const router = fault !== 'fRouter', sw = fault !== 'fSwitch';
+    return { lte, star, router, sw, inside: sw, vpn: sw && router && (lte || star) };
+  }
+  function draw() {
+    for (const k in GEAR) $(k).setAttribute('aria-pressed', gear === k);
+    for (const k of ['fNone', 'fLte', 'fBoth', 'fRouter', 'fSwitch']) $(k).setAttribute('aria-pressed', fault === k);
+    const s = state(), on = GEAR[gear].on;
+    const off = { mL: !s.lte, mS: !s.star, rt: !s.router, sw: !s.sw };
+    for (const id of ['mL', 'mS', 'rt', 'sw']) {
+      $(id).classList.toggle('on', on.includes(id));
+      $(id).classList.toggle('off', !!off[id]);
+      $(id).classList.toggle('dim', on.length > 0 && !on.includes(id));
+    }
+    for (const d of document.querySelectorAll('.dev')) d.classList.toggle('dim', on.length > 0 || !s.sw);
+    $('ipBox').style.display = gear === 'gIp' ? '' : 'none';
+    $('wanlan').style.display = gear === 'gWan' ? '' : 'none';
+    $('panel').style.display = gear === 'gIp' || gear === 'gWan' ? 'none' : '';
+    $('wL').classList.toggle('cut', !s.lte); $('wLR').classList.toggle('cut', !s.lte || !s.router);
+    $('wS').classList.toggle('cut', !s.star); $('wSR').classList.toggle('cut', !s.star || !s.router);
+    $('wRS').classList.toggle('cut', !s.router || !s.sw); $('wBus').classList.toggle('cut', !s.sw);
+    const mark = (id, v) => { $(id).textContent = v === true ? '✓ 됨' : v === false ? '✕ 안 됨' : '? 설정에 달림'; $(id).setAttribute('fill', v === true ? 'var(--ok)' : v === false ? 'var(--bad)' : 'var(--accent2)'); };
+    mark('st1', s.inside); mark('st2', s.vpn); mark('st3', s.vpn ? null : false);
+    $('stN1').textContent = s.vpn ? '인터넷은 라우터가 열어 줘야 나간다' : '';
+    $('stN2').textContent = s.vpn ? (s.lte ? '' : '스타링크로 돌아 나가는 중 (이중화)') : '';
+    const FS = {
+      fNone: '',
+      fLte: ' <b>LTE 가 끊겨도</b> 라우터가 스타링크로 돌려 보내서 바깥 길이 산다 — 이게 <b>이중화</b>다.',
+      fBoth: ' <b>진입로가 둘 다 막혔다</b> → 육상 관제실로 못 나간다. 배 안 장비끼리는 복도(스위치)로 계속 이야기한다.',
+      fRouter: ' <b>정문(라우터)이 닫혔다</b> → 바깥으로 못 나간다. 복도(스위치)는 살아 있어 배 안끼리는 된다.',
+      fSwitch: ' <b>복도(스위치)가 무너졌다</b> → 배 안끼리도, 바깥도 다 안 된다. 모든 장비가 복도를 지나야 하기 때문.',
+    };
+    $('say').innerHTML = (GEAR[gear].say || '장비를 골라 보세요. 바깥 → <b>모뎀</b>(진입로) → <b>라우터</b>(정문) → <b>스위치</b>(복도) → 장비.') + FS[fault];
+  }
+  for (const k in GEAR) $(k).addEventListener('click', () => { gear = k; draw(); });
+  for (const k of ['fNone', 'fLte', 'fBoth', 'fRouter', 'fSwitch']) $(k).addEventListener('click', () => { fault = k; draw(); });
+  draw();
+
+  // 0절: 전봇대부터 내 PC 까지 (좌표는 그림용)
+  (() => {
+    let zone = 'zHome', step = 'z0';
+    const HI = 'var(--accent)';
+    const STEPS = ['z0', 'z1', 'z2', 'z3', 'z4', 'z5', 'z6'];
+    const badge = (x, y, n, on) => `<g><circle cx="${x}" cy="${y}" r="11" fill="${on ? HI : 'var(--muted)'}"/><text x="${x}" y="${y + 4}" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">${n}</text></g>`;
+    const SAY = {
+      zHome: {
+        z0: '번호 순서대로 따라가 보세요. <b>①~③ 은 눈에 안 보이는 쪽</b>(바깥 · 벽 속), <b>④~⑥ 이 우리가 보는 쪽</b>이다.',
+        z1: '<b>① 전봇대</b> — 통신사(KT · SK) <b>광케이블</b>이 전봇대나 땅속으로 와서 집 벽으로 들어간다. 선 안은 <b>빛</b>이다. 아파트면 지하 통신실을 한 번 거친다.',
+        z2: '<b>② 세대 단자함 · 모뎀</b> — 현관 · 신발장 · 다용도실 <b>벽에 붙은 작은 문</b> 안. 광케이블이 여기서 <b>모뎀</b>에 꽂힌다. 모뎀 = 빛을 <b>랜선 말</b>로 바꾸는 작은 상자. 벽 속이라 평소엔 안 보인다.',
+        z3: '<b>③ 벽 · 바닥 속 선</b> — 모뎀에서 나온 랜선이 <b>벽과 바닥 속</b>을 지나 거실 벽까지 간다. 설치할 때 이미 연결돼 있다. 눈에 안 보인다.',
+        z4: '<b>④ 벽의 네모 랜 단자</b> — 그 선이 거실 벽으로 나온 <b>구멍</b>. 콘센트처럼 구멍만 있고, 뒤에는 ③ 선 한 가닥뿐이다. 여기에 랜선을 꽂으면 벽 속을 지나 모뎀과 이어진 것과 같다.',
+        z5: '<b>⑤ 공유기</b> — 기사님이 주고 간 상자(통신사 로고 · ipTIME). 벽 단자에서 온 랜선을 <b>WAN</b>(색 다른 구멍)에 꽂는다 = "인터넷이 들어오는 곳". 그리고 <b>LAN</b> 구멍 · 와이파이로 집 안에 나눠 준다.',
+        z6: '<b>⑥ PC · TV · 휴대폰</b> — 공유기 <b>LAN</b> 구멍에 PC 와 셋톱박스(TV) 를 랜선으로, 휴대폰은 <b>와이파이</b>로. 셋톱박스는 TV 와 HDMI 로 이어진 "장비"다 — 모뎀이 아니다.',
+      },
+      zShip: {
+        z0: '배도 순서는 같다. 다만 <b>전봇대 대신 전파</b>, <b>벽 단자 없이</b> 장비함 안에서 랜선으로 바로 잇는다.',
+        z1: '<b>① 바깥 선</b> — 배엔 전봇대가 없다. <b>LTE 기지국 전파</b>(휴대폰과 같은)와 <b>스타링크 위성 전파</b>가 바깥 선이다.',
+        z2: '<b>② 모뎀</b> — <b>LTE 모뎀</b>(유심 꽂는 상자)과 <b>스타링크 모뎀</b>(접시 안테나에 이어짐)이 전파를 랜선 말로 바꾼다. 구성도의 LTE · 스타링크 모뎀.',
+        z3: '<b>③ 랜선</b> — 장비함 안에서 모뎀 → 라우터를 랜선으로 <b>바로</b> 잇는다.',
+        z4: '<b>④ 벽 단자</b> — 배엔 따로 없다. 집의 "벽 속 선 + 네모 단자"가 하던 일(랜선 잇기)을 ③ 랜선이 바로 한다.',
+        z5: '<b>⑤ 라우터 (공유기)</b> — 두 모뎀의 랜선이 <b>이중화 라우터의 WAN 둘</b>에 꽂힌다. 하나가 끊기면 다른 쪽으로. 집 공유기와 같은 자리.',
+        z6: '<b>⑥ 스위치 → 장비</b> — 라우터 LAN 에서 <b>스위치</b>(구멍 많은 상자)로, 거기서 PC · Jetson 172 · 레이더로. 장비가 많아 집 공유기의 LAN 구멍 4개로는 모자라서.',
+      },
+    };
+    function home(n) {
+      const on = (k) => n === 0 || n === k;
+      const C = (k, base) => (n !== 0 && n === k ? HI : base);
+      const W = (k, w) => (n !== 0 && n === k ? w + 2 : w);
+      let g = '';
+      // ① 전봇대 + 광케이블
+      g += `<path d="M50 84 V340 M28 98 H72 M34 112 H66" stroke="${C(1, 'var(--text)')}" stroke-width="${W(1, 4)}" fill="none"/>`;
+      g += `<path d="M72 98 C 112 98, 124 168, 166 180" fill="none" stroke="${C(1, 'var(--ok)')}" stroke-width="${W(1, 3)}"/>`;
+      g += `<text x="66" y="350" class="t">전봇대</text><text x="62" y="130" class="s" fill="var(--ok)" font-weight="700">광케이블</text><text x="62" y="144" class="s" fill="var(--ok)">(빛)</text>`;
+      // 집
+      g += `<path d="M112 72 L390 24 L668 72" fill="none" stroke="var(--wall)" stroke-width="4"/>`;
+      g += `<rect x="120" y="72" width="540" height="290" fill="var(--card)" stroke="var(--wall)" stroke-width="4"/>`;
+      g += `<text x="136" y="96" class="t" font-size="13">🏠 우리 집</text>`;
+      g += `<rect x="300" y="72" width="12" height="290" fill="var(--wall)" opacity=".35"/>`;
+      g += `<text x="136" y="116" class="s">현관 · 신발장 쪽</text><text x="326" y="96" class="s">거실</text>`;
+      // ② 단자함 + 모뎀
+      g += `<polygon points="150,150 130,160 130,262 150,252" fill="var(--line)" stroke="var(--text)"/>`;
+      g += `<rect x="150" y="150" width="130" height="102" rx="3" fill="var(--room)" stroke="${C(2, 'var(--text)')}" stroke-width="${W(2, 2)}"/>`;
+      g += `<text x="156" y="144" class="t">세대 단자함</text>`;
+      g += `<rect x="162" y="168" width="106" height="44" rx="5" fill="${n === 2 ? 'var(--hi)' : 'var(--card)'}" stroke="${C(2, 'var(--line)')}" stroke-width="${W(2, 1)}"/>`;
+      g += `<text x="172" y="188" class="t">모뎀</text><text x="172" y="204" class="s">빛 → 랜선 말</text>`;
+      g += `<circle cx="250" cy="182" r="3" fill="var(--ok)"/><circle cx="260" cy="182" r="3" fill="var(--ok)"/>`;
+      g += `<text x="156" y="270" class="s">벽에 붙은 작은 문 안</text>`;
+      // ③ 벽 · 바닥 속 선
+      g += `<path d="M262 212 V326 H306 V254" fill="none" stroke="${C(3, 'var(--muted)')}" stroke-width="${W(3, 3)}" stroke-dasharray="6 5"/>`;
+      g += `<text x="140" y="346" class="s">벽 · 바닥 속 선 (안 보임)</text>`;
+      // ④ 벽 네모 단자 + 내 랜선
+      g += `<rect x="312" y="236" width="26" height="32" rx="3" fill="${n === 4 ? 'var(--hi)' : 'var(--card)'}" stroke="${C(4, 'var(--text)')}" stroke-width="${W(4, 1.5)}"/><rect x="319" y="246" width="12" height="10" fill="var(--text)"/>`;
+      g += `<text x="316" y="290" class="s">벽의 네모</text><text x="316" y="304" class="s">랜 단자</text>`;
+      g += `<path d="M338 252 H368" fill="none" stroke="${C(4, 'var(--eth)')}" stroke-width="${W(4, 3)}"/>`;
+      // ⑤ 공유기
+      g += `<path d="M396 236 V204 M468 236 V204" stroke="var(--text)" stroke-width="3"/>`;
+      g += `<rect x="376" y="236" width="112" height="52" rx="7" fill="${n === 5 ? 'var(--hi)' : 'var(--room)'}" stroke="${C(5, 'var(--line)')}" stroke-width="${W(5, 1)}"/>`;
+      g += `<text x="388" y="257" class="t">공유기</text><text x="388" y="274" class="s">기사님이 주고 감</text>`;
+      g += `<rect x="368" y="246" width="12" height="12" rx="2" fill="var(--accent2)"/><text x="374" y="306" text-anchor="middle" class="s" fill="var(--accent2)" font-weight="700">WAN</text>`;
+      [244, 260, 276].forEach((y) => { g += `<rect x="484" y="${y - 6}" width="10" height="10" rx="2" fill="var(--eth)"/>`; });
+      g += `<text x="489" y="306" text-anchor="middle" class="s" fill="var(--eth)" font-weight="700">LAN</text>`;
+      // ⑥ 장비
+      const c6 = C(6, 'var(--eth)'), w6 = W(6, 3);
+      g += `<path d="M494 244 C 528 244, 530 140, 560 140" fill="none" stroke="${c6}" stroke-width="${w6}"/>`;
+      g += `<rect x="560" y="112" width="74" height="46" rx="4" fill="${n === 6 ? 'var(--hi)' : 'var(--room)'}" stroke="${C(6, 'var(--text)')}" stroke-width="1.5"/><path d="M597 158 V168 M582 168 H612" stroke="var(--text)" stroke-width="2"/><text x="570" y="140" class="t">PC</text>`;
+      g += `<path d="M494 276 C 528 276, 540 301, 572 301" fill="none" stroke="${c6}" stroke-width="${w6}"/>`;
+      g += `<rect x="566" y="214" width="84" height="52" rx="3" fill="#2b2b2b" stroke="${C(6, 'var(--text)')}" stroke-width="1.5"/><text x="608" y="245" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">TV</text>`;
+      g += `<path d="M608 290 V266" stroke="var(--muted)" stroke-width="2"/><text x="614" y="282" class="s">HDMI</text>`;
+      g += `<rect x="572" y="290" width="72" height="22" rx="3" fill="${n === 6 ? 'var(--hi)' : 'var(--room)'}" stroke="${C(6, 'var(--text)')}" stroke-width="1.5"/><text x="580" y="305" class="s">셋톱박스</text>`;
+      g += `<rect x="470" y="112" width="26" height="44" rx="5" fill="${n === 6 ? 'var(--hi)' : 'var(--room)'}" stroke="${C(6, 'var(--text)')}" stroke-width="1.5"/><text x="462" y="174" class="s">휴대폰</text>`;
+      g += `<path d="M454 198 A18 18 0 0 1 482 198 M460 190 A10 10 0 0 1 476 190" fill="none" stroke="${c6}" stroke-width="2"/><text x="490" y="196" class="s">와이파이</text>`;
+      // 번호
+      g += badge(50, 70, 1, on(1)) + badge(290, 140, 2, on(2)) + badge(284, 326, 3, on(3)) + badge(325, 222, 4, on(4)) + badge(500, 226, 5, on(5)) + badge(648, 104, 6, on(6));
+      // 아래: 안 보이는 쪽 / 보이는 쪽
+      g += `<path d="M14 378 H300" stroke="var(--muted)" stroke-width="2" stroke-dasharray="4 4"/><text x="157" y="396" text-anchor="middle" class="s halo" font-weight="700">① ~ ③ 눈에 안 보임</text>`;
+      g += `<path d="M312 378 H660" stroke="var(--eth)" stroke-width="2"/><text x="486" y="396" text-anchor="middle" class="s halo" fill="var(--eth)" font-weight="700">④ ~ ⑥ 우리가 보는 것</text>`;
+      return g;
+    }
+    function ship(n) {
+      const C = (k, base) => (n !== 0 && n === k ? HI : base);
+      const W = (k, w) => (n !== 0 && n === k ? w + 2 : w);
+      const hiFill = (k) => (n === k ? 'var(--hi)' : 'var(--room)');
+      let g = '';
+      g += `<path d="M50 160 L36 262 M50 160 L64 262 M40 226 H60 M42 208 H58" stroke="${C(1, 'var(--text)')}" stroke-width="${W(1, 3)}" fill="none"/><text x="14" y="284" class="t">LTE 기지국</text>`;
+      g += `<g transform="translate(50 62)"><rect x="-6" y="-6" width="12" height="12" fill="var(--card)" stroke="${C(1, 'var(--text)')}" stroke-width="2"/><rect x="-28" y="-4" width="18" height="8" fill="var(--eth)" opacity=".5"/><rect x="10" y="-4" width="18" height="8" fill="var(--eth)" opacity=".5"/></g><text x="10" y="94" class="t">스타링크 위성</text>`;
+      g += `<path d="M64 170 L166 150" fill="none" stroke="${C(1, 'var(--ok)')}" stroke-width="${W(1, 3)}" stroke-dasharray="6 5"/>`;
+      g += `<path d="M78 66 C 120 72, 130 216, 166 222" fill="none" stroke="${C(1, 'var(--ok)')}" stroke-width="${W(1, 3)}" stroke-dasharray="6 5"/><text x="80" y="140" class="s" fill="var(--ok)" font-weight="700">전파</text>`;
+      g += `<rect x="130" y="30" width="536" height="320" rx="10" fill="var(--card)" stroke="var(--wall)" stroke-width="4"/><text x="146" y="54" class="t" font-size="13">🚤 배</text>`;
+      g += `<rect x="150" y="96" width="140" height="176" rx="6" fill="none" stroke="var(--line)" stroke-dasharray="5 4"/><text x="158" y="114" class="s">통신 장비함</text>`;
+      g += `<rect x="166" y="128" width="112" height="44" rx="6" fill="${hiFill(2)}" stroke="${C(2, 'var(--line)')}" stroke-width="${W(2, 1)}"/><text x="176" y="148" class="t">LTE 모뎀</text><text x="176" y="164" class="s">유심 꽂음</text>`;
+      g += `<rect x="166" y="200" width="112" height="44" rx="6" fill="${hiFill(2)}" stroke="${C(2, 'var(--line)')}" stroke-width="${W(2, 1)}"/><text x="176" y="220" class="t">스타링크 모뎀</text><text x="176" y="236" class="s">접시 안테나</text>`;
+      g += `<path d="M278 150 C 320 150, 330 184, 368 184 M278 222 C 320 222, 330 200, 368 200" fill="none" stroke="${C(3, 'var(--eth)')}" stroke-width="${W(3, 3)}"/>`;
+      g += `<text x="300" y="276" class="s">벽 단자 없음 — 바로 연결</text>`;
+      g += `<rect x="376" y="164" width="112" height="56" rx="7" fill="${hiFill(5)}" stroke="${C(5, 'var(--line)')}" stroke-width="${W(5, 1)}"/><text x="388" y="186" class="t">이중화 라우터</text><text x="388" y="204" class="s">= 집의 공유기</text>`;
+      g += `<rect x="368" y="178" width="12" height="12" rx="2" fill="var(--accent2)"/><rect x="368" y="194" width="12" height="12" rx="2" fill="var(--accent2)"/><text x="374" y="236" text-anchor="middle" class="s" fill="var(--accent2)" font-weight="700">WAN</text>`;
+      g += `<rect x="484" y="186" width="10" height="10" rx="2" fill="var(--eth)"/><text x="489" y="236" text-anchor="middle" class="s" fill="var(--eth)" font-weight="700">LAN</text>`;
+      g += `<path d="M494 191 H512" stroke="${C(6, 'var(--eth)')}" stroke-width="${W(6, 3)}"/>`;
+      g += `<rect x="512" y="96" width="34" height="200" rx="5" fill="${hiFill(6)}" stroke="${C(6, 'var(--line)')}" stroke-width="${W(6, 1)}"/><text x="529" y="90" text-anchor="middle" class="s">스위치</text>`;
+      [['PC', 100], ['Jetson 172', 176], ['레이더', 252]].forEach(([t, y]) => {
+        g += `<path d="M546 ${y + 20} H560" stroke="${C(6, 'var(--eth)')}" stroke-width="${W(6, 3)}"/><rect x="560" y="${y}" width="96" height="40" rx="6" fill="${hiFill(6)}" stroke="${C(6, 'var(--line)')}" stroke-width="${W(6, 1)}"/><text x="569" y="${y + 25}" class="t">${t}</text>`;
+      });
+      const on = (k) => n === 0 || n === k;
+      g += badge(50, 140, 1, on(1)) + badge(290, 96, 2, on(2)) + badge(326, 140, 3, on(3)) + badge(500, 156, 5, on(5)) + badge(529, 312, 6, on(6));
+      return g;
+    }
+    function draw0() {
+      for (const k of ['zHome', 'zShip']) $(k).setAttribute('aria-pressed', zone === k);
+      for (const k of STEPS) $(k).setAttribute('aria-pressed', step === k);
+      const ship1 = zone === 'zShip';
+      $('z1').textContent = ship1 ? '① 기지국 · 위성' : '① 전봇대';
+      $('z2').textContent = ship1 ? '② 모뎀 둘' : '② 단자함 · 모뎀';
+      $('z3').textContent = ship1 ? '③ 랜선' : '③ 벽 속 선';
+      $('z4').textContent = ship1 ? '④ (벽 단자 없음)' : '④ 벽 네모 단자';
+      $('z5').textContent = ship1 ? '⑤ 라우터' : '⑤ 공유기';
+      $('z6').textContent = ship1 ? '⑥ 스위치 → 장비' : '⑥ PC · TV · 폰';
+      const n = +step.slice(1);
+      $('pole').innerHTML = ship1 ? ship(n) : home(n);
+      $('say0').innerHTML = SAY[zone][step];
+    }
+    for (const k of ['zHome', 'zShip']) $(k).addEventListener('click', () => { zone = k; draw0(); });
+    for (const k of STEPS) $(k).addEventListener('click', () => { step = k; draw0(); });
+    draw0();
+  })();
+  // 0+절 신호 = 몸통, 데이터 = 내용 (좌표 · 파형은 그림용)
+  (() => {
+    const HI = 'var(--accent)';
+    const BITS = [0, 1, 1, 0, 1, 0, 0, 1];
+    const Y = 150;            // 선 높이
+    const A0 = 120, A1 = 282;  // 바깥 선 구간
+    const B0 = 398, B1 = 558;  // 랜 구간
+    const box = (x, y, w, h, t, sub, col) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="var(--room)" stroke="${col || 'var(--line)'}" stroke-width="${col ? 2.5 : 1}"/><text x="${x + w / 2}" y="${y + h / 2 - 3}" text-anchor="middle" class="t">${t}</text><text x="${x + w / 2}" y="${y + h / 2 + 13}" text-anchor="middle" class="s">${sub}</text>`;
+    const lab = (x, y, t, c, size) => `<text x="${x}" y="${y}" text-anchor="middle" font-size="${size || 11}" font-weight="700" fill="${c}" class="halo" style="stroke:var(--sea)">${t}</text>`;
+    const square = (x0, x1, y, c) => {
+      const w = (x1 - x0) / BITS.length; let d = `M${x0} ${y + 10}`;
+      BITS.forEach((b, i) => { const yy = b ? y - 12 : y + 10; d += ` V${yy} H${x0 + (i + 1) * w}`; });
+      return `<path d="${d} V${y + 10}" fill="none" stroke="${c}" stroke-width="2.5"/>`;
+    };
+    const wave = (x0, x1, y, c, per) => {
+      let d = '';
+      for (let x = x0; x <= x1; x += 2) {
+        const i = Math.min(BITS.length - 1, Math.floor((x - x0) / ((x1 - x0) / BITS.length)));
+        const amp = BITS[i] ? 13 : 5;
+        d += `${d ? ' L' : 'M'}${x} ${(y + Math.sin((x - x0) / per) * amp).toFixed(1)}`;
+      }
+      return `<path d="${d}" fill="none" stroke="${c}" stroke-width="2.2"/>`;
+    };
+    const SRC = {
+      lFiber: { src: ['🏢 통신사', '광케이블'], modem: '빛 → 랜', sig: '빛 깜빡임',
+        draw: () => {
+          const w = (A1 - A0) / BITS.length;
+          let g = `<path d="M${A0} ${Y} H${A1}" stroke="var(--line)" stroke-width="6" stroke-linecap="round"/>`;
+          BITS.forEach((b, i) => { if (b) g += `<rect x="${A0 + i * w + 3}" y="${Y - 5}" width="${w - 6}" height="10" rx="5" fill="var(--accent2)"/><rect x="${A0 + i * w}" y="${Y - 9}" width="${w}" height="18" rx="9" fill="var(--accent2)" opacity=".25"/>`; });
+          return g;
+        },
+        say: '<b>💡 광케이블</b> — 유리 실 속으로 <b>빛이 켜졌다 꺼졌다</b> 한다. 요즘 아파트 · 사무실 인터넷은 대부분 이것. 모뎀(광모뎀)이 빛 깜빡임을 <b>랜 전기 신호</b>로 바꾼다.' },
+      lPhone: { src: ['☎ 전화국', '전화선'], modem: '전화선 신호 → 랜', sig: '전기 물결',
+        draw: () => wave(A0, A1, Y, 'var(--accent2)', 4.2),
+        say: '<b>☎ 전화선</b> — 옛 전화선 위로 <b>전기 물결</b>이 흐르고, 물결의 크기 · 모양에 0 과 1 을 싣는다(예전 ADSL · VDSL). 모뎀이 이 물결을 읽어 <b>랜 신호</b>로 바꾼다.' },
+      lCoax: { src: ['📺 방송사', 'TV 케이블'], modem: 'TV선 신호 → 랜', sig: '빠른 전기 물결',
+        draw: () => wave(A0, A1, Y, 'var(--accent2)', 2.2),
+        say: '<b>📺 TV 케이블</b> — 케이블 방송 굵은 선 위로 <b>더 빠른 전기 물결</b>. 방송 신호와 인터넷 신호가 한 선에 같이 실린다. 케이블 모뎀이 인터넷 몫만 골라 <b>랜 신호</b>로 바꾼다.' },
+      lAir: { src: ['📡 기지국 · 🛰', '선 없음 · 전파'], modem: '전파 → 랜', sig: '전파 (공중)',
+        draw: () => {
+          let g = '';
+          for (let k = 0; k < 4; k++) { const cx = A0 + 18 + k * 40; g += `<path d="M${cx} ${Y - 16} q 12 16 0 32" fill="none" stroke="var(--accent2)" stroke-width="2.5" stroke-linecap="round"/><path d="M${cx + 10} ${Y - 24} q 18 24 0 48" fill="none" stroke="var(--accent2)" stroke-width="2" opacity=".55" stroke-linecap="round"/>`; }
+          return g;
+        },
+        say: '<b>📡 전파</b> — 배에는 선이 없으니 <b>LTE 기지국 · 스타링크 위성의 전파</b>가 공중으로 온다. 전파의 떨림에 0 과 1 이 실려 있고, LTE 모뎀 · 스타링크 모뎀이 받아 <b>랜 신호</b>로 바꿔 이중화 라우터 WAN 에 넘긴다.' },
+    };
+    const VIEW = {
+      vBoth: '',
+      vSig: ' <b>⚡ 몸통(신호)</b>만 보면 왼쪽과 오른쪽 <b>모양이 다르다</b> — 모뎀이 바꿨으니까.',
+      vData: ' <b>📄 내용(데이터)</b>만 보면 양쪽 모두 <b>0 1 1 0 1 0 0 1</b> — 모뎀을 지나도 <b>그대로</b>다. 이걸 모으면 웹페이지 · 해도 이미지가 된다.',
+      vPow: ' <b>🔌 전원</b>은 기계를 <b>켜는 전기</b>라 콘센트에서 <b>따로</b> 들어온다. 데이터를 싣지 않는다. 바깥 선의 신호와는 전혀 다른 것.',
+    };
+    let lk = 'lFiber', vk = 'vBoth';
+    function drawS() {
+      Object.keys(SRC).forEach((id) => $(id).setAttribute('aria-pressed', id === lk));
+      Object.keys(VIEW).forEach((id) => $(id).setAttribute('aria-pressed', id === vk));
+      const S = SRC[lk];
+      const sigOp = vk === 'vData' || vk === 'vPow' ? 0.3 : 1, datOp = vk === 'vSig' || vk === 'vPow' ? 0.3 : 1;
+      let g = '';
+      // 데이터 (내용) 줄
+      const chip = (x0, x1) => {
+        const w = (x1 - x0) / BITS.length;
+        return BITS.map((b, i) => `<rect x="${x0 + i * w + 1}" y="46" width="${w - 2}" height="24" rx="4" fill="var(--card)" stroke="${vk === 'vData' ? HI : 'var(--line)'}" stroke-width="${vk === 'vData' ? 2 : 1}"/><text x="${x0 + i * w + w / 2}" y="63" text-anchor="middle" class="t">${b}</text>`).join('');
+      };
+      g += `<g opacity="${datOp}">`;
+      g += lab(340, 28, '📄 데이터 (내용) — 0 과 1', 'var(--text)', 12);
+      g += chip(A0, A1) + chip(B0, B1);
+      g += lab(340, 63, '= 똑같다', vk === 'vData' ? HI : 'var(--ok)', 12);
+      g += `<path d="M${(A0 + A1) / 2} 74 V${Y - 30} M${(B0 + B1) / 2} 74 V${Y - 30}" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+      g += lab((A0 + A1) / 2, 100, '↓ 실려 감', 'var(--muted)') + lab((B0 + B1) / 2, 100, '↓ 실려 감', 'var(--muted)');
+      g += `</g>`;
+      // 장비
+      g += box(8, Y - 30, 106, 60, S.src[0], S.src[1]);
+      g += box(286, Y - 34, 108, 68, '📦 모뎀', S.modem, HI);
+      g += box(564, Y - 30, 108, 60, '📶 공유기 · PC', '랜 구멍');
+      // 신호 (몸통)
+      g += `<g opacity="${sigOp}">`;
+      g += S.draw();
+      g += `<path d="M${B0} ${Y} H${B1}" stroke="var(--line)" stroke-width="5" stroke-linecap="round"/>` + square(B0, B1, Y, 'var(--eth)');
+      g += lab((A0 + A1) / 2, Y + 44, `⚡ ${S.sig}`, vk === 'vSig' ? HI : 'var(--accent2)', 12);
+      g += lab((B0 + B1) / 2, Y + 44, '⚡ 랜 전기 신호', vk === 'vSig' ? HI : 'var(--eth)', 12);
+      g += lab(340, Y + 52, vk === 'vSig' ? '모양이 바뀜' : '번역', HI, 12);
+      g += `</g>`;
+      // 전원
+      if (vk === 'vPow') {
+        g += `<rect x="190" y="226" width="40" height="30" rx="5" fill="var(--card)" stroke="var(--text)" stroke-width="1.5"/><circle cx="203" cy="241" r="3" fill="var(--text)"/><circle cx="217" cy="241" r="3" fill="var(--text)"/>`;
+        g += `<path d="M230 241 H340 V${Y + 34}" fill="none" stroke="var(--bad)" stroke-width="3"/>`;
+        g += lab(130, 246, '🔌 콘센트', 'var(--text)', 12) + lab(450, 236, '전원 = 기계를 켜는 전기', 'var(--bad)', 12) + lab(450, 254, '데이터는 안 실림', 'var(--bad)', 12);
+      }
+      // 아래 띠
+      const L = vk === 'vPow'
+        ? ['전원선은 기계를 켤 뿐 — 데이터와 상관없다.', '바깥 선에서 오는 건 전원이 아니라 데이터를 실은 신호.']
+        : vk === 'vData'
+          ? ['모뎀을 지나도 데이터(0 1 1 0 1 0 0 1)는 그대로.', '이걸 모으면 웹페이지 · 해도 이미지가 된다.']
+          : ['바깥 선 = 데이터를 실은 신호 (전원 아님). 모뎀 = 신호 모양 번역기.', `${S.sig} → 랜 전기 신호로 바뀌지만, 실린 데이터는 그대로.`];
+      g += `<rect x="12" y="266" width="656" height="48" rx="10" fill="var(--card)" stroke="var(--line)"/>`;
+      g += L.map((t, i) => `<text x="28" y="${285 + i * 20}" class="t">${t}</text>`).join('');
+      $('sigFig').innerHTML = g;
+      $('saySg').innerHTML = S.say + VIEW[vk];
+    }
+    Object.keys(SRC).forEach((id) => $(id).addEventListener('click', () => { lk = id; drawS(); }));
+    Object.keys(VIEW).forEach((id) => $(id).addEventListener('click', () => { vk = id; drawS(); }));
+    drawS();
+  })();
+</script>
+</body>
+</html>

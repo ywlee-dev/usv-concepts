@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>왜 이런 게 다 필요한가 — 우리 집으로 보는 일곱 계단</title>
+<style>
+  :root {
+    --bg: #fafaf8; --card: #ffffff; --text: #1f1f1d; --muted: #6b6a65; --line: #d8d6ce;
+    --link: #185FA5; --accent: #D85A30; --accent2: #BA7517; --ok: #1D9E75; --bad: #d63b3b; --chip-on: #fbe9e2;
+    --sea: #eef3f7; --wall: #8a877e; --room: #f4f1e8; --hi: #fff3c4; --eth: #2f6fb0;
+    --q1: #BA7517; --q2: #2f6fb0; --q3: #1D9E75;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1c1c1a; --card: #262624; --text: #ecebe6; --muted: #a8a69e; --line: #44443f;
+      --link: #85B7EB; --chip-on: #4a2c22; --ok: #4cc79e; --bad: #ef6b6b; --sea: #22303b; --wall: #77746c; --room: #302f2b; --hi: #4a4224;
+      --eth: #7fb0e0; --q1: #e0b050; --q2: #7fb0e0; --q3: #4cc79e; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.7 "Pretendard", "Malgun Gothic", system-ui, sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 4px; }
+  h2 { font-size: 19px; font-weight: 600; margin: 40px 0 6px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .lead { color: var(--muted); margin: 0 0 16px; }
+  .q3box { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 0 24px; }
+  .q3box div { background: var(--card); border: 2px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+  .q3box b { display: block; font-size: 17px; }
+  .q3box span { font-size: 14px; color: var(--muted); }
+  .q1 { color: var(--q1); font-weight: 700; } .q2 { color: var(--q2); font-weight: 700; } .q3 { color: var(--q3); font-weight: 700; }
+  .q3box .q1b { border-color: var(--q1); } .q3box .q2b { border-color: var(--q2); } .q3box .q3b { border-color: var(--q3); }
+  .step { display: grid; grid-template-columns: 340px 1fr; gap: 16px; align-items: start;
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin: 0 0 14px; }
+  .step h3 { margin: 0 0 6px; font-size: 18px; }
+  .step h3 .n { display: inline-block; width: 28px; height: 28px; line-height: 28px; text-align: center; border-radius: 50%; background: var(--accent); color: #fff; font-size: 15px; margin-right: 6px; }
+  .step p { margin: 6px 0; }
+  .step .bad-t { color: var(--bad); font-weight: 700; } .step .ok-t { color: var(--ok); font-weight: 700; }
+  .step .ship { font-size: 14px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 8px; }
+  .step svg { width: 100%; height: auto; display: block; background: var(--sea); border-radius: 10px; }
+  .tog { display: flex; gap: 6px; margin-top: 8px; }
+  button { font: inherit; font-size: 14px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); cursor: pointer; }
+  button:hover { border-color: var(--muted); }
+  button[aria-pressed="true"] { border-color: var(--accent); background: var(--chip-on); font-weight: 600; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; margin-top: 12px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  th:first-child, td:first-child { white-space: nowrap; }
+  .note { font-size: 14px; color: var(--muted); }
+  .check { border: 1px dashed var(--accent2); border-radius: 8px; padding: 10px 12px; font-size: 15px; }
+  .check > b:first-child { color: var(--accent2); }
+  a { color: var(--link); }
+  code { font-size: 14px; }
+  svg text { font-family: inherit; }
+  svg .t { font-size: 12px; font-weight: 700; fill: var(--text); }
+  svg .s { font-size: 10px; fill: var(--muted); }
+  @media (max-width: 640px) {
+    .step { grid-template-columns: 1fr; }
+    .q3box { grid-template-columns: 1fr; }
+    table { font-size: 14px; } th, td { padding: 6px; }
+  }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+  .buttons .cap { font-size: 15px; color: var(--muted); margin-right: 4px; min-width: 6em; }
+  .say { margin: 14px 0 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--bg); border-radius: 0 8px 8px 0; min-height: 3.4em; }
+  .fig { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .fig-hint { display: none; }
+  @media (max-width: 600px) { .fig svg { min-width: 560px; } .fig-hint { display: block; font-size: 13px; color: var(--muted); text-align: center; margin: 4px 0 0; } .buttons .cap { min-width: 0; width: 100%; } }
+  .word { border: 2px solid var(--q2); border-radius: 12px; background: var(--card); padding: 10px 14px; margin: 0 0 14px; }
+  .word-h { margin: 0 0 8px; font-weight: 700; font-size: 17px; }
+  .word-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .word-row div { background: var(--bg); border-radius: 8px; padding: 6px 10px; }
+  .word-row b { display: block; color: var(--q2); font-size: 16px; }
+  .word-row span { font-size: 14px; color: var(--muted); }
+  .word-sum { margin: 8px 0 0; }
+  @media (max-width: 640px) { .word-row { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <p class="note" style="border:1px dashed var(--line);border-radius:8px;padding:6px 10px">공개용 사본 — 외부 IP · 도메인 · 외부 포트 번호는 예시 값(203.0.113.x · example.co.kr · 28080)으로 바꿔 두었다.</p>
+  <p class="note"><a href="index.html">← 네트워크 목록</a> · 다음: <a href="01-domain-portforward.html">도메인 · 포트포워딩 →</a></p>
+  <h1>왜 이런 게 다 필요한가 — 우리 집으로 보는 일곱 계단</h1>
+  <p class="lead">모뎀 · 공유기 · IP · 포트 · DNS · VPN … 이름은 많지만 <b>하는 일은 하나</b>: 떨어진 기계끼리 말을 주고받게 하는 것. 택배처럼 늘 세 가지가 있어야 한다.</p>
+
+  <div class="q3box">
+    <div class="q1b"><b class="q1">🛣 길</b><span>닿게 하기 — 랜선 · 공유기 · 모뎀<br>택배의 도로</span></div>
+    <div class="q2b"><b class="q2">🏷 주소</b><span>누구에게 — IP · 창구 번호 · 이름<br>택배의 주소</span></div>
+    <div class="q3b"><b class="q3">✉ 말</b><span>무슨 말로 — 약속(프로토콜)<br>택배 안 편지 글</span></div>
+  </div>
+
+  <h2 style="border-top:0;margin-top:8px;padding-top:0">먼저 장비 두 대로 — 랜선 하나면 될까?</h2>
+  <p>서버 두 대를 랜선 하나로 잇는다. <b>선만 꽂으면 끝일까?</b> 단계를 눌러 보세요.</p>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 270" role="img" aria-labelledby="ta da">
+      <title id="ta">서버 두 대를 랜선 하나로 이었을 때 — 선, 번호, 창구</title>
+      <desc id="da">왼쪽 서버 A, 오른쪽 서버 B 가 랜선 하나로 이어져 있다. 1단계는 선만 꽂아 랜 구멍 불만 켜지고 번호는 임시(169.254), 2단계는 번호를 손으로 적어 ping 이 되고, 3단계는 B 의 프로그램이 9000번 창구를 열어 A 의 물음에 대답한다.</desc>
+      <rect x="0" y="0" width="680" height="270" rx="12" fill="var(--sea)"/>
+      <g id="twoSrv"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">단계</span>
+      <button id="a1" aria-pressed="true">① 선만 꽂음</button>
+      <button id="a2" aria-pressed="false">② 번호를 손으로 적음</button>
+      <button id="a3" aria-pressed="false">③ 창구 연 프로그램</button>
+    </div>
+    <p class="say" id="sayA"></p>
+  </div>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. 번호(192.168.0.10 · .11 · 169.254.37.12)는 그림용. 옛날엔 컴퓨터끼리 바로 이을 때 "크로스 케이블"이 따로 필요했지만, 요즘 랜 구멍은 알아서 맞춰 보통 랜선이면 된다.</p>
+
+  <h2>IP 주소는 누가 주나?</h2>
+  <p>방법은 둘 — <b>공유기가 나눠 주거나</b>, <b>사람이 직접 적거나</b>. 그 사이에 "예약"이 있고, 아무도 안 주면 임시 번호가 붙는다.</p>
+  <div class="word">
+    <p class="word-h">DHCP = <span lang="en">Dynamic Host Configuration Protocol</span></p>
+    <div class="word-row">
+      <div><b lang="en">Dynamic</b><span>동적 = 그때그때 자동으로</span></div>
+      <div><b lang="en">Host</b><span>네트워크에 붙은 기계 (폰 · PC · 서버)</span></div>
+      <div><b lang="en">Configuration</b><span>설정 (IP 번호 등)</span></div>
+      <div><b lang="en">Protocol</b><span>약속</span></div>
+    </div>
+    <p class="word-sum">→ <b>"켜진 기계에 번호 설정을 그때그때 자동으로 나눠 주는 약속"</b>. 공유기 안에서 이 일을 하는 게 <b>DHCP 서버</b> = 그림의 "자리 배정 담당". 사람이 직접 적는 건 반대로 <b>고정(Static) IP</b>.</p>
+  </div>
+  <div class="card">
+    <div class="fig">
+    <svg width="100%" viewBox="0 0 680 280" role="img" aria-labelledby="tb db">
+      <title id="tb">IP 주소를 받는 네 가지 — 공유기가 줌, 예약, 직접 적음, 못 받음</title>
+      <desc id="db">가운데 위 공유기(자리 배정 담당). 아래에 폰, 노트북, 해도 서버, 선이 빠진 PC. 폰은 공유기에게 번호를 받고, 노트북은 공유기 명부에 예약된 번호를 받고, 해도 서버는 사람이 설정 창에 직접 적은 번호를 쓰고, 선이 빠진 PC 는 169.254 임시 번호가 붙는다.</desc>
+      <rect x="0" y="0" width="680" height="280" rx="12" fill="var(--sea)"/>
+      <g id="ipWho"></g>
+    </svg>
+    </div>
+    <p class="fig-hint">← 그림을 옆으로 밀어 보기 →</p>
+    <div class="buttons"><span class="cap">누가 주나</span>
+      <button id="w0" aria-pressed="true">전체</button>
+      <button id="w1" aria-pressed="false">공유기가 줌 (자동)</button>
+      <button id="w2" aria-pressed="false">예약 (수동 할당)</button>
+      <button id="w3" aria-pressed="false">직접 적음 (고정 IP)</button>
+      <button id="w4" aria-pressed="false">아무도 안 줌</button>
+    </div>
+    <p class="say" id="sayW"></p>
+  </div>
+  <p class="note">설명을 돕기 위한 단순한 그림이다. 폰 .5 · 노트북 .20 은 그림용, 해도 서버 192.168.0.73 은 실제 값. 공유기가 나눠 주는 일을 DHCP 라 한다(<a href="01-domain-portforward.html">01</a> ③ 자리 배정 담당).</p>
+
+  <h2>일곱 계단 — 집에 기계가 늘어날 때마다</h2>
+  <p>아래 일곱 장은 <b>집에 기계가 늘어날 때마다 생기는 불편 하나</b>와 <b>그걸 푼 것 하나</b>다. 그림마다 <b>😣 불편</b> → <b>✅ 해결</b>을 눌러 보세요.</p>
+
+  <div id="steps"></div>
+
+  <p class="note">설명을 돕기 위한 단순한 그림이다. 그림 속 번호(192.168.0.○ 끝자리 · 창구 번호 · naver.com 주소)는 그림용이다. 외부 IP · 도메인 · 바깥 창구 번호는 공개용 예시 값, 해도 서버 안쪽 주소(192.168.0.73:2350)는 실제 값.</p>
+
+  <h2>줄임말 풀이</h2>
+  <table>
+    <tr><th>줄임말</th><th>풀네임</th><th>낱말 뜻</th><th>한 줄로</th></tr>
+    <tr><td><b>IP</b></td><td lang="en">Internet Protocol</td><td>인터넷 · 약속</td><td>기계마다 붙는 <b>번호(주소)</b> 와 그 번호로 보내는 약속</td></tr>
+    <tr><td><b>LAN</b></td><td lang="en">Local Area Network</td><td>가까운 · 구역 · 망</td><td>집 · 배 <b>안쪽</b> 망 — 공유기 LAN 구멍 쪽</td></tr>
+    <tr><td><b>WAN</b></td><td lang="en">Wide Area Network</td><td>넓은 · 구역 · 망</td><td><b>바깥</b> 망(인터넷) — 공유기 WAN 구멍 쪽</td></tr>
+    <tr><td><b>DHCP</b></td><td lang="en">Dynamic Host Configuration Protocol</td><td>그때그때 · 기계 · 설정 · 약속</td><td>공유기가 기계에 <b>번호를 나눠 주는</b> 약속</td></tr>
+    <tr><td><b>DNS</b></td><td lang="en">Domain Name System</td><td>도메인 · 이름 · 체계</td><td><b>이름 → 번호</b> 로 바꿔 주는 전화번호부</td></tr>
+    <tr><td><b>VPN</b></td><td lang="en">Virtual Private Network</td><td>가상의 · 사설(우리끼리) · 망</td><td>인터넷 위에 낸 <b>우리끼리 통로</b></td></tr>
+    <tr><td><b>HTTP</b></td><td lang="en">HyperText Transfer Protocol</td><td>하이퍼텍스트(웹 문서) · 전달 · 약속</td><td>"이거 줘" → "여기" 로 묻고 답하는 <b>웹의 말</b> (<code>/currentgps</code>)</td></tr>
+    <tr><td><b>TCP</b></td><td lang="en">Transmission Control Protocol</td><td>전송 · 관리 · 약속</td><td>빠짐없이 순서대로 가게 챙기는 약속 (관제 9501)</td></tr>
+  </table>
+  <p class="note">끝에 <b>P = Protocol(약속)</b> 이 붙은 것은 "<b>✉ 말</b>"의 이름, <b>N = Network(망)</b> 이 붙은 것은 "<b>🛣 길</b>"의 구역 이름이다.</p>
+
+  <h2>한눈에</h2>
+  <table>
+    <tr><th>계단</th><th>불편</th><th>해결</th><th>무엇</th><th>자세히</th></tr>
+    <tr><td>① 둘이</td><td>두 기계를 이어야</td><td>랜선 하나</td><td class="q1">🛣 길</td><td><a href="03-ports-protocol.html">03</a></td></tr>
+    <tr><td>② 여럿이</td><td>선이 거미줄 · 누구한테?</td><td>공유기 LAN(스위치) + 기계마다 번호(IP)</td><td><span class="q1">🛣 길</span> + <span class="q2">🏷 주소</span></td><td><a href="02-network-gear.html">02</a></td></tr>
+    <tr><td>③ 한 기계에 일 여럿</td><td>기계 안 누구에게?</td><td>창구 번호(포트)</td><td class="q2">🏷 주소</td><td><a href="03-ports-protocol.html">03</a></td></tr>
+    <tr><td>④ 집 밖과</td><td>인터넷에 나가야</td><td>벽 속 모뎀 → 공유기 WAN</td><td class="q1">🛣 길</td><td><a href="02-network-gear.html">02</a></td></tr>
+    <tr><td>⑤ 바깥 손님</td><td>집 주소는 하나 — 안의 누구?</td><td>포트포워딩</td><td class="q2">🏷 주소</td><td><a href="01-domain-portforward.html">01</a></td></tr>
+    <tr><td>⑥ 숫자 대신 이름</td><td>숫자 외우기 어려움</td><td>도메인 · DNS</td><td class="q2">🏷 주소</td><td><a href="01-domain-portforward.html">01</a></td></tr>
+    <tr><td>⑦ 먼 곳과 한 집처럼</td><td>안쪽 번호는 밖에서 안 통함</td><td>VPN 통로</td><td class="q1">🛣 길</td><td><a href="04-usv-system.html">04</a></td></tr>
+  </table>
+  <p>그리고 모든 계단에서 <span class="q3">✉ 말</span>(프로토콜)은 따로 정한다 — 길이 바뀌어도 편지 글은 그대로일 수 있다(<a href="03-ports-protocol.html">03</a>: AIS 문장이 시리얼에서 이더넷으로 갈아탐).</p>
+
+  <h2>막혔을 때 묻는 순서</h2>
+  <ol>
+    <li><b class="q1">🛣 길이 닿나?</b> — 선이 꽂혔나, 랜 구멍 불이 켜졌나, 벽 선이 WAN 에 꽂혔나, 모뎀(LTE · 스타링크)이 살아 있나.</li>
+    <li><b class="q2">🏷 주소가 맞나?</b> — IP · 이름 · 창구 번호가 맞나.</li>
+    <li><b class="q3">✉ 말이 맞나?</b> — 그 창구가 기대한 약속으로 대답하나.</li>
+  </ol>
+  <p class="note">길부터 본다 — 길이 안 닿으면 주소 · 말은 볼 것도 없다. 군산에서 해도가 안 나오면: 172 가 인터넷까지 닿나 → example.co.kr:28080 이 맞나 → 해도 서버가 그림을 주나.</p>
+
+  <h2>지도 관제 설정 파일로 보면</h2>
+  <table>
+    <tr><th>설정</th><th>무엇</th></tr>
+    <tr><td><code>SENSOR_SERVER_IP</code> · <code>ENC_SERVER_URL</code></td><td class="q2">🏷 주소 — 번호(IP) 또는 이름(도메인)</td></tr>
+    <tr><td><code>SENSOR_SERVER_PORT</code> 9000 · 해도 :2350 · <code>TCP_SERVER_PORT</code> 9501</td><td class="q2">🏷 주소 — 그 기계 안 창구 번호</td></tr>
+    <tr><td><code>/currentgps</code> · <code>/latestais</code> · TCP 명령</td><td class="q3">✉ 말 — HTTP · TCP 약속</td></tr>
+    <tr><td>(설정 밖) 랜선 · 스위치 · 라우터 · LTE · 스타링크</td><td class="q1">🛣 길</td></tr>
+  </table>
+
+  <div class="check"><b>확인할 것</b> — 일곱 계단은 이해를 돕기 위해 순서를 붙인 이야기다. 실제 네트워크 역사나 표준 층(OSI 7계층 등)과 1:1 로 맞추지 않았다. 설정 이름 · 주소 모양은 지도 관제 코드에 있다.</div>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  // ── 작은 부품 (좌표는 그림용) ──
+  const box = (x, y, w, h, t, sub, hl) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="${hl ? 'var(--hi)' : 'var(--room)'}" stroke="${hl ? 'var(--accent)' : 'var(--line)'}" stroke-width="${hl ? 2 : 1}"/><text x="${x + w / 2}" y="${y + (sub ? h / 2 - 2 : h / 2 + 4)}" text-anchor="middle" class="t">${t}</text>${sub ? `<text x="${x + w / 2}" y="${y + h / 2 + 12}" text-anchor="middle" class="s">${sub}</text>` : ''}`;
+  const pc = (x, y, t) => `<rect x="${x}" y="${y}" width="54" height="36" rx="3" fill="var(--room)" stroke="var(--text)" stroke-width="1.5"/><path d="M${x + 27} ${y + 36} V${y + 44} M${x + 14} ${y + 44} H${x + 40}" stroke="var(--text)" stroke-width="2"/><text x="${x + 27}" y="${y + 23}" text-anchor="middle" class="t">${t}</text>`;
+  const router = (x, y) => `<path d="M${x + 14} ${y} V${y - 16} M${x + 56} ${y} V${y - 16}" stroke="var(--text)" stroke-width="2.5"/><rect x="${x}" y="${y}" width="70" height="30" rx="6" fill="var(--hi)" stroke="var(--accent)" stroke-width="2"/><text x="${x + 35}" y="${y + 20}" text-anchor="middle" class="t">공유기</text>`;
+  const ln = (d, c, w, dash) => `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w || 2.5}"${dash ? ` stroke-dasharray="${dash}"` : ''} stroke-linecap="round"/>`;
+  const tag = (x, y, t, c) => `<text x="${x}" y="${y}" text-anchor="middle" font-size="11" font-weight="700" fill="${c}" style="paint-order:stroke;stroke:var(--sea);stroke-width:4px">${t}</text>`;
+  const big = (x, y, t, c) => `<text x="${x}" y="${y}" text-anchor="middle" font-size="28" font-weight="700" fill="${c}">${t}</text>`;
+  const person = (x, y) => `<circle cx="${x}" cy="${y}" r="8" fill="var(--card)" stroke="var(--text)" stroke-width="2"/><path d="M${x - 12} ${y + 28} Q${x} ${y + 6} ${x + 12} ${y + 28} Z" fill="var(--card)" stroke="var(--text)" stroke-width="2"/>`;
+  const house = (x, y, w, h, t) => `<path d="M${x - 6} ${y} L${x + w / 2} ${y - 22} L${x + w + 6} ${y}" fill="none" stroke="var(--wall)" stroke-width="3"/><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="var(--card)" stroke="var(--wall)" stroke-width="3"/><text x="${x + 8}" y="${y + 16}" class="s" font-weight="700">${t}</text>`;
+  const cloud = (cx, cy, t) => `<g fill="var(--card)" stroke="var(--line)"><ellipse cx="${cx - 18}" cy="${cy + 4}" rx="22" ry="15"/><ellipse cx="${cx + 16}" cy="${cy + 4}" rx="24" ry="16"/><ellipse cx="${cx}" cy="${cy - 8}" rx="22" ry="16"/></g><text x="${cx}" y="${cy + 6}" text-anchor="middle" class="s" font-weight="700">${t}</text>`;
+  const env = (x, y, t) => `<rect x="${x}" y="${y}" width="30" height="20" rx="2" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><path d="M${x} ${y} L${x + 15} ${y + 11} L${x + 30} ${y}" fill="none" stroke="var(--accent)" stroke-width="2"/>${t ? tag(x + 15, y - 6, t, 'var(--accent)') : ''}`;
+  const R = 'var(--bad)', B = 'var(--eth)', G = 'var(--ok)';
+  const DEV4 = [['PC', 20, 22], ['TV', 246, 22], ['폰', 20, 116], ['노트북', 246, 116]];
+
+  const STEPS = [
+    { t: '둘이 말하기', q: 'q1', qt: '🛣 길',
+      bad: '방에 PC 두 대. 파일을 옮기고 싶은데 <b>이어진 게 없다</b>.',
+      ok: '<b>랜선 하나</b>로 바로 잇는다. 상대가 하나뿐이라 주소는 필요 없다 — 선 하나 = 상대 하나.',
+      ship: '배에서는: GPS · AIS · Compass → PC 가 이렇게 선 하나로 바로 붙어 있다(시리얼).',
+      svg: (ok) => pc(46, 56, 'PC 1') + pc(220, 56, 'PC 2') + (ok ? ln('M100 74 H220', B, 4) + tag(160, 64, '랜선 하나', B) + tag(160, 140, '선 하나 = 상대 하나', G) : big(160, 86, '?', R) + tag(160, 140, '어떻게 이어?', R)) },
+    { t: '여럿이', q: 'q1', qt: '🛣 길 + 🏷 주소',
+      bad: 'PC · TV · 폰 · 노트북. 서로 다 선으로 이으면 <b>거미줄</b>이 되고, 받은 게 <b>누구한테 온 건지</b> 모른다.',
+      ok: '가운데 <b>공유기</b>의 LAN 구멍(= 스위치)에 다 꽂는다. 그리고 공유기가 기계마다 <b>번호(IP)</b>를 나눠 준다 — 192.168.0.2, .3, .4 …',
+      ship: '배에서는: <b>네트워크 스위치</b>에 PC · Jetson 172 · 레이더 · NAS 가 다 꽂히고, 기계마다 192.168.0.○ 번호가 있다.',
+      svg: (ok) => {
+        let g = DEV4.map(([t, x, y]) => box(x, y, 56, 30, t)).join('');
+        if (!ok) {
+          const P = DEV4.map(([, x, y]) => [x + 28, y + 15]);
+          for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) g = ln(`M${P[i][0]} ${P[i][1]} L${P[j][0]} ${P[j][1]}`, R, 2, '4 3') + g;
+          return g + tag(160, 156, '거미줄 · 누구한테 보낸 거지?', R);
+        }
+        g = DEV4.map(([, x, y]) => ln(`M${x + 28} ${y + 15} L160 88`, B, 2.5)).join('') + g + router(125, 73);
+        return g + tag(48, 64, '.2', B) + tag(274, 64, '.3', B) + tag(48, 160, '.4', B) + tag(274, 160, '.5', B);
+      } },
+    { t: '한 기계에 일이 여럿', q: 'q2', qt: '🏷 주소',
+      bad: 'PC 안에서 크롬도 카톡도 돌아간다. 편지가 PC 에 도착했는데 <b>PC 안 누구에게</b> 줄지 모른다.',
+      ok: '주소 뒤에 <b>창구 번호(포트)</b>를 붙인다. "192.168.0.2 의 <b>1번 창구</b> = 크롬, <b>2번 창구</b> = 카톡".',
+      ship: '우리 것: 센서 서버 <b>9000</b>번 창구, 해도 서버 <b>2350</b>번 창구, 지도 관제 TCP <b>9501</b>번 창구.',
+      svg: (ok) => {
+        let g = `<rect x="140" y="20" width="166" height="130" rx="8" fill="var(--card)" stroke="var(--text)" stroke-width="2"/><text x="150" y="38" class="t">PC (.2)</text>`;
+        g += box(152, 70, 66, 50, '크롬', ok ? '창구 1' : '', ok) + box(228, 70, 66, 50, '카톡', ok ? '창구 2' : '', false);
+        if (!ok) return g + env(30, 80) + ln('M62 90 H136', R, 2.5, '4 3') + big(100, 72, '?', R) + tag(80, 140, 'PC 안 누구에게?', R);
+        return g + env(30, 72, '.2 : 창구 1') + ln('M62 82 C 110 82, 120 95, 150 95', G, 3) + tag(80, 140, '주소 + 창구 번호', G);
+      } },
+    { t: '집 밖과', q: 'q1', qt: '🛣 길',
+      bad: '집 안끼리는 되는데 <b>인터넷(집 밖)</b>에는 못 나간다.',
+      ok: '전봇대 → <b>벽 속 단자함의 모뎀</b> → 벽 선 → 공유기 <b>WAN</b> 구멍. 이제 공유기가 집 안 기계들의 인터넷 길을 열어 준다.',
+      ship: '배에서는: LTE · 스타링크 <b>모뎀</b> → 이중화 라우터 <b>WAN</b>. (<a href="02-network-gear.html">02</a> 의 전봇대 그림)',
+      svg: (ok) => {
+        let g = house(120, 40, 190, 120, '우리 집') + router(214, 100) + pc(240, 54, 'PC');
+        g += ln('M249 100 V98', B, 2);
+        if (!ok) return cloud(54, 66, '인터넷') + g + ln('M84 80 L120 104', R, 2.5, '4 3') + big(98, 112, '✕', R) + tag(70, 150, '밖으로 못 나감', R);
+        g = cloud(54, 46, '인터넷') + `<path d="M40 74 V158 M26 84 H54" stroke="var(--text)" stroke-width="3" fill="none"/>` + g;
+        g += ln('M54 84 C 100 84, 110 116, 132 116', G, 3) + box(132, 104, 46, 26, '모뎀', '', true) + ln('M178 117 H208', B, 3);
+        g += `<rect x="207" y="110" width="9" height="9" fill="var(--accent2)"/>` + tag(155, 148, '벽 속', 'var(--muted)') + tag(214, 148, 'WAN', 'var(--accent2)');
+        return g;
+      } },
+    { t: '바깥 손님', q: 'q2', qt: '🏷 주소',
+      bad: '밖에 있는 사람이 우리 집 안의 <b>해도 서버</b>에 오고 싶다. 그런데 밖에서 보이는 건 <b>집 주소(203.0.113.24) 하나</b>뿐 — 안의 누구인지 모른다.',
+      ok: '공유기에 메모를 붙인다: "<b>28080번 창구로 오면 해도 서버로</b>". 이게 <b>포트포워딩</b>. 이번에 회사 공유기에 해 둔 것.',
+      ship: '이번 출장: 172 가 바깥에서 <code>example.co.kr:28080</code> 으로 → 회사 공유기가 해도 서버(192.168.0.73:2350)로 보냄.',
+      svg: (ok) => {
+        let g = house(130, 40, 180, 120, '우리 집 (203.0.113.24)') + router(144, 90) + box(236, 60, 64, 30, 'PC') + box(236, 112, 64, 34, '해도 서버', '', ok);
+        g += person(46, 84);
+        if (!ok) return g + ln('M62 98 H128', R, 2.5, '4 3') + big(98, 88, '?', R) + tag(80, 150, '집 안의 누구?', R);
+        g += ln('M62 98 C 100 98, 110 105, 144 105', G, 3) + tag(98, 88, ':28080', G);
+        g += ln('M214 105 C 225 105, 225 129, 236 129', G, 3);
+        g += `<rect x="140" y="128" width="84" height="22" rx="3" fill="#fff3a8" stroke="var(--accent2)"/><text x="182" y="143" text-anchor="middle" font-size="10" font-weight="700" fill="#5a4a00">28080 → 해도 서버</text>`;
+        return g;
+      } },
+    { t: '숫자 대신 이름', q: 'q2', qt: '🏷 주소',
+      bad: '집 주소가 <b>203.0.113.24</b> 같은 숫자다. 외우기 어렵고, 통신사가 바꾸기도 한다.',
+      ok: '<b>이름(도메인)</b>을 붙인다: <b>example.co.kr</b>. 이름 → 숫자는 <b>전화번호부(DNS)</b>가 알려 준다. naver.com 도 똑같다.',
+      ship: '이번 설정: 172 의 해도 주소를 숫자 대신 <code>example.co.kr</code> 이름으로 적었다.',
+      svg: (ok) => {
+        let g = person(50, 74);
+        if (!ok) return g + `<rect x="92" y="40" width="200" height="54" rx="12" fill="var(--card)" stroke="var(--line)"/><text x="192" y="64" text-anchor="middle" font-size="14" font-weight="700" fill="var(--text)">203.0.113.24 …?</text><text x="192" y="82" text-anchor="middle" class="s">203.0.1… 뭐였더라</text>` + tag(160, 140, '숫자는 외우기 어렵다', R);
+        g += `<rect x="96" y="28" width="212" height="96" rx="8" fill="var(--card)" stroke="var(--q2)" stroke-width="2"/><text x="108" y="48" class="t">📖 DNS (전화번호부)</text>`;
+        g += `<rect x="102" y="56" width="200" height="26" rx="4" fill="var(--hi)"/><text x="110" y="74" font-size="12" font-weight="700" fill="var(--text)">example.co.kr → 203.0.113.24</text>`;
+        g += `<text x="110" y="104" font-size="11" fill="var(--muted)">naver.com → 223.130.○.○</text>`;
+        return g + tag(54, 128, '이름으로 찾음', G) + ln('M66 84 H96', G, 3);
+      } },
+    { t: '먼 곳과 한 집처럼', q: 'q1', qt: '🛣 길',
+      bad: '배와 육상 관제실은 멀리 떨어져 있다. 관제실이 배 안 기계를 <b>안쪽 번호(192.168.0.○)</b>로 부르고 싶은데, 안쪽 번호는 <b>인터넷에서 안 통한다</b>.',
+      ok: '인터넷 위에 <b>전용 통로(VPN)</b>를 낸다. 통로 안에서는 두 곳이 <b>한 집처럼</b> 안쪽 번호로 이야기한다. 집에서 회사 VPN 켜는 것과 같다.',
+      ship: '구성도의 <b>(VPN)</b> 표시가 이것. 통로가 관제실까지만인지, 일반 인터넷까지 열리는지는 라우터 설정에 달렸다(군산에서 물어볼 것).',
+      svg: (ok) => {
+        let g = house(16, 70, 80, 74, '🚤 배') + house(224, 70, 80, 74, '🏢 관제실') + cloud(160, 104, ok ? '' : '인터넷');
+        g += tag(56, 130, '192.168.0.○', 'var(--muted)') + tag(264, 130, '192.168.1.○', 'var(--muted)');
+        if (!ok) return g + ln('M96 130 H224', R, 2.5, '4 3') + big(160, 80, '✕', R) + tag(160, 164, '안쪽 번호는 밖에서 안 통함', R);
+        return g + `<path d="M96 104 H224" stroke="var(--ok)" stroke-width="16" opacity=".35" stroke-linecap="round"/>` + ln('M96 104 H224', G, 3) + tag(160, 82, 'VPN 통로', G) + tag(160, 164, '통로 안에선 한 집처럼', G);
+      } },
+  ];
+
+  const state = STEPS.map(() => false);
+  function render(i) {
+    const s = STEPS[i], ok = state[i];
+    $('svg' + i).innerHTML = s.svg(ok);
+    $('bb' + i).setAttribute('aria-pressed', !ok);
+    $('bo' + i).setAttribute('aria-pressed', ok);
+    $('tx' + i).innerHTML = ok ? `<span class="ok-t">✅ 해결</span> ${s.ok}` : `<span class="bad-t">😣 불편</span> ${s.bad}`;
+  }
+  $('steps').innerHTML = STEPS.map((s, i) => `
+    <div class="step">
+      <div>
+        <svg id="svg${i}" viewBox="0 0 320 170" role="img" aria-label="${i + 1}. ${s.t} — 불편과 해결 그림"></svg>
+        <div class="tog"><button id="bb${i}" aria-pressed="true">😣 불편</button><button id="bo${i}" aria-pressed="false">✅ 해결</button></div>
+      </div>
+      <div>
+        <h3><span class="n">${i + 1}</span>${s.t} <span class="${s.q}" style="font-size:14px">${s.qt}</span></h3>
+        <p id="tx${i}"></p>
+        <p class="ship">${s.ship}</p>
+      </div>
+    </div>`).join('');
+  STEPS.forEach((s, i) => {
+    $('bb' + i).addEventListener('click', () => { state[i] = false; render(i); });
+    $('bo' + i).addEventListener('click', () => { state[i] = true; render(i); });
+    render(i);
+  });
+  // 장비 두 대 · IP 누가 주나 (좌표 · 번호는 그림용)
+  (() => {
+    const HI = 'var(--accent)';
+    const server = (x, label, port) => {
+      let g = `<rect x="${x}" y="50" width="110" height="150" rx="8" fill="var(--room)" stroke="var(--text)" stroke-width="2"/>`;
+      g += `<text x="${x + 55}" y="40" text-anchor="middle" class="t" font-size="14">${label}</text>`;
+      [70, 88, 106].forEach((y) => { g += `<rect x="${x + 14}" y="${y}" width="82" height="10" rx="2" fill="var(--card)" stroke="var(--line)"/>`; });
+      g += `<circle cx="${x + 20}" cy="184" r="4" fill="var(--ok)"/><text x="${x + 30}" y="188" class="s">전원</text>`;
+      return g;
+    };
+    const port = (x, on) => `<rect x="${x}" y="150" width="18" height="16" rx="2" fill="var(--text)"/><rect x="${x + 4}" y="154" width="10" height="8" fill="var(--card)"/>
+      <circle cx="${x + 4}" cy="144" r="3.5" fill="${on ? 'var(--ok)' : 'var(--line)'}"/><circle cx="${x + 14}" cy="144" r="3.5" fill="${on ? 'var(--accent2)' : 'var(--line)'}"/>`;
+    const ipTag = (cx, t, col, sub) => `<rect x="${cx - 70}" y="210" width="140" height="${sub ? 42 : 26}" rx="6" fill="var(--card)" stroke="${col}" stroke-width="2"/><text x="${cx}" y="228" text-anchor="middle" font-size="13" font-weight="700" fill="${col}">${t}</text>${sub ? `<text x="${cx}" y="244" text-anchor="middle" class="s">${sub}</text>` : ''}`;
+    const SAYA = {
+      a1: '<b>① 선만 꽂음</b> — 랜 구멍 옆 <b>초록 · 주황 불</b>이 켜진다 = 선은 이어졌다(<b>🛣 길</b> 있음). 하지만 공유기가 없어 번호를 나눠 줄 사람이 없다. 윈도우가 스스로 <b>169.254.○.○ 임시 번호</b>를 붙인다 — "번호를 못 받았다"는 표시. 아직 서로 부를 수가 없다.',
+      a2: '<b>② 번호를 손으로 적음</b> — 각 서버 네트워크 설정에 A = <b>192.168.0.10</b>, B = <b>192.168.0.11</b> 을 적는다(<b>🏷 주소</b>). <b>앞 세 칸(192.168.0)을 같게</b> = 같은 동네. 이제 A 에서 <code>ping 192.168.0.11</code> → <b>대답이 온다</b>. "닿는다" 확인.',
+      a3: '<b>③ 창구 연 프로그램</b> — B 에서 센서 서버 프로그램이 <b>9000번 창구</b>를 열고 기다린다. A 가 <code>http://192.168.0.11:9000/currentgps</code> 로 물으면 같은 약속(HTTP, <b>✉ 말</b>)으로 위치를 돌려준다. <b>길 + 주소 + 말</b> 이 다 있어야 진짜 통신.',
+    };
+    let a = 'a1';
+    function drawA() {
+      for (const k of ['a1', 'a2', 'a3']) $(k).setAttribute('aria-pressed', a === k);
+      const n = +a.slice(1);
+      let g = server(60, '서버 A') + server(510, '서버 B') + port(170, true) + port(492, true);
+      g += `<path d="M188 158 C 300 158, 380 158, 492 158" fill="none" stroke="var(--eth)" stroke-width="4"/>`;
+      g += `<text x="340" y="184" text-anchor="middle" class="s" fill="var(--eth)" font-weight="700">랜선 하나</text>`;
+      if (n === 1) {
+        g += ipTag(115, '169.254.37.12', 'var(--bad)', '임시 — 번호 못 받음') + ipTag(565, '169.254.80.3', 'var(--bad)', '임시 — 번호 못 받음');
+        g += `<text x="340" y="70" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ok)">💡 불은 켜졌다 (선 OK)</text>`;
+        g += `<text x="340" y="100" text-anchor="middle" font-size="13" font-weight="700" fill="var(--bad)">❓ 그런데 서로 번호를 모른다</text>`;
+      } else {
+        g += ipTag(115, '192.168.0.10', 'var(--eth)', n === 2 ? '✎ 손으로 적음' : '') + ipTag(565, '192.168.0.11', 'var(--eth)', n === 2 ? '✎ 손으로 적음' : '');
+      }
+      if (n === 2) {
+        g += `<path d="M200 106 H480" stroke="var(--ok)" stroke-width="2.5" marker-end="url(#ah0)"/><text x="340" y="96" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text)">ping 192.168.0.11</text>`;
+        g += `<path d="M480 130 H200" stroke="var(--ok)" stroke-width="2.5" marker-end="url(#ah0)"/><text x="340" y="126" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ok)">대답 ✓ (닿는다)</text>`;
+      }
+      if (n === 3) {
+        g += `<rect x="520" y="118" width="90" height="26" rx="4" fill="var(--hi)" stroke="${HI}" stroke-width="2"/><text x="565" y="135" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text)">🚪 9000번 창구</text>`;
+        g += `<path d="M200 82 H500" stroke="${HI}" stroke-width="2.5" marker-end="url(#ah0a)"/><text x="350" y="72" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text)">GET http://192.168.0.11:9000/currentgps</text>`;
+        g += `<path d="M500 116 H200" stroke="var(--ok)" stroke-width="2.5" marker-end="url(#ah0)"/><text x="350" y="108" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ok)">{ 위도 35.08, 경도 129.08 } ✓</text>`;
+        g += `<text x="565" y="112" text-anchor="middle" class="s">센서 서버 프로그램</text>`;
+      }
+      // 아래 체크 줄
+      const ck = (x, t, ok) => `<text x="${x}" y="266" text-anchor="middle" font-size="12" font-weight="700" fill="${ok ? 'var(--ok)' : 'var(--line)'}">${ok ? '✓' : '○'} ${t}</text>`;
+      g += ck(250, '🛣 길', true) + ck(340, '🏷 주소', n >= 2) + ck(430, '✉ 말', n >= 3);
+      $('twoSrv').innerHTML = `<defs><marker id="ah0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="var(--ok)"/></marker><marker id="ah0a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="${HI}"/></marker></defs>` + g;
+      $('sayA').innerHTML = SAYA[a];
+    }
+    for (const k of ['a1', 'a2', 'a3']) $(k).addEventListener('click', () => { a = k; drawA(); });
+    drawA();
+
+    // IP 누가 주나
+    const SAYW = {
+      w0: '네 경우를 한 그림에. 버튼을 눌러 하나씩 보세요. 집 기계 대부분은 <b>공유기가 줌</b>, 서버처럼 번호가 바뀌면 안 되는 기계는 <b>직접 적음</b>.',
+      w1: '<b>공유기가 줌 (자동, DHCP = Dynamic Host Configuration Protocol, 그때그때 자동 설정 약속)</b> — 폰이 와이파이에 붙으며 "번호 주세요" → 공유기 안 <b>자리 배정 담당</b>이 "너는 <b>.5</b>" 하고 준다. 편하지만 껐다 켜면 <b>바뀔 수 있다</b>.',
+      w2: '<b>예약 (수동 할당)</b> — 기계는 자동으로 받는데, 공유기 <b>명부</b>에 "노트북은 늘 <b>.20</b>" 이라고 적어 두어 <b>늘 같은 번호</b>를 준다. ipTIME 메뉴 이름이 "수동 할당".',
+      w3: '<b>직접 적음 (고정 IP)</b> — 사람이 그 기계의 <b>네트워크 설정 창</b>에 "나는 <b>192.168.0.73</b>" 하고 손으로 적는다. 공유기에게 받지 않는다. 다른 기계들이 이 번호로 찾아오니 <b>바뀌면 안 되는 서버</b>는 보통 이렇게 — 해도 서버 .73 처럼 다른 기계가 찾아오는 서버. (172 가 직접 적은 건지 예약인지는 확인 전)',
+      w4: '<b>아무도 안 줌</b> — 선이 빠졌거나 공유기가 꺼져서 받을 데가 없고, 손으로 적지도 않았다 → 윈도우가 스스로 <b>169.254.○.○</b> 을 붙인다. 이 번호가 보이면 "공유기와 연결이 안 됐다"는 뜻.',
+    };
+    let w = 'w0';
+    function drawW() {
+      for (const k of ['w0', 'w1', 'w2', 'w3', 'w4']) $(k).setAttribute('aria-pressed', w === k);
+      const n = +w.slice(1);
+      const on = (k) => n === 0 || n === k;
+      const dim = (k) => (n !== 0 && n !== k ? ' opacity=".3"' : '');
+      let g = '';
+      // 공유기
+      g += `<path d="M276 40 V22 M364 40 V22" stroke="var(--text)" stroke-width="3"/>`;
+      g += `<rect x="250" y="40" width="140" height="54" rx="8" fill="${n === 1 || n === 2 ? 'var(--hi)' : 'var(--room)'}" stroke="${n === 1 || n === 2 ? HI : 'var(--line)'}" stroke-width="${n === 1 || n === 2 ? 2.5 : 1}"/>`;
+      g += `<text x="320" y="62" text-anchor="middle" class="t">공유기</text><text x="320" y="80" text-anchor="middle" class="s">자리 배정 담당 (DHCP)</text>`;
+      // 명부
+      g += `<g${dim(2)}><rect x="40" y="28" width="170" height="62" rx="6" fill="#fff3a8" stroke="var(--accent2)"/><text x="52" y="50" font-size="12" font-weight="700" fill="#5a4a00">📒 명부 (수동 할당)</text><text x="52" y="72" font-size="12" fill="#5a4a00">노트북 → 늘 .20</text></g>`;
+      g += `<path d="M210 60 H250" stroke="var(--accent2)" stroke-width="2" stroke-dasharray="4 3"${dim(2)}/>`;
+      // 장비
+      const dev = (x, wd, t, hl, k) => `<g${dim(k)}><rect x="${x}" y="180" width="${wd}" height="44" rx="6" fill="${hl ? 'var(--hi)' : 'var(--room)'}" stroke="${hl ? HI : 'var(--line)'}" stroke-width="${hl ? 2.5 : 1}"/><text x="${x + wd / 2}" y="207" text-anchor="middle" class="t">${t}</text></g>`;
+      const tagW = (cx, t, col, sub, k) => `<g${dim(k)}><text x="${cx}" y="246" text-anchor="middle" font-size="13" font-weight="700" fill="${col}">${t}</text><text x="${cx}" y="264" text-anchor="middle" class="s">${sub}</text></g>`;
+      // 선 · 화살표
+      g += `<g${dim(1)}><path d="M290 94 L80 180" stroke="${n === 1 ? 'var(--ok)' : 'var(--eth)'}" stroke-width="${n === 1 ? 3.5 : 2}" stroke-dasharray="5 4"/><text x="150" y="128" font-size="11" font-weight="700" fill="var(--ok)">"너는 .5"</text></g>`;
+      g += `<g${dim(2)}><path d="M305 94 L205 180" stroke="${n === 2 ? 'var(--accent2)' : 'var(--eth)'}" stroke-width="${n === 2 ? 3.5 : 2}"/><text x="214" y="150" font-size="11" font-weight="700" fill="var(--accent2)">"늘 .20"</text></g>`;
+      g += `<g${dim(3)}><path d="M340 94 L385 180" stroke="var(--eth)" stroke-width="2"/></g>`;
+      g += `<g${dim(4)}><path d="M390 67 H585 V120" fill="none" stroke="var(--eth)" stroke-width="2"/><path d="M585 150 V180" stroke="var(--eth)" stroke-width="2"/><text x="585" y="141" text-anchor="middle" font-size="16" font-weight="700" fill="var(--bad)">✕</text><text x="600" y="141" class="s">선 빠짐</text></g>`;
+      // 설정 창 (직접 적음)
+      g += `<g${dim(3)}><rect x="420" y="98" width="128" height="58" rx="6" fill="var(--card)" stroke="${n === 3 ? HI : 'var(--line)'}" stroke-width="${n === 3 ? 2.5 : 1.5}"/><text x="430" y="116" font-size="11" font-weight="700" fill="var(--text)">⚙ 네트워크 설정</text><text x="430" y="134" font-size="11" fill="var(--text)">IP 192.168.0.73 ✎</text><text x="430" y="150" class="s">사람이 직접 적음</text></g>`;
+      g += dev(30, 100, '📱 폰', n === 1, 1) + dev(155, 100, '💻 노트북', n === 2, 2) + dev(330, 110, '🖥 해도 서버', n === 3, 3) + dev(520, 130, '🖥 PC', n === 4, 4);
+      g += tagW(80, '.5', 'var(--ok)', '받음 · 바뀔 수 있음', 1) + tagW(205, '.20', 'var(--accent2)', '예약 · 늘 같음', 2) + tagW(385, '.73', 'var(--eth)', '직접 적음 · 늘 같음', 3) + tagW(585, '169.254.○.○', 'var(--bad)', '임시 · 못 받음', 4);
+      $('ipWho').innerHTML = g;
+      $('sayW').innerHTML = SAYW[w];
+    }
+    for (const k of ['w0', 'w1', 'w2', 'w3', 'w4']) $(k).addEventListener('click', () => { w = k; drawW(); });
+    drawW();
+  })();
+</script>
+</body>
+</html>
